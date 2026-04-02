@@ -1,0 +1,74 @@
+services:
+  app:
+    image: tuumik/tuumik:1.0.10
+    depends_on:
+      - mongo
+    restart: unless-stopped
+    environment:
+      ROOT_URL: https://tuumik.example.com
+      MONGO_URL: mongodb://mongo:27017/meteor
+      MONGO_OPLOG_URL: mongodb://mongo:27017/local
+      PORT: 3000
+      TZ: Etc/UTC
+      METEOR_SETTINGS: |
+        {
+          "public": {
+            "email": false,
+            "demoMode": true,
+            "composerLimit": 1000
+          },
+          "private": {
+            "systemEmail": "noreply@exampledomain.com",
+            "monitorEmail": "monitor@exampledomain.com",
+            "disableSignupAfterSignup": false,
+            "tenantDeletionByTenant": true
+          }
+        }
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`tuumik.example.com`)"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.tls.certresolver=letsencrypt"
+      - "traefik.http.services.app.loadbalancer.server.port=3000"
+
+  mongo:
+    image: mongo:6.0.3
+    command: [--replSet, rs0, --port, "27017"]
+    restart: unless-stopped
+    volumes:
+      - ./tuumikdb:/data/db
+
+  traefik:
+    image: traefik:v3
+    restart: unless-stopped
+    ports:
+      # Bind only to the Tailscale interface — app is unreachable outside the tailnet
+      - "${TAILSCALE_IP}:80:80"
+      - "${TAILSCALE_IP}:443:443"
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@exampledomain.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    environment:
+      # Set CF_DNS_API_TOKEN in a .env file next to compose.yml (never hardcode it)
+      CF_DNS_API_TOKEN: ${CF_DNS_API_TOKEN}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+    depends_on:
+      - app
+
+  export:
+    image: tuumik/tuumik-export:1.0.0
+    restart: unless-stopped
+    environment:
+      API_KEY: tuumik
+
+volumes:
+  letsencrypt:

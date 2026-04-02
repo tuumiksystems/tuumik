@@ -4,7 +4,7 @@
   <div class="demo-holder">
     You are viewing Tuumik in a demo environment. We have populated this account with automatically generated sample data to help you assess its features. This includes an organization with
     some user accounts that showcases a law firm with lawyers tracking their work. Please feel free to look around and try out Tuumik's features. This demo environment is meant to be fully
-    disposable - the demo accounts will be automatically deleted after a few days.
+    disposable - the demo accounts will be automatically deleted after a while.
     <div class="account-holder">
       You are currently logged into the following demo account:
       <div>Name: {{ generalStore.user.name }}</div>

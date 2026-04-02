@@ -1,0 +1,42 @@
+services:
+  tuumik:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongo
+    environment:
+      ROOT_URL: ${APP_ROOT_URL:-http://localhost}
+      MONGO_URL: mongodb://mongo:27017/meteor
+      MONGO_OPLOG_URL: mongodb://mongo:27017/local
+      PORT: 3000
+      TZ: Etc/UTC
+      METEOR_SETTINGS: |
+        {
+          "public": {
+            "email": false,
+            "demoMode": true,
+            "composerLimit": 1000
+          },
+          "private": {
+            "systemEmail": "noreply@exampledomain.com",
+            "monitorEmail": "monitor@exampledomain.com",
+            "disableSignupAfterSignup": false,
+            "tenantDeletionByTenant": true
+          }
+        }
+
+  tuumik-export:
+    image: tuumik/tuumik-export:1.0.0
+    ports:
+      - '3001:3000'
+    environment:
+      API_KEY: tuumik
+
+  mongo:
+    image: mongo:6.0.3
+    command: [--replSet, rs0, --port, "27017"]
+    volumes:
+      - ./tuumikdb:/data/db

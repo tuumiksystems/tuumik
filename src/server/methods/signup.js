@@ -36,6 +36,14 @@ Meteor.methods({
       { name: 'Team 2', id: '11' },
     ];
 
+    const initialExportersFront = [
+      { name: 'XLSX', id: '10' },
+    ];
+
+    const initialExportersBack = [
+      { name: 'XLSX', id: '10', url: 'http://export:3000/xlsx1', apiKey: 'abc' },
+    ];
+
     const tenantId = await Tenants.insertAsync({
       name: args.tenant.name,
       email: args.tenant.email,
@@ -51,8 +59,9 @@ Meteor.methods({
       inOutOptions,
       teams: initialTeams,
       homeView: 'default',
-      composerExportersFront: [],
-      composerExportersBack: [],
+      composerExportersFront: initialExportersFront,
+      composerExportersBack: initialExportersBack,
+      exportersIdCounter: 10,
       preventLogin: false,
       createdAt: new Date(),
     });

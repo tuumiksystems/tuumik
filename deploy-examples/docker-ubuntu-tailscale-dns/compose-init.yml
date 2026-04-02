@@ -1,0 +1,10 @@
+services:
+  mongo:
+    image: mongo:6.0.3
+    command: [--replSet, rs0, --port, "27017"]
+    healthcheck:
+      test: test $$(mongosh --port 27017 --quiet --eval "try {rs.initiate({_id:'rs0',members:[{_id:0,host:\"mongo:27017\"}]})} catch(e) {rs.status().ok}") -eq 1
+      interval: 10s
+      start_period: 30s
+    volumes:
+      - ./tuumikdb:/data/db

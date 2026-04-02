@@ -4,9 +4,10 @@ For most use cases it is recommended to deploy Tuumik via Docker. This repositor
 
 ## Deployment via Docker
 
-- [docker-compose-hub](../deploy-examples/docker-compose-hub/) - deploy based on an official image of Tuumik released on Docker Hub
-- [docker-compose-synology](../deploy-examples/docker-compose-synology/) - same as above but with minor changes to deploy Tuumik to a Synology NAS
-- [docker-compose-build](../deploy-examples/docker-compose-build/) - process to build a custom image of Tuumik from source
+- [docker-ubuntu-public](../deploy-examples/docker-ubuntu-public/) - deploy Tuumik on Ubuntu VM, served publicly, TLS via HTTP-01 challenge (recommended setup)
+- [docker-ubuntu-public-dns](../deploy-examples/docker-ubuntu-public-dns/) - deploy Tuumik on Ubuntu VM, served publicly, TLS via DNS-01 challenge
+- [docker-ubuntu-tailscale-dns](../deploy-examples/docker-ubuntu-tailscale-dns/) - deploy Tuumik on Ubuntu VM, served privately via Tailscale VPN, TLS via DNS-01 challenge
+- [docker-build](../deploy-examples/docker-build/) - process to build a custom image of Tuumik from source
 
 ## Deployment via [Meteor Up](https://meteor-up.com)
 
