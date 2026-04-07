@@ -41,7 +41,7 @@ Meteor.methods({
     ];
 
     const initialExportersBack = [
-      { name: 'XLSX', id: '10', url: 'http://export:3000/xlsx1', apiKey: 'abc' },
+      { name: 'XLSX', id: '10', url: 'http://export:3000/xlsx1', apiKey: 'tuumik' },
     ];
 
     const tenantId = await Tenants.insertAsync({
@@ -58,7 +58,7 @@ Meteor.methods({
       trackerStep: 1,
       inOutOptions,
       teams: initialTeams,
-      homeView: 'default',
+      homeView: 'recent',
       composerExportersFront: initialExportersFront,
       composerExportersBack: initialExportersBack,
       exportersIdCounter: 10,

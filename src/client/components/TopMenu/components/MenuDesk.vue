@@ -5,30 +5,30 @@
     <div class="menu-closer"></div>
     <div class="menu-column">
       <div class="column-title">GENERAL</div>
-      <RouterLink v-if="perms.timeTracker" :to="'/day'" class="menu-item">Track Time</RouterLink>
-      <RouterLink v-if="perms.inOutView" :to="'/inout'" class="menu-item">In/Out Board</RouterLink>
-      <RouterLink v-if="perms.monitor" :to="'/teammonitor'" class="menu-item">Team Monitor</RouterLink>
-      <RouterLink :to="'/usermonitor'" class="menu-item">User Monitor</RouterLink>
-      <RouterLink v-if="perms.composer" :to="'/explorer'" class="menu-item">Timesheet Explorer</RouterLink>
-      <RouterLink v-if="perms.catalog" :to="'/assets'" class="menu-item">Clients & Projects</RouterLink>
-      <RouterLink v-if="perms.timeTracker" :to="'/recent'" class="menu-item">My Recent Tasks</RouterLink>
+      <RouterLink v-if="perms.timeTracker" :to="'/day'" :class="{ 'menu-item-on': route.path.startsWith('/day') }" class="menu-item">Track Time</RouterLink>
+      <RouterLink v-if="perms.inOutView" :to="'/inout'" :class="{ 'menu-item-on': route.path.startsWith('/inout') }" class="menu-item">In/Out Board</RouterLink>
+      <RouterLink v-if="perms.monitor" :to="'/teammonitor'" :class="{ 'menu-item-on': route.path.startsWith('/teammonitor') }" class="menu-item">Team Monitor</RouterLink>
+      <RouterLink :to="'/usermonitor'" :class="{ 'menu-item-on': route.path.startsWith('/usermonitor') }" class="menu-item">User Monitor</RouterLink>
+      <RouterLink v-if="perms.composer" :to="'/explorer'" :class="{ 'menu-item-on': route.path.startsWith('/explorer') }" class="menu-item">Timesheet Explorer</RouterLink>
+      <RouterLink v-if="perms.catalog" :to="'/assets'" :class="{ 'menu-item-on': route.path.startsWith('/assets') }" class="menu-item">Clients & Projects</RouterLink>
+      <RouterLink v-if="perms.timeTracker" :to="'/recent'" :class="{ 'menu-item-on': route.path.startsWith('/recent') }" class="menu-item">My Recent Tasks</RouterLink>
     </div>
     <div v-if="perms.admin" class="menu-column">
       <div class="column-title">ADMIN</div>
-      <RouterLink :to="'/admin/settings'" class="menu-item">General Settings</RouterLink>
-      <RouterLink :to="'/admin/users/list'" class="menu-item">User Accounts</RouterLink>
-      <RouterLink :to="'/admin/teams'" class="menu-item">Teams</RouterLink>
-      <RouterLink :to="'/admin/exporters'" class="menu-item">Exporters</RouterLink>
-      <RouterLink :to="'/admin/inoutoptions'" class="menu-item">In/Out Options</RouterLink>
-      <RouterLink :to="'/admin/taskgroups'" class="menu-item">Task Groups</RouterLink>
-      <RouterLink :to="'/admin/subscriptions'" class="menu-item">Subscriptions & Billing</RouterLink>
+      <RouterLink :to="'/admin/settings'" :class="{ 'menu-item-on': route.path.startsWith('/admin/settings') }" class="menu-item">General Settings</RouterLink>
+      <RouterLink :to="'/admin/users/list'" :class="{ 'menu-item-on': route.path.startsWith('/admin/users/list') }" class="menu-item">User Accounts</RouterLink>
+      <RouterLink :to="'/admin/teams'" :class="{ 'menu-item-on': route.path.startsWith('/admin/teams') }" class="menu-item">Teams</RouterLink>
+      <RouterLink :to="'/admin/exporters'" :class="{ 'menu-item-on': route.path.startsWith('/admin/exporters') }" class="menu-item">Exporters</RouterLink>
+      <RouterLink :to="'/admin/inoutoptions'" :class="{ 'menu-item-on': route.path.startsWith('/admin/inoutoptions') }" class="menu-item">In/Out Options</RouterLink>
+      <RouterLink :to="'/admin/taskgroups'" :class="{ 'menu-item-on': route.path.startsWith('/admin/taskgroups') }" class="menu-item">Task Groups</RouterLink>
+      <RouterLink :to="'/admin/subscriptions'" :class="{ 'menu-item-on': route.path.startsWith('/admin/subscriptions') }" class="menu-item">Subscriptions & Billing</RouterLink>
     </div>
     <div class="menu-column">
       <div class="column-title">ACCOUNT</div>
       <RouterLink :to="'/logout'" class="menu-item"> Log out ({{ generalStore.user.name }}) </RouterLink>
-      <RouterLink :to="'/settings'" class="menu-item">Account Settings</RouterLink>
-      <RouterLink :to="'/install'" class="menu-item">Install App</RouterLink>
-      <RouterLink :to="'/about'" class="menu-item">About</RouterLink>
+      <RouterLink :to="'/settings'" :class="{ 'menu-item-on': route.path.startsWith('/settings') }" class="menu-item">Account Settings</RouterLink>
+      <RouterLink :to="'/install'" :class="{ 'menu-item-on': route.path.startsWith('/install') }" class="menu-item">Install App</RouterLink>
+      <RouterLink :to="'/about'" :class="{ 'menu-item-on': route.path.startsWith('/about') }" class="menu-item">About</RouterLink>
     </div>
   </div>
 </template>
@@ -36,8 +36,10 @@
 <script setup>
 import { computed } from 'vue';
 import { useGeneralStore } from '/src/client/stores/general.js';
+import { useRoute } from 'vue-router';
 
 const generalStore = useGeneralStore();
+const route = useRoute();
 
 const perms = computed(() => {
   return generalStore?.user?.permissions || {};
@@ -97,7 +99,7 @@ const perms = computed(() => {
   background-color: #f3f3f3;
 }
 
-.menu-holder .router-link-active {
+.menu-item-on {
   font-weight: 600;
   background-color: #e9e9e9;
 }

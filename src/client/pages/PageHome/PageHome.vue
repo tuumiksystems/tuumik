@@ -3,7 +3,6 @@
 <template>
   <div>
     <HomeDemo v-if="generalStore.settings.demoMode" />
-    <HomeChartTotals v-if="1 === 2" />
   </div>
 </template>
 
@@ -12,13 +11,13 @@ import { onMounted } from 'vue';
 import { useGeneralStore } from '/src/client/stores/general.js';
 import { useRouter } from 'vue-router';
 import HomeDemo from './components/HomeDemo.vue';
-import HomeChartTotals from './components/HomeChartTotals.vue';
 
 const generalStore = useGeneralStore();
 const router = useRouter();
 
 onMounted(() => {
-  if (generalStore.tenant.homeView === 'inOut') router.push('inout');
+  if (generalStore.tenant.homeView === 'inOut') router.push('/inout');
+  if (generalStore.tenant.homeView === 'recent') router.push('/recent');
 });
 </script>
 

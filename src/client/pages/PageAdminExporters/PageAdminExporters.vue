@@ -3,12 +3,10 @@
 <template>
   <div>
     <h1>Exporters</h1>
-    <div v-if="generalStore.settings.demoMode" class="main-pane">
-      This page not available in demo environment.
-    </div>
-    <form v-else class="main-pane" @submit.prevent="saveExporters()">
+    <form class="main-pane" @submit.prevent="saveExporters()">
       <div class="top-menu">
-        <span class="btn" @click="addExporter()">ADD NEW</span>
+        <span class="btn" @click="addExporter()">ADD CUSTOM</span>
+        <span class="btn" @click="addExporterDefaultXLSX()">ADD DEFAULT XLSX</span>
         <span :class="{ 'sel-btn-on': selectedIndex > -1 }" class="btn sel-btn-off" @click="deleteExporter()">DELETE</span>
         <span :class="{ 'sel-btn-on': selectedIndex > 0 }" class="btn sel-btn-off" @click="moveExporterUp()">MOVE UP</span>
         <span :class="{ 'sel-btn-on': selectedIndex > -1 && selectedIndex < exporters.length - 1 }" class="btn sel-btn-off" @click="moveExporterDown()">MOVE DOWN</span>
@@ -27,11 +25,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useGeneralStore } from '/src/client/stores/general.js';
 import { useNotifierStore } from '/src/client/stores/notifier.js';
 import { Meteor } from 'meteor/meteor';
 
-const generalStore = useGeneralStore();
 const notifierStore = useNotifierStore();
 
 const loading = ref(false);
@@ -39,7 +35,7 @@ const exporters = ref([]);
 const selectedIndex = ref(-1);
 
 onMounted(() => {
-  if (!generalStore.settings.demoMode) loadExporters();
+  loadExporters();
 });
 
 async function loadExporters() {
@@ -69,6 +65,11 @@ async function saveExporters() {
 
 function addExporter() {
   const newExporter = { name: '', url: '', apiKey: '' };
+  if (exporters.value.length < 30) exporters.value.push(newExporter);
+}
+
+function addExporterDefaultXLSX() {
+  const newExporter = { name: 'XLSX', url: 'http://export:3000/xlsx1', apiKey: 'tuumik' };
   if (exporters.value.length < 30) exporters.value.push(newExporter);
 }
 

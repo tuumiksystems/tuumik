@@ -1,7 +1,7 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
-import postmark from 'postmark';
+import * as postmark from 'postmark';
 
 const serverToken = process.env.POSTMARK_MAIN_KEY;
 const pmClient = serverToken ? new postmark.ServerClient(serverToken) : undefined;

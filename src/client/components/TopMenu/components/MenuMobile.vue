@@ -4,25 +4,27 @@
   <div :class="{ 'menu-mobile-on': showMenuMob }" class="menu-mobile" @click="$emit('close-menu')">
     <div class="menu-mobile-closer"></div>
     <div class="column-title">GENERAL</div>
-    <RouterLink v-if="perms.timeTracker" :to="'/day'" class="menu-item">Track Time</RouterLink>
-    <RouterLink v-if="perms.inOutView" :to="'/inout'" class="menu-item">In/Out Board</RouterLink>
-    <RouterLink v-if="perms.monitor" :to="'/teammonitor'" class="menu-item">Team Monitor</RouterLink>
-    <RouterLink :to="'/usermonitor'" class="menu-item">User Monitor</RouterLink>
-    <RouterLink v-if="perms.catalog" :to="'/assets'" class="menu-item">Clients & Projects</RouterLink>
-    <RouterLink v-if="perms.timeTracker" :to="'/recent'" class="menu-item">My Recent Tasks</RouterLink>
+    <RouterLink v-if="perms.timeTracker" :to="'/day'" :class="{ 'menu-item-on': route.path.startsWith('/day') }" class="menu-item">Track Time</RouterLink>
+    <RouterLink v-if="perms.inOutView" :to="'/inout'" :class="{ 'menu-item-on': route.path.startsWith('/inout') }" class="menu-item">In/Out Board</RouterLink>
+    <RouterLink v-if="perms.monitor" :to="'/teammonitor'" :class="{ 'menu-item-on': route.path.startsWith('/teammonitor') }" class="menu-item">Team Monitor</RouterLink>
+    <RouterLink :to="'/usermonitor'" :class="{ 'menu-item-on': route.path.startsWith('/usermonitor') }" class="menu-item">User Monitor</RouterLink>
+    <RouterLink v-if="perms.catalog" :to="'/assets'" :class="{ 'menu-item-on': route.path.startsWith('/assets') }" class="menu-item">Clients & Projects</RouterLink>
+    <RouterLink v-if="perms.timeTracker" :to="'/recent'" :class="{ 'menu-item-on': route.path.startsWith('/recent') }" class="menu-item">My Recent Tasks</RouterLink>
     <div class="column-title title-marg">ACCOUNT</div>
     <RouterLink :to="'/logout'" class="menu-item"> Log out ({{ generalStore.user.name }}) </RouterLink>
-    <RouterLink :to="'/settings'" class="menu-item">Account Settings</RouterLink>
-    <RouterLink :to="'/install'" class="menu-item">Install App</RouterLink>
-    <RouterLink :to="'/about'" class="menu-item">About</RouterLink>
+    <RouterLink :to="'/settings'" :class="{ 'menu-item-on': route.path.startsWith('/settings') }" class="menu-item">Account Settings</RouterLink>
+    <RouterLink :to="'/install'" :class="{ 'menu-item-on': route.path.startsWith('/install') }" class="menu-item">Install App</RouterLink>
+    <RouterLink :to="'/about'" :class="{ 'menu-item-on': route.path.startsWith('/about') }" class="menu-item">About</RouterLink>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
 import { useGeneralStore } from '/src/client/stores/general.js';
+import { useRoute } from 'vue-router';
 
 const generalStore = useGeneralStore();
+const route = useRoute();
 
 const props = defineProps({
   showMenuMob: { type: Boolean, required: true },
@@ -83,7 +85,7 @@ const perms = computed(() => {
   display: block;
 }
 
-.menu-mobile .router-link-active {
+.menu-item-on {
   font-weight: 600;
   background-color: #e9e9e9;
 }

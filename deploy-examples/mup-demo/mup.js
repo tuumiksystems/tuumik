@@ -33,7 +33,7 @@ module.exports = {
     enableUploadProgressBar: true,
   },
   mongo: {
-    version: '6.0.3',
+    version: '7.0.16',
     servers: {
       one: {},
     },

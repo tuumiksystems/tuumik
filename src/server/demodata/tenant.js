@@ -1,6 +1,5 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
-import { Meteor } from 'meteor/meteor';
 import { Tenants } from '/src/shared/collections/collections.js';
 import inOutOptions from '/src/server/initdata/inout-options.js';
 
@@ -11,8 +10,13 @@ export default async () => {
     { id: '30', name: 'Employment' },
   ];
 
-  const composerExportersFront = Meteor.settings.private.demoComposerExportersFront || [];
-  const composerExportersBack = Meteor.settings.private.demoComposerExportersBack || [];
+    const initialExportersFront = [
+      { name: 'XLSX', id: '10' },
+    ];
+
+    const initialExportersBack = [
+      { name: 'XLSX', id: '10', url: 'http://export:3000/xlsx1', apiKey: 'tuumik' },
+    ];
 
   const tenantId = await Tenants.insertAsync({
     name: 'Sample Law Firm',
@@ -28,9 +32,9 @@ export default async () => {
     trackerStep: 1,
     inOutOptions,
     teams,
-    homeView: 'charts',
-    composerExportersFront,
-    composerExportersBack,
+    homeView: 'recent',
+    composerExportersFront: initialExportersFront,
+    composerExportersBack: initialExportersBack,
     preventLogin: false,
     demo: true,
     createdAt: new Date(),

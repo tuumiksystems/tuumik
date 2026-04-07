@@ -26,7 +26,7 @@ services:
         }
 
   mongo:
-    image: mongo:6.0.3
+    image: mongo:7.0.16
     command: [--replSet, rs0, --port, "27017"]
     restart: unless-stopped
     volumes:

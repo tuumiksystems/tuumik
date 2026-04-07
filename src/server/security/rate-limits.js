@@ -86,20 +86,6 @@ export default function() {
     {
       type: 'method',
       name(name) {
-        return ['loadHomeChartTotals'].includes(name);
-      },
-      connectionId() {
-        return true;
-      },
-    },
-    20,
-    240000,
-  );
-
-  DDPRateLimiter.addRule(
-    {
-      type: 'method',
-      name(name) {
         return ['createDemo'].includes(name);
       },
       connectionId() {
