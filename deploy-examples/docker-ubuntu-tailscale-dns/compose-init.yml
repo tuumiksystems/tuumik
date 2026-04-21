@@ -7,4 +7,7 @@ services:
       interval: 10s
       start_period: 30s
     volumes:
-      - ./tuumikdb:/data/db
+      - tuumikdb:/data/db
+
+volumes:
+  tuumikdb:

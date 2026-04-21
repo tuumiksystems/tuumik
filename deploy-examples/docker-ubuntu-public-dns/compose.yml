@@ -36,7 +36,7 @@ services:
     command: [--replSet, rs0, --port, "27017"]
     restart: unless-stopped
     volumes:
-      - ./tuumikdb:/data/db
+      - tuumikdb:/data/db
 
   traefik:
     image: traefik:v3
@@ -70,4 +70,5 @@ services:
       API_KEY: tuumik
 
 volumes:
+  tuumikdb:
   letsencrypt:

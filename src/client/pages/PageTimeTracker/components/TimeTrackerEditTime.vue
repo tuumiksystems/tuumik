@@ -3,18 +3,16 @@
 <template>
   <div class="edit-holder">
     <div class="field-holder time-label-holder">
-      <label for="time-start" class="time-label">START</label>
-      <label for="time-end" class="time-label">END</label>
-      <label for="dur-h" class="time-label">HOURS</label>
-      <label for="dur-m" class="time-label">MINUTES</label>
+      <label for="time-start" class="time-label-start-end">START</label>
+      <label for="time-end" class="time-label-start-end">END</label>
+      <label for="dur-text" class="time-label-dur">DURATION</label>
     </div>
     <div class="field-holder">
       <label class="field-label">TIME:</label>
       <div class="time-holder">
         <input id="time-start" :value="startTimeInputValue()" placeholder="START" type="time" step="60" class="time-inp" @blur="saveStartTime($event)" />
         <input id="time-end" :value="endTimeInputValue()" placeholder="END" type="time" step="60" class="time-inp" @blur="saveEndTime($event)" />
-        <input id="dur-h" :value="durHoursInputValue()" placeholder="hours" type="number" min="0" max="23" step="1" @blur="saveDuration()" />
-        <input id="dur-m" :value="durMinutesInputValue()" placeholder="minutes" type="number" min="0" max="59" step="1" @blur="saveDuration()" />
+        <input id="dur-text" :value="durTextInputValue()" placeholder="duration" type="text" @blur="parseAndSaveDuration()" />
       </div>
     </div>
     <div class="field-holder">
@@ -147,7 +145,7 @@ import TimeTrackerSecondary from './TimeTrackerSecondary.vue';
 import TimeTrackerDateEditor from './TimeTrackerDateEditor.vue';
 import AutoComplete from '/src/client/components/AutoComplete/AutoComplete.vue';
 import { Projects } from '/src/shared/collections/collections.js';
-import { minutesToHHMM } from '/src/shared/utils/time.js';
+import { minutesToDuration, minutesToHHMM } from '/src/shared/utils/time.js';
 
 const generalStore = useGeneralStore();
 const notifierStore = useNotifierStore();
@@ -226,14 +224,9 @@ function endTimeInputValue() {
   return minutesToHHMM(props.time.endMinute);
 }
 
-function durHoursInputValue() {
+function durTextInputValue() {
   const minutes = props.time.endMinute - props.time.startMinute;
-  return Math.floor(minutes / 60);
-}
-
-function durMinutesInputValue() {
-  const minutes = props.time.endMinute - props.time.startMinute;
-  return minutes % 60;
+  return minutesToDuration(minutes);
 }
 
 async function saveStartAndEnd(startMinute, endMinute) {
@@ -283,21 +276,38 @@ function saveEndTime(event, setToNow) {
   saveStartAndEnd(startMinute, endMinute);
 }
 
-function saveDuration(fixedMinutes) {
-  let dur = 0;
-  if (!fixedMinutes) {
-    const valInpHours = document.getElementById('dur-h').value;
-    let valHours = Number.parseInt(valInpHours, 10);
-    if (valHours > 23) valHours = 23;
-    if (valHours < 0) valHours = 0;
-    const valInpMinutes = document.getElementById('dur-m').value;
-    let valMinutes = Number.parseInt(valInpMinutes, 10);
-    if (valMinutes > 59) valMinutes = 59;
-    if (valMinutes < 0) valMinutes = 0;
-    dur = valHours * 60 + valMinutes;
+function parseAndSaveDuration() {
+  const raw = document.getElementById('dur-text').value;
+  if (!raw.trim()) return;
+
+  const s = raw.toLowerCase().replace(/,/g, '.').replace(/[^0-9.hm]/g, '');
+
+  const hIdx = s.indexOf('h');
+  const mIdx = s.indexOf('m');
+
+  let minutes = 0;
+  if (hIdx !== -1 && mIdx !== -1) {
+    if (hIdx < mIdx) {
+      minutes = Math.round((Number.parseFloat(s.substring(0, hIdx)) || 0) * 60 + (Number.parseFloat(s.substring(hIdx + 1, mIdx)) || 0));
+    } else {
+      minutes = Math.round((Number.parseFloat(s.substring(0, mIdx)) || 0) + (Number.parseFloat(s.substring(mIdx + 1, hIdx)) || 0) * 60);
+    }
+  } else if (hIdx !== -1) {
+    minutes = Math.round((Number.parseFloat(s.substring(0, hIdx)) || 0) * 60);
+  } else if (mIdx !== -1) {
+    minutes = Math.round(Number.parseFloat(s.substring(0, mIdx)) || 0);
+  } else if (s.includes('.')) {
+    minutes = Math.round((Number.parseFloat(s) || 0) * 60);
   } else {
-    dur = fixedMinutes;
+    const n = Number.parseInt(s, 10) || 0;
+    minutes = n < 6 ? n * 60 : n;
   }
+
+  if (minutes > 0) saveDuration(minutes);
+}
+
+function saveDuration(fixedMinutes) {
+  let dur = fixedMinutes;
   if (dur === 0) dur = 1;
   let endMinute;
   let startMinute;
@@ -576,8 +586,17 @@ onUnmounted(() => {
   margin: 0 0 -0.4em 0;
 }
 
-.time-label {
-  width: 24%;
+.time-label-start-end {
+  width: 30%;
+  font-size: 0.9em;
+  color: #7f7f7f;
+  padding: 0.2em 0;
+  margin: 0 0 -3px 0;
+  text-align: center;
+}
+
+.time-label-dur {
+  width: 36%;
   font-size: 0.9em;
   color: #7f7f7f;
   padding: 0.2em 0;
@@ -591,9 +610,8 @@ onUnmounted(() => {
   justify-content: space-between;
 }
 
-#dur-h,
-#dur-m {
-  width: 24%;
+#dur-text {
+  width: 36%;
   padding-top: 0.65em;
   padding-bottom: 0.65em;
   color: #336600;
@@ -605,7 +623,7 @@ onUnmounted(() => {
 }
 
 .time-inp {
-  width: 24%;
+  width: 30%;
 }
 
 .client-picked {

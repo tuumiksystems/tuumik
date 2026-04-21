@@ -9,10 +9,10 @@ For most use cases it is recommended to deploy Tuumik via Docker. This repositor
 - [docker-ubuntu-tailscale-dns](../deploy-examples/docker-ubuntu-tailscale-dns/) - deploy Tuumik on Ubuntu VM, served privately via Tailscale VPN, TLS via DNS-01 challenge
 - [docker-build](../deploy-examples/docker-build/) - process to build a custom image of Tuumik from source
 
-## Deployment via [Meteor Up](https://meteor-up.com)
+## Automatic backups
 
-- [mup-demo](../deploy-examples/mup-demo/) - deploy Tuumik to a remote server with demo settings via Meteor Up
-- [mup-prod](../deploy-examples/mup-prod/) - deploy Tuumik to a remote server with production settings via Meteor Up
+- [backup-create](../deploy-examples/backups/backup-create.md) - create a cron tab for automatic regular backups
+- [backup-restore](../deploy-examples/backups/backup-restore.md) - restore data from a backup file
 
 ## Local development environment
 

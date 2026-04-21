@@ -39,4 +39,7 @@ services:
     image: mongo:7.0.16
     command: [--replSet, rs0, --port, "27017"]
     volumes:
-      - ./tuumikdb:/data/db
+      - tuumikdb:/data/db
+
+volumes:
+  tuumikdb:

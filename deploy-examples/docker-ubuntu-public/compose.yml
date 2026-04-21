@@ -30,7 +30,7 @@ services:
     command: [--replSet, rs0, --port, "27017"]
     restart: unless-stopped
     volumes:
-      - ./tuumikdb:/data/db
+      - tuumikdb:/data/db
 
   caddy:
     image: caddy:2
@@ -52,5 +52,6 @@ services:
       API_KEY: tuumik
 
 volumes:
+  tuumikdb:
   caddy_data:
   caddy_config:
