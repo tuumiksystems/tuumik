@@ -10,13 +10,15 @@ export default async () => {
     { id: '30', name: 'Employment' },
   ];
 
-    const initialExportersFront = [
-      { name: 'XLSX', id: '10' },
-    ];
+  const initialExportersFront = [
+    { name: 'XLSX', id: '10' },
+    { name: 'PDF', id: '11' },
+  ];
 
-    const initialExportersBack = [
-      { name: 'XLSX', id: '10', url: 'http://export:3000/xlsx1', apiKey: 'tuumik' },
-    ];
+  const initialExportersBack = [
+    { name: 'XLSX', id: '10', url: 'http://export:3000/xlsx1', apiKey: 'tuumik' },
+    { name: 'PDF', id: '11', url: 'http://export:3000/pdf1', apiKey: 'tuumik' },
+  ];
 
   const tenantId = await Tenants.insertAsync({
     name: 'Sample Law Firm',

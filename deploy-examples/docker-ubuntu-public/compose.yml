@@ -1,6 +1,6 @@
 services:
   app:
-    image: tuumik/tuumik:1.0.12
+    image: tuumik/tuumik:1.0.13
     depends_on:
       - mongo
     restart: unless-stopped
@@ -46,7 +46,7 @@ services:
       - app
 
   export:
-    image: tuumik/tuumik-export:1.0.0
+    image: tuumik/tuumik-export:1.0.1
     restart: unless-stopped
     environment:
       API_KEY: tuumik

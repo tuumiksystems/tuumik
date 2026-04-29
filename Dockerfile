@@ -1,15 +1,15 @@
 # https://github.com/disney/meteor-base
 
 # The tag here should match the Meteor version of your app, per .meteor/release
-FROM geoffreybooth/meteor-base:3.1
+FROM geoffreybooth/meteor-base:3.4
 
 # Copy app package.json and package-lock.json into container
-COPY ./app/package*.json $APP_SOURCE_FOLDER/
+COPY package*.json $APP_SOURCE_FOLDER/
 
 RUN bash $SCRIPTS_FOLDER/build-app-npm-dependencies.sh
 
 # Copy app source into container
-COPY ./app $APP_SOURCE_FOLDER/
+COPY . $APP_SOURCE_FOLDER/
 
 RUN bash $SCRIPTS_FOLDER/build-meteor-bundle.sh
 

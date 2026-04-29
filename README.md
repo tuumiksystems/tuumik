@@ -5,7 +5,8 @@ Tuumik is a self-hosted team management platform that provides tools to make in-
 - real time data synchronization, allowing seamless tracking with multiple devices
 - daily or weekly overviews of timesheets either in a text based or visual format
 - flexible search engine to collect timesheet entries based on various search criteria
-- exporting of tracked data into spreadheets for reporting or billing
+- exporting of tracked data into spreadheets or PDFs for reporting or billing
+- built-in spreadsheet template specifically developed for use by law firms for billing
 - in/out board for better team communication
 - optional logging of in/out board data
 
@@ -15,15 +16,27 @@ The easiest way to see Tuumik in action is to visit the live demo at https://dem
 
 Tuumik has been in production use by law firms since 2018.
 
-Tuumik runs on the web and is installable as a PWA on computers and mobile devices. The app is built on Meteor/Node, Vue and MongoDB.
+Tuumik runs on the web and is installable as a PWA on computers and mobile devices.
+
+## Deployment
+
+[Open instructions](/docs/deployment.md) on how to deploy Tuumik in production.
+
+## Development
+
+[Open instructions](/docs/development.md) on how to set up Tuumik locally for development.
 
 ## Documentation
 
 You can find additional documentation in [/docs](docs/).
 
+## Tuumik Export
+
+Tuumik uses [Tuumik Export](https://github.com/tuumiksystems/tuumik-export) to generate files.
+
 ## License
 
-Tuumik is developed by Tuumik Systems OÜ, a company registered in Estonia. Tuumik is protected by copyright. Tuumik uses a "source-available" licensing model - the application's source code is made publicly available, but use of the application requires a commercial license from Tuumik Systems OÜ. To obtain a license to use Tuumik, please contact info@tuumik.com.
+Tuumik is developed by Tuumik Systems OÜ, a company registered in Estonia. Tuumik is protected by copyright. Tuumik uses a "source-available" licensing model - the application's source code is made publicly available, but use of the application requires a license from Tuumik Systems OÜ.
 
 General licensing terms and pricing are available on https://www.tuumik.com.
 

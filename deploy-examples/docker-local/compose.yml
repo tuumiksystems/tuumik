@@ -1,14 +1,13 @@
 services:
-  tuumik:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  app:
+    image: tuumik/tuumik:1.0.13
     ports:
       - '3000:3000'
     depends_on:
       - mongo
+    restart: unless-stopped
     environment:
-      ROOT_URL: ${APP_ROOT_URL:-http://localhost}
+      ROOT_URL: http://localhost
       MONGO_URL: mongodb://mongo:27017/meteor
       MONGO_OPLOG_URL: mongodb://mongo:27017/local
       PORT: 3000
@@ -28,18 +27,18 @@ services:
           }
         }
 
-  tuumik-export:
-    image: tuumik/tuumik-export:1.0.0
-    ports:
-      - '3001:3000'
-    environment:
-      API_KEY: tuumik
-
   mongo:
     image: mongo:7.0.16
     command: [--replSet, rs0, --port, "27017"]
+    restart: unless-stopped
     volumes:
       - tuumikdb:/data/db
+
+  export:
+    image: tuumik/tuumik-export:1.0.1
+    restart: unless-stopped
+    environment:
+      API_KEY: tuumik
 
 volumes:
   tuumikdb:

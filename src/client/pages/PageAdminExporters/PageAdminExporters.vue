@@ -6,10 +6,13 @@
     <form class="main-pane" @submit.prevent="saveExporters()">
       <div class="top-menu">
         <span class="btn" @click="addExporter()">ADD CUSTOM</span>
-        <span class="btn" @click="addExporterDefaultXLSX()">ADD DEFAULT XLSX</span>
         <span :class="{ 'sel-btn-on': selectedIndex > -1 }" class="btn sel-btn-off" @click="deleteExporter()">DELETE</span>
         <span :class="{ 'sel-btn-on': selectedIndex > 0 }" class="btn sel-btn-off" @click="moveExporterUp()">MOVE UP</span>
         <span :class="{ 'sel-btn-on': selectedIndex > -1 && selectedIndex < exporters.length - 1 }" class="btn sel-btn-off" @click="moveExporterDown()">MOVE DOWN</span>
+      </div>
+      <div class="top-menu">
+        <span class="btn" @click="addExporterDefaultXLSX()">ADD DEFAULT XLSX</span>
+        <span class="btn" @click="addExporterDefaultPDF()">ADD DEFAULT PDF</span>
       </div>
       <div v-for="(exporter, index) in exporters" :key="index" :class="{ 'option-box-on': index === selectedIndex }" class="option-box">
         <input v-model="exporter.name" type="text" maxlength="30" placeholder="NAME" class="text-inp" />
@@ -73,6 +76,11 @@ function addExporterDefaultXLSX() {
   if (exporters.value.length < 30) exporters.value.push(newExporter);
 }
 
+function addExporterDefaultPDF() {
+  const newExporter = { name: 'PDF', url: 'http://export:3000/pdf1', apiKey: 'tuumik' };
+  if (exporters.value.length < 30) exporters.value.push(newExporter);
+}
+
 function deleteExporter() {
   if (selectedIndex.value > -1) {
     exporters.value.splice(selectedIndex.value, 1);
@@ -110,6 +118,10 @@ function moveExporterDown() {
 
 .top-menu {
   margin: 0.9em 0;
+}
+
+.top-menu .btn {
+  margin-right: 0.5em;
 }
 
 .sel-btn-off {
