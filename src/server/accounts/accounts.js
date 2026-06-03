@@ -21,8 +21,9 @@ Accounts.onCreateUser((options, user) => {
   if (options.profile.inOutStatus) userDoc.inOutStatus = options.profile.inOutStatus;
   if (options.profile.inTeams) userDoc.inTeams = options.profile.inTeams;
   if (options.profile.pic) userDoc.pic = options.profile.pic;
-  if (options.profile.allowedIpAddresses) userDoc.allowedIpAddresses = options.profile.allowedIpAddresses;
 
+  userDoc.apiKeyCreation = true;
+  userDoc.apiKeys = [];
   userDoc.trackerSimple = options.profile.trackerSimple || true;
   userDoc.defaultClientId = '';
   userDoc.defaultProjectId = '';

@@ -37,7 +37,7 @@ docker load -i tuumik-app.tar
 In your compose.yml file inside the "app" block on the server change the following line:
 
 ```yaml
-image: tuumik/tuumik:1.0.13
+image: tuumik/tuumik:1.1.0
 ```
 
 to this:

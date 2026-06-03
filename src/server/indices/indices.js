@@ -6,6 +6,7 @@ import { TaskGroups, Times, Statuses, Clients, Projects } from '/src/shared/coll
 export default function() {
   Meteor.users.rawCollection().createIndex({ tenantId: 1 });
   Meteor.users.rawCollection().createIndex({ nameNormalized: 1 });
+  Meteor.users.rawCollection().createIndex({ 'apiKeys.id': 1 }, { unique: true, sparse: true });
 
   TaskGroups.rawCollection().createIndex({ tenantId: 1 });
 

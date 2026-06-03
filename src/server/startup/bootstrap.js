@@ -15,7 +15,9 @@ import '/src/server/publications/projects.js';
 import '/src/server/publications/inout.js';
 
 // methods (server side)
+import '/src/server/methods/general.js';
 import '/src/server/methods/signup.js';
+import '/src/server/methods/usersettings.js';
 import '/src/server/methods/demodata.js';
 import '/src/server/methods/autocomplete.js';
 import '/src/server/methods/projectpicker.js';
@@ -45,3 +47,33 @@ import '/src/server/methods/admintermination.js';
 // methods (shared)
 import '/src/shared/methods/timetracker.js';
 import '/src/shared/methods/inout.js';
+
+// api routes
+import '/src/server/api/general.js';
+import '/src/server/api/catalog.js';
+import '/src/server/api/clientadd.js';
+import '/src/server/api/clientview.js';
+import '/src/server/api/clientedit.js';
+import '/src/server/api/projectadd.js';
+import '/src/server/api/projectview.js';
+import '/src/server/api/projectedit.js';
+import '/src/server/api/composer.js';
+import '/src/server/api/recent.js';
+import '/src/server/api/taskgroups.js';
+import '/src/server/api/teammonitor.js';
+import '/src/server/api/timetracker.js';
+import '/src/server/api/usermonitor.js';
+import '/src/server/api/adminexporters.js';
+import '/src/server/api/admininoutoptions.js';
+import '/src/server/api/adminmainsettings.js';
+import '/src/server/api/admintaskgroups.js';
+import '/src/server/api/adminteams.js';
+import '/src/server/api/admintermination.js';
+import '/src/server/api/adminusers.js';
+import '/src/server/api/autocomplete.js';
+import '/src/server/api/demodata.js';
+import '/src/server/api/signup.js';
+import '/src/server/api/times.js';
+import '/src/server/api/inout.js';
+import '/src/server/api/projectpicker.js';
+import '/src/server/api/usersettings.js';

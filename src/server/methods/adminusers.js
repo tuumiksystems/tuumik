@@ -2,96 +2,38 @@
 
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import { Accounts } from 'meteor/accounts-base';
-import { Times, Tenants, Clients, Projects } from '/src/shared/collections/collections.js';
-import { isValidEmailAddress } from '/src/server/utils/validation';
-import normalizeStringForAC from '/src/shared/utils/normalization.js';
+import coreUsersList from '/src/server/core/usersList.js';
+import coreGetUserForEdit from '/src/server/core/getUserForEdit.js';
+import coreAddUser from '/src/server/core/addUser.js';
+import coreSaveUserGeneral from '/src/server/core/saveUserGeneral.js';
+import coreSaveUserUsername from '/src/server/core/saveUserUsername.js';
+import coreSaveUserPassword from '/src/server/core/saveUserPassword.js';
+import coreAddUserEmail from '/src/server/core/addUserEmail.js';
+import coreRemoveUserEmail from '/src/server/core/removeUserEmail.js';
+import coreSendVerifyEmail from '/src/server/core/sendVerifyEmail.js';
+import coreRemoveUser from '/src/server/core/removeUser.js';
+import coreDisableUser from '/src/server/core/disableUser.js';
+import coreEnableUser from '/src/server/core/enableUser.js';
 
 Meteor.methods({
   async usersList() {
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to edit users');
-
-    return Meteor.users
-      .find(
-        { tenantId: user.tenantId },
-        {
-          fields: { name: 1, username: 1, emails: 1, created: 1, disabled: 1 },
-          sort: { disabled: 1, name: 1 },
-        },
-      )
-      .fetchAsync();
+    return await coreUsersList(user);
   },
   async getUserForEdit(userId) {
     check(userId, String);
-
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    const tenant = await Tenants.findOneAsync(user.tenantId);
-    if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to edit users');
-
-    const editedUser = await Meteor.users.findOneAsync(
-      { tenantId: user.tenantId, _id: userId },
-      {
-        fields: {
-          name: 1,
-          pic: 1,
-          emails: 1,
-          inOutShow: 1,
-          username: 1,
-          permissions: 1,
-          trackerSimple: 1,
-          defaultClientId: 1,
-          defaultProjectId: 1,
-          inTeams: 1,
-          created: 1,
-          disabled: 1,
-        },
-      },
-    );
-
-    if (!editedUser) throw new Meteor.Error('404', 'User not found');
-
-    if (editedUser.defaultClientId) {
-      const client = await Clients.findOneAsync(editedUser.defaultClientId);
-      const name = client ? client.name : '';
-      editedUser.defaultClientName = name;
-    } else {
-      editedUser.defaultClientName = '';
-    }
-
-    if (editedUser.defaultProjectId) {
-      const project = await Projects.findOneAsync(editedUser.defaultProjectId);
-      const name = project ? project.name : '';
-      editedUser.defaultProjectName = name;
-    } else {
-      editedUser.defaultProjectName = '';
-    }
-
-    return { editedUser, allowedPermissions: tenant.allowedPermissions };
+    return await coreGetUserForEdit(user, userId);
   },
   async addUser(name, email, password) {
     check(name, String);
     check(email, String);
     check(password, Object);
-
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to edit users');
-    if (!isValidEmailAddress(email)) throw new Meteor.Error('403', 'Unrecognized email format');
-
-    const permissions = {};
-
-    const profile = {
-      tenantId: user.tenantId,
-      name,
-      nameNormalized: normalizeStringForAC(name),
-      permissions,
-    };
-    const createdUserId = await Accounts.createUserAsync({ email, password, profile });
-
-    return createdUserId;
+    return await coreAddUser(user, name, email, password);
   },
   async saveUserGeneral(editedUser) {
     check(editedUser, Object);
@@ -104,163 +46,62 @@ Meteor.methods({
     check(editedUser.defaultProjectId, String);
     check(editedUser.inOutShow, Boolean);
     check(editedUser.inTeams, [String]);
-
+    check(editedUser.apiKeyCreation, Boolean);
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to edit users');
-    const targetUser = await Meteor.users.findOneAsync({ _id: editedUser._id });
-    if (user.tenantId !== targetUser.tenantId) throw new Meteor.Error('403', 'Incorrect tenant');
-
-    const { permissions } = editedUser;
-    const perms = {
-      timeTracker: !!permissions.timeTracker,
-      historyOthers: !!permissions.historyOthers,
-      monitor: !!permissions.monitor,
-      clientsEdit: !!permissions.clientsEdit,
-      projectsEdit: !!permissions.projectsEdit,
-      catalog: !!permissions.catalog,
-      composer: !!permissions.composer,
-      inOutSelf: !!permissions.inOutSelf,
-      inOutView: !!permissions.inOutView,
-      inOutEditOthers: !!permissions.inOutEditOthers,
-      admin: !!permissions.admin,
-    };
-
-    if (user._id === targetUser._id && !perms.admin) {
-      throw new Meteor.Error('403', 'User cannot remove admin from itself');
-    }
-
-    await Meteor.users.updateAsync(
-      { tenantId: user.tenantId, _id: editedUser._id },
-      {
-        $set: {
-          name: editedUser.name,
-          nameNormalized: normalizeStringForAC(editedUser.name),
-          pic: editedUser.pic,
-          permissions: perms,
-          trackerSimple: editedUser.trackerSimple,
-          defaultClientId: editedUser.defaultClientId,
-          defaultProjectId: editedUser.defaultProjectId,
-          inOutShow: editedUser.inOutShow,
-          inTeams: editedUser.inTeams,
-        },
-      },
-    );
+    return await coreSaveUserGeneral(user, editedUser);
   },
   async saveUserUsername(userId, username) {
     check(userId, String);
     check(username, String);
-
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to edit users');
-
-    const targetUser = await Meteor.users.findOneAsync({ _id: userId });
-    if (user.tenantId !== targetUser.tenantId) throw new Meteor.Error('403', 'Incorrect tenant');
-
-    await Accounts.setUsername(userId, username);
+    return await coreSaveUserUsername(user, userId, username);
   },
   async saveUserPassword(userId, password) {
     check(userId, String);
     check(password, Object);
-
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to edit users');
-
-    const targetUser = await Meteor.users.findOneAsync({ _id: userId });
-    if (user.tenantId !== targetUser.tenantId) throw new Meteor.Error('403', 'Incorrect tenant');
-
-    await Accounts.setPasswordAsync(userId, password, { logout: true });
+    return await coreSaveUserPassword(user, userId, password);
   },
   async addUserEmail(userId, email) {
     check(userId, String);
     check(email, String);
-
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to edit users');
-
-    const targetUser = await Meteor.users.findOneAsync({ _id: userId });
-    if (user.tenantId !== targetUser.tenantId) throw new Meteor.Error('403', 'Incorrect tenant');
-
-    await Accounts.addEmailAsync(userId, email);
+    return await coreAddUserEmail(user, userId, email);
   },
   async removeUserEmail(userId, email) {
     check(userId, String);
     check(email, String);
-
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to edit users');
-
-    const targetUser = await Meteor.users.findOneAsync({ _id: userId });
-    if (user.tenantId !== targetUser.tenantId) {
-      throw new Meteor.Error('403', 'Incorrect tenant');
-    }
-
-    await Accounts.removeEmail(userId, email);
+    return await coreRemoveUserEmail(user, userId, email);
   },
   async sendVerifyEmail(userId, email) {
     check(userId, String);
     check(email, String);
-
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
-    if (Meteor.settings.public.demoMode) throw new Meteor.Error('401', 'This feature not available in demo mode');
-
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to edit users');
-
-    const targetUser = await Meteor.users.findOneAsync({ _id: userId });
-    if (user.tenantId !== targetUser.tenantId) throw new Meteor.Error('403', 'Incorrect tenant');
-
-    await Accounts.sendVerificationEmail(userId, email);
+    return await coreSendVerifyEmail(user, userId, email);
   },
   async removeUser(userId) {
     check(userId, String);
-
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to edit users');
-    if (user._id === userId) throw new Meteor.Error('403', 'User cannot delete itself');
-
-    const targetUser = await Meteor.users.findOneAsync({ _id: userId });
-    if (user.tenantId !== targetUser.tenantId) throw new Meteor.Error('403', 'Incorrect tenant');
-
-    const timesExist = await Times.findOneAsync({
-      tenantId: user.tenantId,
-      owner: userId,
-    });
-    if (timesExist) throw new Meteor.Error('403', 'Cannot delete user since it has existing timesheet entries');
-
-    await Meteor.users.removeAsync({ tenantId: user.tenantId, _id: userId });
+    return await coreRemoveUser(user, userId);
   },
   async disableUser(userId) {
     check(userId, String);
-
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to edit users');
-    if (user._id === userId) throw new Meteor.Error('403', 'User cannot disable itself');
-
-    const targetUser = await Meteor.users.findOneAsync({ _id: userId });
-    if (user.tenantId !== targetUser.tenantId) throw new Meteor.Error('403', 'Incorrect tenant');
-
-    const password = String(Math.floor(Math.random() * 100000000000));
-    await Accounts.setPasswordAsync(userId, password, { logout: true });
-
-    await Meteor.users.updateAsync({ tenantId: user.tenantId, _id: userId }, { $set: { disabled: true } });
+    return await coreDisableUser(user, userId);
   },
   async enableUser(userId) {
     check(userId, String);
-
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to edit users');
-
-    const targetUser = await Meteor.users.findOneAsync({ _id: userId });
-    if (user.tenantId !== targetUser.tenantId) throw new Meteor.Error('403', 'Incorrect tenant');
-
-    await Meteor.users.updateAsync({ tenantId: user.tenantId, _id: userId }, { $set: { disabled: false } });
+    return await coreEnableUser(user, userId);
   },
 });

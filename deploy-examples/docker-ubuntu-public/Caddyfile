@@ -1,3 +1,11 @@
 tuumik.example.com {
-	reverse_proxy app:3000
+	handle /mcp {
+		reverse_proxy mcp:3000
+	}
+	handle /mcp/* {
+		reverse_proxy mcp:3000
+	}
+	handle {
+		reverse_proxy app:3000
+	}
 }

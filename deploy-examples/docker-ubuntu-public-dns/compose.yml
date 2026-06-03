@@ -1,6 +1,6 @@
 services:
   app:
-    image: tuumik/tuumik:1.0.13
+    image: tuumik/tuumik:1.1.0
     depends_on:
       - mongo
     restart: unless-stopped
@@ -10,6 +10,7 @@ services:
       MONGO_OPLOG_URL: mongodb://mongo:27017/local
       PORT: 3000
       TZ: Etc/UTC
+      USER_API_KEY_EXPIRY_DAYS: 90
       METEOR_SETTINGS: |
         {
           "public": {
@@ -62,12 +63,26 @@ services:
       - letsencrypt:/letsencrypt
     depends_on:
       - app
+      - mcp
 
   export:
     image: tuumik/tuumik-export:1.0.1
     restart: unless-stopped
     environment:
       API_KEY: tuumik
+
+  mcp:
+    image: tuumik/tuumik-mcp:1.0.0
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      APP_URL: http://app:3000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mcp.rule=Host(`tuumik.example.com`) && (Path(`/mcp`) || PathPrefix(`/mcp/`))"
+      - "traefik.http.routers.mcp.entrypoints=websecure"
+      - "traefik.http.routers.mcp.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mcp.loadbalancer.server.port=3000"
 
 volumes:
   tuumikdb:

@@ -456,3 +456,113 @@ input:focus, textarea:focus, select:focus {
   background-color: #deece7;
 }
 /* /TIME TRACKER HISTORY LISTS */
+
+/* UTILITY CLASSES */
+.ma-05 {
+  margin: 0.5em;
+}
+
+.ma-1 {
+  margin: 1em;
+}
+
+.mt-1 {
+  margin-top: 1em;
+}
+
+.mr-1 {
+  margin-right: 1em;
+}
+
+.mb-1 {
+  margin-bottom: 1em;
+}
+
+.ml-1 {
+  margin-left: 1em;
+}
+
+.ma-2 {
+  margin: 2em;
+}
+
+.mt-2 {
+  margin-top: 2em;
+}
+
+.mr-2 {
+  margin-right: 2em;
+}
+
+.mb-2 {
+  margin-bottom: 2em;
+}
+
+.ml-2 {
+  margin-left: 2em;
+}
+
+.pa-05 {
+  padding: 0.5em;
+}
+
+.pa-1 {
+  padding: 1em;
+}
+
+.pt-1 {
+  padding-top: 1em;
+}
+
+.pr-1 {
+  padding-right: 1em;
+}
+
+.pb-1 {
+  padding-bottom: 1em;
+}
+
+.pl-1 {
+  padding-left: 1em;
+}
+
+.pa-2 {
+  padding: 2em;
+}
+
+.pt-2 {
+  padding-top: 2em;
+}
+
+.pr-2 {
+  padding-right: 2em;
+}
+
+.pb-2 {
+  padding-bottom: 2em;
+}
+
+.pl-2 {
+  padding-left: 2em;
+}
+
+.text-green {
+  color: #31b07f;
+}
+
+.text-orange {
+  color: #ffa500;
+}
+
+.text-brown {
+  color: #a66c00;
+}
+
+.text-red {
+  color: #ff0000;
+}
+
+.text-grey {
+  color: #444444;
+}
+/* /UTILITY CLASSES */

@@ -1,0 +1,46 @@
+/* Copyright (C) 2017-2025 Tuumik Systems OÜ */
+
+import { Meteor } from 'meteor/meteor';
+import { Times, Projects } from '/src/shared/collections/collections.js';
+
+export default async function getTimesForProjectView(user, projectId) {
+  if (!user.permissions.composer) throw new Meteor.Error('403', 'No permission to access tasks');
+
+  const limit = 20;
+  const query = {
+    tenantId: user.tenantId,
+    projectId,
+  };
+
+  if (!user.permissions.historyOthers) query.owner = user._id;
+  if (!user.permissions.composer) query.hideHistory = { $ne: true };
+
+  const timesRes = await Times.find(query, {
+    fields: {
+      date: 1,
+      owner: 1,
+      startMinute: 1,
+      endMinute: 1,
+      taskType: 1,
+      taskDesc: 1,
+      projectId: 1,
+      useTaskType: 1,
+      lastModified: 1,
+    },
+    sort: { date: -1, lastModified: -1 },
+    limit,
+  }).fetchAsync();
+
+  // join owners
+  const ownerIds = [...new Set(timesRes.map(time => time.owner))].sort();
+  const ownersRes = await Meteor.users.find({ tenantId: user.tenantId, _id: { $in: ownerIds } }, { fields: { name: 1 } }).fetchAsync();
+  const timesWithOwnersJoined = timesRes.map(time => {
+    const x = time;
+    const ownerDoc = ownersRes.find(owner => owner._id === time.owner);
+    if (ownerDoc?.name) x.ownerName = ownerDoc.name;
+    return x;
+  });
+  // /join owners
+
+  return timesWithOwnersJoined;
+}

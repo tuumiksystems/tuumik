@@ -2,44 +2,44 @@
 
 import { createRouter, createWebHistory } from 'vue-router';
 
-import PageLogin from '/src/client/pages/PageLogin/PageLogin.vue';
-import PageLoggedOut from '/src/client/pages/PageLoggedOut/PageLoggedOut.vue';
-import PageSignup from '/src/client/pages/PageSignup/PageSignup.vue';
-import PageVerifEmailLink from '/src/client/pages/PageVerifEmailLink/PageVerifEmailLink.vue';
-import PageForgotPsw from '/src/client/pages/PageForgotPsw/PageForgotPsw.vue';
-import PageResetPswLink from '/src/client/pages/PageResetPswLink/PageResetPswLink.vue';
-import PageEnterDemo from '/src/client/pages/PageEnterDemo/PageEnterDemo.vue';
+import PageLogin from '/src/client/pages/Login.vue';
+import PageLoggedOut from '/src/client/pages/LoggedOut.vue';
+import PageSignup from '/src/client/pages/Signup.vue';
+import PageVerifEmailLink from '/src/client/pages/VerifEmailLink.vue';
+import PageForgotPsw from '/src/client/pages/ForgotPsw.vue';
+import PageResetPswLink from '/src/client/pages/ResetPswLink.vue';
+import PageEnterDemo from '/src/client/pages/EnterDemo.vue';
 
-import PageHome from '/src/client/pages/PageHome/PageHome.vue';
-import PageTimeTracker from '/src/client/pages/PageTimeTracker/PageTimeTracker.vue';
-import PageRecent from '/src/client/pages/PageRecent/PageRecent.vue';
-import PageTeamMonitor from '/src/client/pages/PageTeamMonitor/PageTeamMonitor.vue';
-import PageUserMonitor from '/src/client/pages/PageUserMonitor/PageUserMonitor.vue';
-import PageCatalog from '/src/client/pages/PageCatalog/PageCatalog.vue';
-import PageAssets from '/src/client/pages/PageAssets/PageAssets.vue';
-import PageClientAdd from '/src/client/pages/PageClientAdd/PageClientAdd.vue';
-import PageProjectAdd from '/src/client/pages/PageProjectAdd/PageProjectAdd.vue';
-import PageClientView from '/src/client/pages/PageClientView/PageClientView.vue';
-import PageProjectView from '/src/client/pages/PageProjectView/PageProjectView.vue';
-import PageClientEdit from '/src/client/pages/PageClientEdit/PageClientEdit.vue';
-import PageProjectEdit from '/src/client/pages/PageProjectEdit/PageProjectEdit.vue';
-import PageComposer from '/src/client/pages/PageComposer/PageComposer.vue';
-import PageInOut from '/src/client/pages/PageInOut/PageInOut.vue';
-import PageAccount from '/src/client/pages/PageAccount/PageAccount.vue';
-import PageAbout from '/src/client/pages/PageAbout/PageAbout.vue';
-import PageInstall from '/src/client/pages/PageInstall/PageInstall.vue';
+import PageHome from '/src/client/pages/Home.vue';
+import PageTimeTracker from '/src/client/pages/TimeTracker.vue';
+import PageRecent from '/src/client/pages/Recent.vue';
+import PageTeamMonitor from '/src/client/pages/TeamMonitor.vue';
+import PageUserMonitor from '/src/client/pages/UserMonitor.vue';
+import PageCatalog from '/src/client/pages/Catalog.vue';
+import PageAssets from '/src/client/pages/Assets.vue';
+import PageClientAdd from '/src/client/pages/ClientAdd.vue';
+import PageProjectAdd from '/src/client/pages/ProjectAdd.vue';
+import PageClientView from '/src/client/pages/ClientView.vue';
+import PageProjectView from '/src/client/pages/ProjectView.vue';
+import PageClientEdit from '/src/client/pages/ClientEdit.vue';
+import PageProjectEdit from '/src/client/pages/ProjectEdit.vue';
+import PageComposer from '/src/client/pages/Composer.vue';
+import PageInOut from '/src/client/pages/InOut.vue';
+import PageAccount from '/src/client/pages/Account.vue';
+import PageAbout from '/src/client/pages/About.vue';
+import PageInstall from '/src/client/pages/Install.vue';
 
-import PageAdminUsers from '/src/client/pages/PageAdminUsers/PageAdminUsers.vue';
-import PageAdminUserAdd from '/src/client/pages/PageAdminUserAdd/PageAdminUserAdd.vue';
-import PageAdminUserEdit from '/src/client/pages/PageAdminUserEdit/PageAdminUserEdit.vue';
-import PageAdminMainSettings from '/src/client/pages/PageAdminMainSettings/PageAdminMainSettings.vue';
-import PageAdminTaskGroups from '/src/client/pages/PageAdminTaskGroups/PageAdminTaskGroups.vue';
-import PageAdminTeams from '/src/client/pages/PageAdminTeams/PageAdminTeams.vue';
-import PageAdminExporters from '/src/client/pages/PageAdminExporters/PageAdminExporters.vue';
-import PageAdminInOutOptions from '/src/client/pages/PageAdminInOutOptions/PageAdminInOutOptions.vue';
-import PageAdminTaskGroupEdit from '/src/client/pages/PageAdminTaskGroupEdit/PageAdminTaskGroupEdit.vue';
-import PageAdminSubscriptions from '/src/client/pages/PageAdminSubscriptions/PageAdminSubscriptions.vue';
-import PageAdminTerminate from '/src/client/pages/PageAdminTerminate/PageAdminTerminate.vue';
+import PageAdminUsers from '/src/client/pages/AdminUsers.vue';
+import PageAdminUserAdd from '/src/client/pages/AdminUserAdd.vue';
+import PageAdminUserEdit from '/src/client/pages/AdminUserEdit.vue';
+import PageAdminMainSettings from '/src/client/pages/AdminMainSettings.vue';
+import PageAdminTaskGroups from '/src/client/pages/AdminTaskGroups.vue';
+import PageAdminTeams from '/src/client/pages/AdminTeams.vue';
+import PageAdminExporters from '/src/client/pages/AdminExporters.vue';
+import PageAdminInOutOptions from '/src/client/pages/AdminInOutOptions.vue';
+import PageAdminTaskGroupEdit from '/src/client/pages/AdminTaskGroupEdit.vue';
+import PageAdminSubscriptions from '/src/client/pages/AdminSubscriptions.vue';
+import PageAdminTerminate from '/src/client/pages/AdminTerminate.vue';
 
 import { Meteor } from 'meteor/meteor';
 import dayjs from 'dayjs';
@@ -236,7 +236,7 @@ const routes = [
     component: PageComposer,
     meta: {
       requirePermission: 'composer',
-      title: 'Composer',
+      title: 'Timesheet Explorer',
     },
   },
   {
