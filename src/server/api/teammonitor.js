@@ -9,10 +9,12 @@ WebApp.handlers.post('/api/monitor/team', apiHandler(async (req, res) => {
   if (!user) return;
   const { teamId, userId } = req.body;
   const rawDates = req.body.dates;
+  const monitorDate = new Date(rawDates.monitorDate);
+  monitorDate.setUTCHours(0, 0, 0, 1);
   const dates = {
     startLocal: new Date(rawDates.startLocal),
     endLocal: new Date(rawDates.endLocal),
-    monitorDate: new Date(rawDates.monitorDate),
+    monitorDate,
   };
   const result = await teamMonitorLoad(user, dates, teamId, userId);
   res.json(result);

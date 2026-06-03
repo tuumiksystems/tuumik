@@ -1,6 +1,6 @@
 services:
   app:
-    image: tuumik/tuumik:1.1.0
+    image: tuumik/tuumik:1.1.1
     depends_on:
       - mongo
     restart: unless-stopped
