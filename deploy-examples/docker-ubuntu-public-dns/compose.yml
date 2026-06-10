@@ -72,7 +72,7 @@ services:
       API_KEY: tuumik
 
   mcp:
-    image: tuumik/tuumik-mcp:1.0.0
+    image: tuumik/tuumik-mcp:1.0.1
     restart: unless-stopped
     environment:
       PORT: 3000

@@ -42,7 +42,7 @@ services:
       API_KEY: tuumik
 
   mcp:
-    image: tuumik/tuumik-mcp:1.0.0
+    image: tuumik/tuumik-mcp:1.0.1
     ports:
       - '3100:3000'
     restart: unless-stopped
