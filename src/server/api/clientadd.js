@@ -5,7 +5,7 @@ import { authorizeApiRequest, apiHandler } from './auth.js';
 import clientInsert from '/src/server/core/clientInsert.js';
 import clientHistory from '/src/server/core/clientHistory.js';
 
-WebApp.handlers.post('/api/clients', apiHandler(async (req, res) => {
+WebApp.handlers.post('/api/clients/insert', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'clientInsert');
   if (!user) return;
   const id = await clientInsert(user, req.body.name);

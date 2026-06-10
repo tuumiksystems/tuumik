@@ -2,51 +2,39 @@
 
 import { WebApp } from 'meteor/webapp';
 import { authorizeApiRequest, apiHandler } from './auth.js';
-import setInOutStatusSelf from '/src/shared/core/setInOutStatusSelf.js';
-import setInOutStatusOthers from '/src/shared/core/setInOutStatusOthers.js';
-import setInOutNoteSelf from '/src/shared/core/setInOutNoteSelf.js';
-import setInOutNoteOthers from '/src/shared/core/setInOutNoteOthers.js';
-import setInOutETASelf from '/src/shared/core/setInOutETASelf.js';
-import setInOutETAOthers from '/src/shared/core/setInOutETAOthers.js';
+import loadInOutBoard from '/src/server/core/loadInOutBoard.js';
+import loadInOutBoardHistory from '/src/server/core/loadInOutBoardHistory.js';
+import setInOutSelf from '/src/shared/core/setInOutSelf.js';
+import setInOutOthers from '/src/shared/core/setInOutOthers.js';
 
-WebApp.handlers.patch('/api/inout/self/status', apiHandler(async (req, res) => {
-  const user = await authorizeApiRequest(req, res, 'setInOutStatusSelf');
+WebApp.handlers.get('/api/inout/board', apiHandler(async (req, res) => {
+  const user = await authorizeApiRequest(req, res, 'loadInOutBoard');
   if (!user) return;
-  await setInOutStatusSelf(user, req.body.status);
+  const { searchedUserId = '', teamId = '' } = req.query;
+  const args = { searchedUserId, teamId };
+  const result = await loadInOutBoard(user, args);
+  res.json(result);
+}));
+
+WebApp.handlers.post('/api/inout/board-history', apiHandler(async (req, res) => {
+  const user = await authorizeApiRequest(req, res, 'loadInOutBoardHistory');
+  if (!user) return;
+  const { userIds, startLocal, endLocal } = req.body;
+  const args = { userIds, startLocal: new Date(startLocal), endLocal: new Date(endLocal) };
+  const result = await loadInOutBoardHistory(user, args);
+  res.json(result);
+}));
+
+WebApp.handlers.patch('/api/inout/set/self', apiHandler(async (req, res) => {
+  const user = await authorizeApiRequest(req, res, 'setInOutSelf');
+  if (!user) return;
+  await setInOutSelf(user, req.body.board);
   res.json({ ok: true });
 }));
 
-WebApp.handlers.patch('/api/inout/self/note', apiHandler(async (req, res) => {
-  const user = await authorizeApiRequest(req, res, 'setInOutNoteSelf');
+WebApp.handlers.patch('/api/inout/set/:userId', apiHandler(async (req, res) => {
+  const user = await authorizeApiRequest(req, res, 'setInOutOthers');
   if (!user) return;
-  await setInOutNoteSelf(user, req.body.note);
-  res.json({ ok: true });
-}));
-
-WebApp.handlers.patch('/api/inout/self/eta', apiHandler(async (req, res) => {
-  const user = await authorizeApiRequest(req, res, 'setInOutETASelf');
-  if (!user) return;
-  await setInOutETASelf(user, req.body.eta);
-  res.json({ ok: true });
-}));
-
-WebApp.handlers.patch('/api/inout/:userId/status', apiHandler(async (req, res) => {
-  const user = await authorizeApiRequest(req, res, 'setInOutStatusOthers');
-  if (!user) return;
-  await setInOutStatusOthers(user, req.params.userId, req.body.status);
-  res.json({ ok: true });
-}));
-
-WebApp.handlers.patch('/api/inout/:userId/note', apiHandler(async (req, res) => {
-  const user = await authorizeApiRequest(req, res, 'setInOutNoteOthers');
-  if (!user) return;
-  await setInOutNoteOthers(user, req.params.userId, req.body.note);
-  res.json({ ok: true });
-}));
-
-WebApp.handlers.patch('/api/inout/:userId/eta', apiHandler(async (req, res) => {
-  const user = await authorizeApiRequest(req, res, 'setInOutETAOthers');
-  if (!user) return;
-  await setInOutETAOthers(user, req.params.userId, req.body.eta);
+  await setInOutOthers(user, req.params.userId, req.body.board);
   res.json({ ok: true });
 }));

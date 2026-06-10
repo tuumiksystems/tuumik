@@ -1,11 +1,18 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
+import { z } from 'zod';
 import { Times } from '/src/shared/collections/collections.js';
+
+const inputSchema = z.object({
+  projectId: z.string(),
+  limit: z.number().int().max(200, 'Query limit exceeded'),
+});
 
 export default async function timeHistoryProjectOthers(user, projectId, limit) {
   if (!user.permissions.historyOthers) throw new Meteor.Error('100', 'No permission to view task history of other users');
-  if (limit > 200) throw new Meteor.Error('100', 'Query limit exceeded');
+  const parsed = inputSchema.safeParse({ projectId, limit });
+  if (!parsed.success) throw new Meteor.Error('100', parsed.error.issues[0].message);
 
   const timesRes = await Times.find(
     {

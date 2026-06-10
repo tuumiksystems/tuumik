@@ -2,19 +2,19 @@
 
 import { WebApp } from 'meteor/webapp';
 import { authorizeApiRequest, apiHandler } from './auth.js';
-import loadTeams from '/src/server/core/loadTeams.js';
-import saveTeams from '/src/server/core/saveTeams.js';
+import adminLoadTeams from '/src/server/core/adminLoadTeams.js';
+import adminSaveTeams from '/src/server/core/adminSaveTeams.js';
 
 WebApp.handlers.get('/api/admin/teams', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'loadTeams');
   if (!user) return;
-  const result = await loadTeams(user);
+  const result = await adminLoadTeams(user);
   res.json(result);
 }));
 
-WebApp.handlers.put('/api/admin/teams', apiHandler(async (req, res) => {
+WebApp.handlers.put('/api/admin/teams/update', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'saveTeams');
   if (!user) return;
-  const result = await saveTeams(user, req.body.teams);
+  const result = await adminSaveTeams(user, req.body.teams);
   res.json(result);
 }));

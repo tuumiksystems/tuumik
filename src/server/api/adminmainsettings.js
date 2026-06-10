@@ -2,19 +2,19 @@
 
 import { WebApp } from 'meteor/webapp';
 import { authorizeApiRequest, apiHandler } from './auth.js';
-import mainSettingsLoad from '/src/server/core/mainSettingsLoad.js';
-import mainSettingsSave from '/src/server/core/mainSettingsSave.js';
+import adminMainSettingsLoad from '/src/server/core/adminMainSettingsLoad.js';
+import adminMainSettingsSave from '/src/server/core/adminMainSettingsSave.js';
 
 WebApp.handlers.get('/api/admin/settings', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'mainSettingsLoad');
   if (!user) return;
-  const result = await mainSettingsLoad(user);
+  const result = await adminMainSettingsLoad(user);
   res.json(result);
 }));
 
-WebApp.handlers.put('/api/admin/settings', apiHandler(async (req, res) => {
+WebApp.handlers.put('/api/admin/settings/update', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'mainSettingsSave');
   if (!user) return;
-  await mainSettingsSave(user, req.body);
+  await adminMainSettingsSave(user, req.body);
   res.json({ ok: true });
 }));

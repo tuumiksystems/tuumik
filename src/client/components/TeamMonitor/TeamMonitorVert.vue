@@ -4,45 +4,31 @@
   <div class="user-holder">
     <div class="headerbar">
       <div :style="avatarStyle(targetUser)" class="avatar-holder"></div>
-      <div v-if="targetUser && targetUser.name" class="hb-name">{{ targetUser.name }}</div>
-      <div class="hb-work">{{ displayDuration3(targetUser.workTotal) }}</div>
-      <div class="hb-time">{{ displayDuration2(targetUser.timesTotal) }}</div>
+      <div class="hb-content">
+        <div v-if="targetUser && targetUser.name" class="hb-name">{{ targetUser.name }}</div>
+        <div>
+          <span class="hb-work">{{ displayDuration3(targetUser.workTotal) }}</span>
+        </div>
+        <div>
+          <span class="hb-time">{{ displayDuration2(targetUser.timesTotal) }}</span>
+        </div>
+      </div>
     </div>
     <div :style="{ backgroundImage: baseBackground().image, backgroundSize: baseBackground().size }" class="times-base">
       <TeamMonitorRuler />
-      <div v-for="status in targetUser.statuses" :key="status._id" :style="statusboxStyle(status)" class="statusbox-vert">
-        <div :style="statusboxPopupStyle(status)" class="statusbox-popup">
-          <div class="spopup-text">{{ status.text }}</div>
-          <div class="spopup-dur">{{ displayDuration4(status) }}</div>
-        </div>
-      </div>
-      <div v-for="time in targetUser.times" :key="time._id" :style="timeboxStyle(time)" class="timebox-vert" @mouseover="setExpansionDirection($event)">
-        <ul :class="{ 'flip-expansion': flipExpansion }" class="ul-vert">
-          <li>
-            <span v-if="time.clientName" class="client-name">{{ time.clientName }}</span>
-            <span v-else>-</span>
-          </li>
-          <li>
-            <span v-if="time.projectName" class="project-name">{{ time.projectName }}</span>
-            <span v-else>-</span>
-          </li>
-          <li>
-            <span v-if="time.useTaskType">{{ time.taskType }} </span>{{ time.taskDesc }}
-          </li>
-          <li v-if="time.intCom" class="intcom">{{ time.intCom }}</li>
-          <li>{{ displayDuration(time) }}</li>
-          <li>{{ displayTimeFromMinutes(time.startMinute) }} - {{ displayTimeFromMinutes(time.endMinute) }}</li>
-        </ul>
-      </div>
+      <TeamMonitorStatusBar />
+      <TeamMonitorStatusBox v-for="status in targetUser.statuses" :key="status._id" :status="status" />
+      <TeamMonitorTimeBox v-for="time in targetUser.times" :key="time._id" :time="time" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { useGeneralStore } from '/src/client/stores/general.js';
-import dayjs from 'dayjs';
 import TeamMonitorRuler from '/src/client/components/TeamMonitor/TeamMonitorRuler.vue';
+import TeamMonitorStatusBar from '/src/client/components/TeamMonitor/TeamMonitorStatusBar.vue';
+import TeamMonitorStatusBox from '/src/client/components/TeamMonitor/TeamMonitorStatusBox.vue';
+import TeamMonitorTimeBox from '/src/client/components/TeamMonitor/TeamMonitorTimeBox.vue';
 import { minutesToDuration } from '/src/shared/utils/time.js';
 
 const generalStore = useGeneralStore();
@@ -50,8 +36,6 @@ const generalStore = useGeneralStore();
 const props = defineProps({
   targetUser: { type: Object, required: true },
 });
-
-const flipExpansion = ref(false);
 
 function baseBackground() {
   const trackerStep = generalStore.tenant.trackerStep;
@@ -63,41 +47,9 @@ function baseBackground() {
   return { image, size };
 }
 
-function statusboxStyle(status) {
-  const pixelsPerMinute = 2;
-  const startMinute = status.start.getHours() * 60 + status.start.getMinutes();
-  const endMinute = status.end.getHours() * 60 + status.end.getMinutes();
-  const top = startMinute * pixelsPerMinute;
-  const bottom = (1440 - endMinute) * pixelsPerMinute;
-  return `top: ${top}px; bottom: ${bottom}px; background-color: ${status.colorBG};`;
-}
-
-function statusboxPopupStyle(status) {
-  return `color: ${status.colorTxt}; background-color: ${status.colorBG};`;
-}
-
-function timeboxStyle(time) {
-  const pixelsPerMinute = 2;
-  const top = time.startMinute * pixelsPerMinute;
-  const bottom = (1440 - time.endMinute) * pixelsPerMinute + 1;
-  let color = time.projectId && time.taskDesc && (!time.useTaskType || time.taskType) ? 'rgba(138, 245, 138, 0.7)' : 'rgba(230, 230, 230, 0.7)';
-  if (time.plan) color = 'rgba(156, 184, 230, 0.7)';
-  return `top: ${top}px; bottom: ${bottom}px; background-color: ${color};`;
-}
-
 function avatarStyle(targetUser) {
   if (!targetUser.pic) return false;
   return `background-image: url('${targetUser.pic}');`;
-}
-
-function displayTimeFromMinutes(minutes) {
-  const timeFormat = generalStore.tenant.timeFormat || 'HH:mm';
-  return dayjs().hour(0).minute(minutes).format(timeFormat);
-}
-
-function displayDuration(time) {
-  const x = time.endMinute - time.startMinute;
-  return minutesToDuration(x);
 }
 
 function displayDuration2(minutes) {
@@ -107,24 +59,6 @@ function displayDuration2(minutes) {
 function displayDuration3(millis) {
   const minutes = Math.floor(millis / 60000);
   return minutesToDuration(minutes);
-}
-
-function displayDuration4(status) {
-  const millis = status.end - status.start;
-  const minutes = Math.floor(millis / 60000);
-  return minutesToDuration(minutes);
-}
-
-function setExpansionDirection(event) {
-  const rect = event.currentTarget.getBoundingClientRect();
-  const viewportWidth = document.body.clientWidth;
-  const spacetoRight = viewportWidth - rect.left;
-  const popupWidth = (20 + 3) * generalStore.zoomBody;
-  if (popupWidth < spacetoRight) {
-    flipExpansion.value = false;
-  } else {
-    flipExpansion.value = true;
-  }
 }
 </script>
 
@@ -163,31 +97,38 @@ function setExpansionDirection(event) {
   background-position: center center;
 }
 
-.hb-name {
+.hb-content {
   position: absolute;
   top: 0.3em;
   left: 6.4em;
   right: 0;
+  overflow: hidden;
+}
+
+.hb-name {
   font-weight: 600;
   overflow: hidden;
   white-space: nowrap;
 }
 
 .hb-work {
-  position: absolute;
-  top: 1.6em;
-  left: 6.4em;
-  right: 0;
-  color: #e04f15;
+  color: #ffffff;
+  background-color: #000000;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+  display: inline-block;
   overflow: hidden;
   white-space: nowrap;
 }
 
 .hb-time {
-  position: absolute;
-  top: 2.8em;
-  left: 6.4em;
-  right: 0;
+  color: #000000;
+  background-color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+  display: inline-block;
   overflow: hidden;
   white-space: nowrap;
 }
@@ -196,105 +137,5 @@ function setExpansionDirection(event) {
   width: 100%;
   height: 2880px;
   position: relative;
-}
-
-.statusbox-vert {
-  position: absolute;
-  left: 2.7em;
-  width: 0.6em;
-  animation: timein 1000ms 0ms ease;
-}
-
-.statusbox-vert:hover {
-  background-color: orange !important;
-}
-
-.statusbox-popup {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 7em;
-  width: 14em;
-  padding: 0.6em 1em;
-  margin: 0 auto;
-  z-index: 1000;
-  text-align: center;
-  border-radius: 0.4em;
-  background-color: orange;
-  border: 1px solid #1f1f1f;
-  display: none;
-}
-
-.statusbox-vert:hover .statusbox-popup {
-  display: block;
-}
-
-.spopup-text {
-  font-weight: 600;
-}
-
-.spopup-dur {
-  opacity: 0.9;
-}
-
-.timebox-vert {
-  position: absolute;
-  left: 3.6em;
-  right: 0.2em;
-  overflow: hidden;
-  border-top: 1px solid #2f2f2f;
-  border-bottom: 1px solid #2f2f2f;
-  animation: timein 1000ms 0ms ease;
-}
-
-.timebox-vert:hover {
-  background-color: orange !important;
-  overflow: visible;
-}
-
-.ul-vert {
-  list-style-type: none;
-  margin: 0.1em 0.3em;
-  padding: 0;
-  white-space: nowrap;
-  color: #2d2d2d;
-  transition: margin 100ms ease-out;
-}
-
-.timebox-vert:hover .ul-vert {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 20em;
-  white-space: normal;
-  background-color: #f7bc4e;
-  margin: 0 0 0 3em;
-  padding: 1em;
-  z-index: 10;
-  box-shadow: 0.3em 0.3em 0em 0em rgba(0, 0, 0, 0.1);
-}
-
-.timebox-vert:hover .flip-expansion {
-  left: auto;
-  right: 0;
-  margin: 0 3em 0 0;
-}
-
-@keyframes timein {
-  0% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-.client-name {
-  font-weight: 600;
-}
-
-.project-name {
-  font-weight: 600;
 }
 </style>

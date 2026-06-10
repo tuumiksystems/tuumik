@@ -1,11 +1,23 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
+import { z } from 'zod';
 import { Times, Projects, Clients } from '/src/shared/collections/collections.js';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
 
+const inputSchema = z.object({
+  taskDesc: z.string(),
+  owner: z.string(),
+  scope: z.string(),
+  projectId: z.string().nullable().optional(),
+  clientId: z.string().nullable().optional(),
+  sort: z.string(),
+  limit: z.number().int().max(200, 'Query limit exceeded'),
+});
+
 export default async function timeHistorySearch(user, taskDesc, owner, scope, projectId, clientId, sort, limit) {
-  if (limit > 200) throw new Meteor.Error('100', 'Query limit exceeded');
+  const parsed = inputSchema.safeParse({ taskDesc, owner, scope, projectId, clientId, sort, limit });
+  if (!parsed.success) throw new Meteor.Error('100', parsed.error.issues[0].message);
 
   const escaped = taskDesc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const normalized = normalizeStringForAC(escaped);

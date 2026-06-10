@@ -1,10 +1,18 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
+import { z } from 'zod';
 import { Times, Projects } from '/src/shared/collections/collections.js';
 
+const inputSchema = z.object({
+  timeId: z.string(),
+  clientId: z.string(),
+  limit: z.number().int().max(200, 'Query limit exceeded'),
+});
+
 export default async function timeHistoryClientSelf(user, timeId, clientId, limit) {
-  if (limit > 200) throw new Meteor.Error('100', 'Query limit exceeded');
+  const parsed = inputSchema.safeParse({ timeId, clientId, limit });
+  if (!parsed.success) throw new Meteor.Error('100', parsed.error.issues[0].message);
 
   const clientProjects = await Projects.find({ tenantId: user.tenantId, clientId }).fetchAsync();
   const allProjectIds = clientProjects.map(project => project._id);

@@ -20,11 +20,11 @@ import timeIntCom from '/src/shared/core/timeIntCom.js';
 import timeHideHistory from '/src/shared/core/timeHideHistory.js';
 import timeFillData from '/src/shared/core/timeFillData.js';
 
-WebApp.handlers.post('/api/times', apiHandler(async (req, res) => {
+WebApp.handlers.post('/api/times/insert', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'timeInsert');
   if (!user) return;
-  const selDate = new Date(`${req.body.date}T00:00:00.001Z`);
-  const result = await timeInsert(user, selDate, req.body.startMinute);
+  const args = { ...req.body, selDate: new Date(`${req.body.date}T00:00:00.001Z`) };
+  const result = await timeInsert(user, args);
   res.status(201).json(result);
 }));
 
@@ -35,14 +35,14 @@ WebApp.handlers.post('/api/times/:id/copy', apiHandler(async (req, res) => {
   res.json({ ok: true });
 }));
 
-WebApp.handlers.delete('/api/times/:id', apiHandler(async (req, res) => {
+WebApp.handlers.delete('/api/times/:id/delete', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'timeRemove');
   if (!user) return;
   await timeRemove(user, req.params.id);
   res.json({ ok: true });
 }));
 
-WebApp.handlers.patch('/api/times/:id/plan', apiHandler(async (req, res) => {
+WebApp.handlers.patch('/api/times/:id/plan/set', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'timeSetPlan');
   if (!user) return;
   await timeSetPlan(user, req.params.id, req.body.plan);
@@ -54,7 +54,7 @@ WebApp.handlers.patch('/api/times/:id/plan', apiHandler(async (req, res) => {
 // - endMinute only → resizeBottom
 // - both → startAndEnd
 // - startMinute + move:true → move (preserves duration)
-WebApp.handlers.patch('/api/times/:id/timing', apiHandler(async (req, res) => {
+WebApp.handlers.patch('/api/times/:id/timing/set', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'timeEditTiming');
   if (!user) return;
   const { startMinute, endMinute, move } = req.body;
@@ -71,7 +71,7 @@ WebApp.handlers.patch('/api/times/:id/timing', apiHandler(async (req, res) => {
 }));
 
 // Project: body {projectId?} | {clearProject: true} | {clearAll: true}
-WebApp.handlers.patch('/api/times/:id/project', apiHandler(async (req, res) => {
+WebApp.handlers.patch('/api/times/:id/project/set', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'timeEditProject');
   if (!user) return;
   if (req.body.clearAll) {
@@ -85,7 +85,7 @@ WebApp.handlers.patch('/api/times/:id/project', apiHandler(async (req, res) => {
 }));
 
 // Client: body {clientId?} | {clear: true}
-WebApp.handlers.patch('/api/times/:id/client', apiHandler(async (req, res) => {
+WebApp.handlers.patch('/api/times/:id/client/set', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'timeEditClient');
   if (!user) return;
   if (req.body.clear) {
@@ -97,7 +97,7 @@ WebApp.handlers.patch('/api/times/:id/client', apiHandler(async (req, res) => {
 }));
 
 // Task fields: body {taskDesc?, taskType?, intCom?, hideHistory?: bool}
-WebApp.handlers.patch('/api/times/:id/task', apiHandler(async (req, res) => {
+WebApp.handlers.patch('/api/times/:id/task/set', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'timeEditTask');
   if (!user) return;
   const { taskDesc, taskType, intCom, hideHistory } = req.body;
@@ -109,7 +109,7 @@ WebApp.handlers.patch('/api/times/:id/task', apiHandler(async (req, res) => {
 }));
 
 // Fill from history: body {projectId, taskType, taskDesc, useTaskType}
-WebApp.handlers.patch('/api/times/:id/fill', apiHandler(async (req, res) => {
+WebApp.handlers.patch('/api/times/:id/fill/set', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'timeFillData');
   if (!user) return;
   const { projectId, taskType, taskDesc, useTaskType } = req.body;

@@ -19,8 +19,8 @@ const inOutOptions = [
     id: '3',
     text: 'MEETING',
     work: true,
-    colorBG: '#e16363',
-    colorTxt: '#000000',
+    colorBG: '#c95757',
+    colorTxt: '#ffffff',
   },
   {
     id: '4',

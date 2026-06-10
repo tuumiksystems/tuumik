@@ -5,8 +5,12 @@
     <div class="headerbar">
       <div :style="avatarStyle(targetUser)" class="avatar-holder"></div>
       <div v-if="targetUser && targetUser.name" class="hb-name">{{ targetUser.name }}</div>
-      <div class="hb-work">Worked: {{ displayDuration3(targetUser.workTotal) }}</div>
-      <div class="hb-time">Tracked: {{ displayDuration2(targetUser.timesTotal) }}</div>
+      <div>
+        <span class="hb-work">Worked: {{ displayDuration3(targetUser.workTotal) }}</span>
+      </div>
+      <div>
+        <span class="hb-time">Tracked: {{ displayDuration2(targetUser.timesTotal) }}</span>
+      </div>
     </div>
     <table v-if="!generalStore.isMobile" class="timetable">
       <tr v-for="time in targetUser.times" :key="time._id" class="ttr">
@@ -123,16 +127,29 @@ function displayDuration3(millis) {
 
 .hb-name {
   font-weight: 600;
-  margin: 0.7em 0 0 0;
+  margin: 0.5em 0 0 0;
+  font-size: 1.3em;
 }
 
 .hb-work {
-  color: #e04f15;
-  margin: 0 0 0 0;
+  display: inline-block;
+  color: #ffffff;
+  background-color: #000000;
+  padding: 3px 6px;
+  margin: 0.3em 0 0 0;
+  border-radius: 3px;
+  font-weight: 600;
 }
 
 .hb-time {
-  margin: 0 0 0 0;
+  display: inline-block;
+  color: #000000;
+  background-color: #f4f4f4;
+  border: 1px solid #cecece;
+  padding: 3px 6px;
+  margin: 0.3em 0 0 0;
+  border-radius: 3px;
+  font-weight: 600;
 }
 
 /* TIMES WEB */

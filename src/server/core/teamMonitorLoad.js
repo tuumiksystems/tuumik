@@ -1,10 +1,23 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
+import { z } from 'zod';
 import { Times, Clients, Projects, Statuses } from '/src/shared/collections/collections.js';
+
+const inputSchema = z.object({
+  dates: z.object({
+    startLocal: z.date(),
+    endLocal: z.date(),
+    monitorDate: z.date(),
+  }),
+  teamId: z.string(),
+  userId: z.string(),
+});
 
 export default async function teamMonitorLoad(user, dates, teamId, userId) {
   if (!user.permissions.monitor) throw new Meteor.Error('403', 'No permission to access monitor');
+  const parsed = inputSchema.safeParse({ dates, teamId, userId });
+  if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
   const usersQuery = { tenantId: user.tenantId };
   if (userId) {
@@ -12,7 +25,7 @@ export default async function teamMonitorLoad(user, dates, teamId, userId) {
   } else {
     usersQuery.inTeams = teamId;
   }
-  const targetUsers = await Meteor.users.find(usersQuery, { fields: { name: 1, inOutStatus: 1, inOutUpdateAt: 1, pic: 1 } }).fetchAsync();
+  const targetUsers = await Meteor.users.find(usersQuery, { fields: { name: 1, inOutStatus: 1, inOutNote: 1, inOutETA: 1, inOutUpdateAt: 1, pic: 1 } }).fetchAsync();
   const targetUserIds = targetUsers.map(x => x._id);
 
   const statusesRes = await Statuses.find(
@@ -28,9 +41,12 @@ export default async function teamMonitorLoad(user, dates, teamId, userId) {
     {
       fields: {
         userId: 1,
-        status: 1,
         start: 1,
         end: 1,
+        status: 1,
+        note: 1,
+        eta: 1,
+        updaters: 1,
       },
     },
   ).fetchAsync();

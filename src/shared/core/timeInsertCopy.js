@@ -1,11 +1,18 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
+import { z } from 'zod';
 import { Times, Tenants } from '/src/shared/collections/collections.js';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
 
+const inputSchema = z.object({
+  sourceTimeId: z.string(),
+  startMinute: z.number().int().min(0, 'Incorrect start minute').max(1440, 'Incorrect start minute'),
+});
+
 export default async function timeInsertCopy(user, sourceTimeId, startMinute) {
-  if (startMinute < 0 || startMinute > 1440 || !Number.isInteger(startMinute)) throw new Meteor.Error('403', 'Incorrect start minute');
+  const parsed = inputSchema.safeParse({ sourceTimeId, startMinute });
+  if (!parsed.success) throw new Meteor.Error('403', parsed.error.issues[0].message);
 
   const tenant = await Tenants.findOneAsync(user.tenantId);
   const { trackerStep } = tenant;

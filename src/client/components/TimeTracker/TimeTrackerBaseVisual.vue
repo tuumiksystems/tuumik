@@ -213,8 +213,9 @@ async function timeInsertFromBase(event) {
   let posY = event.pageY - trackerBase.offsetTop;
   if (generalStore.tenant.trackerStep !== 1) posY = snapPosYToStep(posY, true);
   const startMinute = Math.floor(posY / trackerStore.pixelsPerMinute);
+  const args = { selDate, startMinute };
   try {
-    await Meteor.callAsync('timeInsert', selDate, startMinute);
+    await Meteor.callAsync('timeInsert', args);
   } catch (err) {
     notifierStore.addTemp({ type: 'error', txt: err.reason });
   }
@@ -226,8 +227,9 @@ async function timeInsertCircle() {
 
   const now = new Date();
   const startMinute = now.getHours() * 60 + now.getMinutes();
+  const args = { selDate, startMinute };
   try {
-    const res = await Meteor.callAsync('timeInsert', selDate, startMinute);
+    const res = await Meteor.callAsync('timeInsert', args);
     openId.value = res.timeId;
     inserting.value = false;
   } catch (err) {

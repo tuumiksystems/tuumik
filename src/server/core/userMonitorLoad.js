@@ -1,13 +1,27 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
+import { z } from 'zod';
 import { Times, Clients, Projects, Statuses } from '/src/shared/collections/collections.js';
 
+const inputSchema = z.object({
+  dates: z.object({
+    startLocal: z.date(),
+    endLocal: z.date(),
+    startUTC: z.date(),
+    endUTC: z.date(),
+  }),
+  userId: z.string(),
+});
+
 export default async function userMonitorLoad(user, dates, userId) {
+  const parsed = inputSchema.safeParse({ dates, userId });
+  if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
+
   const targetUserId = userId && user.permissions.monitor ? userId : user._id;
   const targetUser = await Meteor.users.findOneAsync(
     { tenantId: user.tenantId, _id: targetUserId },
-    { fields: { name: 1, inOutStatus: 1, inOutUpdateAt: 1, pic: 1 } },
+    { fields: { name: 1, inOutStatus: 1, inOutNote: 1, inOutETA: 1, inOutUpdateAt: 1, pic: 1 } },
   );
 
   const statusesRes = await Statuses.find(
@@ -23,9 +37,12 @@ export default async function userMonitorLoad(user, dates, userId) {
     {
       fields: {
         userId: 1,
-        status: 1,
         start: 1,
         end: 1,
+        status: 1,
+        note: 1,
+        eta: 1,
+        updaters: 1,
       },
     },
   ).fetchAsync();

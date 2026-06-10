@@ -61,7 +61,7 @@ WebApp.handlers.post('/api/times/history/search', apiHandler(async (req, res) =>
   res.json(result);
 }));
 
-WebApp.handlers.patch('/api/times/:timeId/date', apiHandler(async (req, res) => {
+WebApp.handlers.patch('/api/times/:timeId/date/set', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'timeSetDate');
   if (!user) return;
   const selDate = new Date(`${req.body.date}T00:00:00.001Z`);

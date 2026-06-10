@@ -41,14 +41,14 @@ WebApp.handlers.post('/api/explorer', apiHandler(async (req, res) => {
   res.json(result);
 }));
 
-WebApp.handlers.put('/api/explorer/tag-color', apiHandler(async (req, res) => {
+WebApp.handlers.put('/api/explorer/tag-color/update', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'composerTagColor');
   if (!user) return;
   await composerTagColor(user, req.body.selTimes, req.body.color);
   res.json({ ok: true });
 }));
 
-WebApp.handlers.put('/api/explorer/tag-text', apiHandler(async (req, res) => {
+WebApp.handlers.put('/api/explorer/tag-text/update', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'composerTagText');
   if (!user) return;
   await composerTagText(user, req.body.selTimes, req.body.text);

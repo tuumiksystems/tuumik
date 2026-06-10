@@ -31,9 +31,11 @@ import '/src/server/methods/projectadd.js';
 import '/src/server/methods/projectedit.js';
 import '/src/server/methods/catalog.js';
 import '/src/server/methods/composer.js';
+import '/src/server/methods/inout.js';
 import '/src/server/methods/teammonitor.js';
 import '/src/server/methods/usermonitor.js';
 import '/src/server/methods/recent.js';
+import '/src/server/methods/users.js';
 
 // methods (server side) (admin)
 import '/src/server/methods/adminusers.js';
@@ -77,3 +79,4 @@ import '/src/server/api/times.js';
 import '/src/server/api/inout.js';
 import '/src/server/api/projectpicker.js';
 import '/src/server/api/usersettings.js';
+import '/src/server/api/users.js';

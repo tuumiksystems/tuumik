@@ -19,7 +19,8 @@
     "pinia": "^2.2.0",
     "postmark": "^4.0.4",
     "vue": "^3.4.14",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.2.5",
+    "zod": "^4.4.3"
   },
   "meteor": {
     "modern": true,

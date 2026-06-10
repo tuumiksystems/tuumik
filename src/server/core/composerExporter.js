@@ -1,12 +1,22 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
+import { z } from 'zod';
 import { Tenants } from '/src/shared/collections/collections.js';
 import { appVersion } from '/src/shared/utils/app.js';
 import { fetch } from 'meteor/fetch';
 
+const inputSchema = z.object({
+  exporterId: z.string(),
+  exportOptions: z.object({}).passthrough(),
+  times: z.array(z.unknown()),
+  meta: z.object({}).passthrough(),
+});
+
 export default async function composerExporter(user, args) {
   if (!user.permissions.composer) throw new Meteor.Error('403', 'No permission to access composer');
+  const parsed = inputSchema.safeParse(args);
+  if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
   const tenant = await Tenants.findOneAsync(user.tenantId);
   const { composerExportersBack } = tenant;

@@ -79,8 +79,9 @@ async function timeInsertCircle() {
 
   const now = new Date();
   const startMinute = now.getHours() * 60 + now.getMinutes();
+  const args = { selDate, startMinute };
   try {
-    const res = await Meteor.callAsync('timeInsert', selDate, startMinute);
+    const res = await Meteor.callAsync('timeInsert', args);
     openId.value = res.timeId;
     inserting.value = false;
   } catch (err) {

@@ -171,9 +171,10 @@ onUnmounted(() => {
 async function setInOutStatus(status) {
   loading.value = true;
   const targetUserId = editUser.value?._id;
+  const board = { status };
   editUser.value = null;
   try {
-    await Meteor.callAsync('setInOutStatusOthers', targetUserId, status);
+    await Meteor.callAsync('setInOutOthers', targetUserId, board);
     loading.value = false;
   } catch (err) {
     notifierStore.addTemp({ type: 'error', txt: err.reason });
@@ -185,8 +186,9 @@ async function setInOutNote() {
   loading.value = true;
   const targetUserId = editUser.value?._id;
   editUser.value.inOutNote = noteNew.value;
+  const board = { note: noteNew.value };
   try {
-    await Meteor.callAsync('setInOutNoteOthers', targetUserId, noteNew.value);
+    await Meteor.callAsync('setInOutOthers', targetUserId, board);
     loading.value = false;
   } catch (err) {
     notifierStore.addTemp({ type: 'error', txt: err.reason });
@@ -220,8 +222,9 @@ async function setInOutETA(eta) {
   const desc = makeETADesc(eta);
   const targetUserId = editUser.value?._id;
   editUser.value.inOutETA = desc;
+  const board = { eta: desc };
   try {
-    await Meteor.callAsync('setInOutETAOthers', targetUserId, desc);
+    await Meteor.callAsync('setInOutOthers', targetUserId, board);
     loading.value = false;
   } catch (err) {
     notifierStore.addTemp({ type: 'error', txt: err.reason });

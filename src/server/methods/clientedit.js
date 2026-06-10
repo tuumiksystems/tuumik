@@ -1,28 +1,22 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
 import coreGetClientForEdit from '/src/server/core/getClientForEdit.js';
 import coreClientSave from '/src/server/core/clientSave.js';
 import coreClientDelete from '/src/server/core/clientDelete.js';
 
 Meteor.methods({
   async getClientForEdit(clientId) {
-    check(clientId, String);
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
     return await coreGetClientForEdit(user, clientId);
   },
   async clientSave(client) {
-    check(client, Object);
-    check(client.name, String);
-    check(client.reminder, String);
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
     return await coreClientSave(user, client);
   },
   async clientDelete(clientId) {
-    check(clientId, String);
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
     return await coreClientDelete(user, clientId);

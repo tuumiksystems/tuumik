@@ -165,9 +165,11 @@ function processData(res) {
       const n = targetUser;
       const newStatus = {
         userId: targetUser._id,
-        status: targetUser.inOutStatus,
         start: targetUser.inOutUpdateAt > startOfDay ? targetUser.inOutUpdateAt : startOfDay,
         end: nowDate < endOfDay ? nowDate : endOfDay,
+        status: targetUser.inOutStatus,
+        note: targetUser.inOutNote,
+        eta: targetUser.inOutETA,
       };
       n.statuses.push(newStatus);
       return n;
@@ -359,9 +361,9 @@ function addUserFromAc(result) {
 }
 
 .main-holder-vert {
-  display: flex;
-  padding: 0 0 0 1em; /* for right padding to work set here 'display: inline-flex' */
-  margin: 0 0 9em 0;
+  display: inline-flex; /* setting here 'display: inline-flex' because with just 'display: flex' padding-right and margin-right would not work on this element */
+  padding: 0 0 0 1em;
+  margin: 0 24em 12em 0;
 }
 
 .main-holder-text {

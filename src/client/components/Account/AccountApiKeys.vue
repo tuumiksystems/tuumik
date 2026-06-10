@@ -77,7 +77,7 @@ const notifierStore = useNotifierStore();
 const loading = ref(false);
 const editedUser = ref(null);
 const showForm = ref(false);
-const newKeyRole = ref('regularReadOnly');
+const newKeyRole = ref('regularReadWrite');
 const newKeyDesc = ref('');
 const createdToken = ref(null);
 

@@ -75,8 +75,9 @@ function circleStyle() {
 
 async function setInOutStatus(status) {
   loading.value = true;
+  const board = { status };
   try {
-    await Meteor.callAsync('setInOutStatusSelf', status);
+    await Meteor.callAsync('setInOutSelf', board);
     loading.value = false;
   } catch (err) {
     notifierStore.addTemp({ type: 'error', txt: err.reason });
@@ -86,8 +87,9 @@ async function setInOutStatus(status) {
 
 async function setInOutNote() {
   loading.value = true;
+  const board = { note: noteNew.value };
   try {
-    await Meteor.callAsync('setInOutNoteSelf', noteNew.value);
+    await Meteor.callAsync('setInOutSelf', board);
     loading.value = false;
   } catch (err) {
     notifierStore.addTemp({ type: 'error', txt: err.reason });
@@ -119,8 +121,9 @@ function makeETADesc(eta) {
 async function setInOutETA(eta) {
   loading.value = true;
   const desc = makeETADesc(eta);
+  const board = { eta: desc };
   try {
-    await Meteor.callAsync('setInOutETASelf', desc);
+    await Meteor.callAsync('setInOutSelf', board);
     loading.value = false;
   } catch (err) {
     notifierStore.addTemp({ type: 'error', txt: err.reason });

@@ -5,10 +5,15 @@
     <div class="headerbar">
       <div :style="avatarStyle(targetUser)" class="avatar-holder"></div>
       <div v-if="targetUser && targetUser.name" class="hb-name">{{ targetUser.name }}</div>
-      <div>{{ displayDate(targetDay.dateUTC, false, 'dddd') }}</div>
-      <div>{{ displayDate(targetDay.dateUTC) }}</div>
-      <div class="hb-work">Worked: {{ displayDuration3(targetDay.workTotal) }}</div>
-      <div class="hb-time">Tracked: {{ displayDuration2(targetDay.timesTotal) }}</div>
+      <div>
+        <span>{{ displayDate(targetDay.dateUTC, false, 'dddd') }}</span>&nbsp;<span>{{ displayDate(targetDay.dateUTC) }}</span>
+      </div>
+      <div>
+        <span class="hb-work">Worked: {{ displayDuration3(targetDay.workTotal) }}</span>
+      </div>
+      <div>
+        <span class="hb-time">Tracked: {{ displayDuration2(targetDay.timesTotal) }}</span>
+      </div>
     </div>
     <table v-if="!generalStore.isMobile" class="timetable">
       <tr v-for="time in targetDay.times" :key="time._id" class="ttr">
@@ -135,12 +140,24 @@ function displayDuration3(millis) {
 }
 
 .hb-work {
-  color: #e04f15;
-  margin: 0 0 0 0;
+  display: inline-block;
+  color: #ffffff;
+  background-color: #000000;
+  padding: 3px 6px;
+  margin: 0.3em 0 0 0;
+  border-radius: 3px;
+  font-weight: 600;
 }
 
 .hb-time {
-  margin: 0 0 0 0;
+  display: inline-block;
+  color: #000000;
+  background-color: #f4f4f4;
+  border: 1px solid #cecece;
+  padding: 3px 6px;
+  margin: 0.3em 0 0 0;
+  border-radius: 3px;
+  font-weight: 600;
 }
 
 /* TIMES WEB */

@@ -1,11 +1,32 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
+import { z } from 'zod';
 import { Times, Clients, Projects, Tenants } from '/src/shared/collections/collections.js';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
 
+const inputSchema = z.object({
+  projectPickers: z.array(z.object({}).passthrough()),
+  searchUsers: z.array(z.string()),
+  period: z.object({
+    start: z.date().nullable().optional(),
+    end: z.date().nullable().optional(),
+  }),
+  taskDesc: z.string().optional(),
+  tagColor: z.object({}).passthrough(),
+  tagText: z.string().optional(),
+  sort: z.object({
+    first: z.string(),
+    second: z.string(),
+    third: z.string(),
+  }),
+  limit: z.union([z.number(), z.string()]),
+});
+
 export default async function composerAll(user, searchTerms) {
   if (!user.permissions.composer) throw new Meteor.Error('403', 'No permission to access composer');
+  const parsed = inputSchema.safeParse(searchTerms);
+  if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
   const tenant = await Tenants.findOneAsync(user.tenantId);
   const { currency, composerExportersFront } = tenant;

@@ -2,99 +2,99 @@
 
 import { WebApp } from 'meteor/webapp';
 import { authorizeApiRequest, apiHandler } from './auth.js';
-import usersList from '/src/server/core/usersList.js';
-import getUserForEdit from '/src/server/core/getUserForEdit.js';
-import addUser from '/src/server/core/addUser.js';
-import saveUserGeneral from '/src/server/core/saveUserGeneral.js';
-import saveUserUsername from '/src/server/core/saveUserUsername.js';
-import saveUserPassword from '/src/server/core/saveUserPassword.js';
-import addUserEmail from '/src/server/core/addUserEmail.js';
-import removeUserEmail from '/src/server/core/removeUserEmail.js';
-import sendVerifyEmail from '/src/server/core/sendVerifyEmail.js';
-import removeUser from '/src/server/core/removeUser.js';
-import disableUser from '/src/server/core/disableUser.js';
-import enableUser from '/src/server/core/enableUser.js';
+import adminUsersList from '/src/server/core/adminUsersList.js';
+import adminGetUserForEdit from '/src/server/core/adminGetUserForEdit.js';
+import adminAddUser from '/src/server/core/adminAddUser.js';
+import adminSaveUserGeneral from '/src/server/core/adminSaveUserGeneral.js';
+import adminSaveUserUsername from '/src/server/core/adminSaveUserUsername.js';
+import adminSaveUserPassword from '/src/server/core/adminSaveUserPassword.js';
+import adminAddUserEmail from '/src/server/core/adminAddUserEmail.js';
+import adminRemoveUserEmail from '/src/server/core/adminRemoveUserEmail.js';
+import adminSendVerifyEmail from '/src/server/core/adminSendVerifyEmail.js';
+import adminRemoveUser from '/src/server/core/adminRemoveUser.js';
+import adminDisableUser from '/src/server/core/adminDisableUser.js';
+import adminEnableUser from '/src/server/core/adminEnableUser.js';
 
 WebApp.handlers.get('/api/admin/users', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'usersList');
   if (!user) return;
-  const result = await usersList(user);
+  const result = await adminUsersList(user);
   res.json(result);
 }));
 
 WebApp.handlers.post('/api/admin/users', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'addUser');
   if (!user) return;
-  const id = await addUser(user, req.body.name, req.body.email, req.body.password);
+  const id = await adminAddUser(user, req.body.name, req.body.email, req.body.password);
   res.status(201).json({ _id: id });
 }));
 
 WebApp.handlers.get('/api/admin/users/:userId', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'getUserForEdit');
   if (!user) return;
-  const result = await getUserForEdit(user, req.params.userId);
+  const result = await adminGetUserForEdit(user, req.params.userId);
   res.json(result);
 }));
 
-WebApp.handlers.put('/api/admin/users/:userId', apiHandler(async (req, res) => {
+WebApp.handlers.put('/api/admin/users/:userId/update', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'saveUserGeneral');
   if (!user) return;
-  await saveUserGeneral(user, { ...req.body, _id: req.params.userId });
+  await adminSaveUserGeneral(user, { ...req.body, _id: req.params.userId });
   res.json({ ok: true });
 }));
 
-WebApp.handlers.put('/api/admin/users/:userId/username', apiHandler(async (req, res) => {
+WebApp.handlers.put('/api/admin/users/:userId/username/update', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'saveUserUsername');
   if (!user) return;
-  await saveUserUsername(user, req.params.userId, req.body.username);
+  await adminSaveUserUsername(user, req.params.userId, req.body.username);
   res.json({ ok: true });
 }));
 
-WebApp.handlers.put('/api/admin/users/:userId/password', apiHandler(async (req, res) => {
+WebApp.handlers.put('/api/admin/users/:userId/password/update', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'saveUserPassword');
   if (!user) return;
-  await saveUserPassword(user, req.params.userId, req.body.password);
+  await adminSaveUserPassword(user, req.params.userId, req.body.password);
   res.json({ ok: true });
 }));
 
 WebApp.handlers.post('/api/admin/users/:userId/emails', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'addUserEmail');
   if (!user) return;
-  await addUserEmail(user, req.params.userId, req.body.email);
+  await adminAddUserEmail(user, req.params.userId, req.body.email);
   res.json({ ok: true });
 }));
 
-WebApp.handlers.delete('/api/admin/users/:userId/emails', apiHandler(async (req, res) => {
+WebApp.handlers.delete('/api/admin/users/:userId/emails/delete', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'removeUserEmail');
   if (!user) return;
-  await removeUserEmail(user, req.params.userId, req.body.email);
+  await adminRemoveUserEmail(user, req.params.userId, req.body.email);
   res.json({ ok: true });
 }));
 
 WebApp.handlers.post('/api/admin/users/:userId/verify-email', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'sendVerifyEmail');
   if (!user) return;
-  await sendVerifyEmail(user, req.params.userId, req.body.email);
+  await adminSendVerifyEmail(user, req.params.userId, req.body.email);
   res.json({ ok: true });
 }));
 
-WebApp.handlers.delete('/api/admin/users/:userId', apiHandler(async (req, res) => {
+WebApp.handlers.delete('/api/admin/users/:userId/delete', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'removeUser');
   if (!user) return;
-  await removeUser(user, req.params.userId);
+  await adminRemoveUser(user, req.params.userId);
   res.json({ ok: true });
 }));
 
 WebApp.handlers.put('/api/admin/users/:userId/disable', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'disableUser');
   if (!user) return;
-  await disableUser(user, req.params.userId);
+  await adminDisableUser(user, req.params.userId);
   res.json({ ok: true });
 }));
 
 WebApp.handlers.put('/api/admin/users/:userId/enable', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'enableUser');
   if (!user) return;
-  await enableUser(user, req.params.userId);
+  await adminEnableUser(user, req.params.userId);
   res.json({ ok: true });
 }));

@@ -2,15 +2,22 @@
 
 import crypto from 'node:crypto';
 import { Meteor } from 'meteor/meteor';
+import { z } from 'zod';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
 dayjs.extend(utc);
 
+const inputSchema = z.object({
+  role: z.enum(['regularReadOnly', 'regularReadWrite', 'admin']),
+  desc: z.string(),
+});
+
 export default async function createApiKeySelf(user, role, desc) {
   if (!user.apiKeyCreation) throw new Meteor.Error('403', 'No permission to create API keys');
   if (user.apiKeys.length > 9) throw new Meteor.Error('403', 'User cannot have more API keys, limit reached');
-  if (!['regularReadOnly', 'regularReadWrite', 'admin'].includes(role)) throw new Meteor.Error('403', 'Unrecognized role id');
+  const parsed = inputSchema.safeParse({ role, desc });
+  if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
   // generate key id that is unique across all users
   let id;

@@ -32,6 +32,10 @@ const REGULAR_READ_ONLY_PERMISSIONS = [
   'composerAll',
   'composerExporter',
 
+  // In/Out board (read)
+  'loadInOutBoard',
+  'loadInOutBoardHistory',
+
   // Monitors
   'teamMonitorLoad',
   'userMonitorLoad',
@@ -60,6 +64,9 @@ const REGULAR_READ_ONLY_PERMISSIONS = [
   // User settings – self (read)
   'getApiKeysSelf',
   'getUserAndTenantSelf',
+
+  // Users (read)
+  'loadAllUsers',
 ];
 
 // ─── Write operations, non-admin ─────────────────────────────────────────────
@@ -75,14 +82,10 @@ const REGULAR_WRITE_PERMISSIONS = [
   'composerTagText',
 
   // In/Out – self
-  'setInOutStatusSelf',
-  'setInOutNoteSelf',
-  'setInOutETASelf',
+  'setInOutSelf',
 
   // In/Out – others
-  'setInOutStatusOthers',
-  'setInOutNoteOthers',
-  'setInOutETAOthers',
+  'setInOutOthers',
 
   // Projects (write)
   'projectInsert',

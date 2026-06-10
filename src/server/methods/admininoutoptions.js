@@ -1,20 +1,18 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
-import { check } from 'meteor/check';
-import coreLoadInOutOptions from '/src/server/core/loadInOutOptions.js';
-import coreSaveInOutOptions from '/src/server/core/saveInOutOptions.js';
+import coreAdminLoadInOutOptions from '/src/server/core/adminLoadInOutOptions.js';
+import coreAdminSaveInOutOptions from '/src/server/core/adminSaveInOutOptions.js';
 
 Meteor.methods({
   async loadInOutOptions() {
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    return await coreLoadInOutOptions(user);
+    return await coreAdminLoadInOutOptions(user);
   },
   async saveInOutOptions(inOutOptions) {
-    check(inOutOptions, Array);
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    return await coreSaveInOutOptions(user, inOutOptions);
+    return await coreAdminSaveInOutOptions(user, inOutOptions);
   },
 });

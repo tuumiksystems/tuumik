@@ -1,12 +1,20 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
+import { z } from 'zod';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { Times, Clients, Projects } from '/src/shared/collections/collections.js';
 
 dayjs.extend(utc);
 
+const inputSchema = z.object({
+  cutoff: z.string(),
+});
+
 export default async function loadRecentTimes(user, cutoff) {
+  const parsed = inputSchema.safeParse({ cutoff });
+  if (!parsed.success) throw new Error(parsed.error.issues[0].message);
+
   const subtractDays = cutoff === '10days' ? 10 : 30;
   const startDate = dayjs.utc().subtract(subtractDays, 'days').toDate();
   const endDate = dayjs.utc().add(2, 'days').toDate();
