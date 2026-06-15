@@ -1,16 +1,28 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
-import coreComposerAll from '/src/server/core/composerAll.js';
+import coreTimesheetExplorerFull from '/src/server/core/timesheetExplorerFull.js';
+import coreTimesheetExplorerTotals from '/src/server/core/timesheetExplorerTotals.js';
+import coreComposerFull from '/src/server/core/composerFull.js';
 import coreComposerTagColor from '/src/server/core/composerTagColor.js';
 import coreComposerTagText from '/src/server/core/composerTagText.js';
 import coreComposerExporter from '/src/server/core/composerExporter.js';
 
 Meteor.methods({
-  async composerAll(searchTerms) {
+  async timesheetExplorerFull(searchTerms) {
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    return await coreComposerAll(user, searchTerms);
+    return await coreTimesheetExplorerFull(user, searchTerms);
+  },
+  async timesheetExplorerTotals(searchTerms) {
+    if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
+    const user = await Meteor.users.findOneAsync(this.userId);
+    return await coreTimesheetExplorerTotals(user, searchTerms);
+  },
+  async composerFull(searchTerms) {
+    if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
+    const user = await Meteor.users.findOneAsync(this.userId);
+    return await coreComposerFull(user, searchTerms);
   },
   async composerTagColor(selTimes, color) {
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');

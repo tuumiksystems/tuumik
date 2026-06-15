@@ -28,13 +28,18 @@ const REGULAR_READ_ONLY_PERMISSIONS = [
   'getProjectsForClientView',
   'getTimesForClientView',
 
+  // Timesheet Explorer (POST but purely a query/export – no data is mutated)
+  'timesheetExplorerFull',
+  'timesheetExplorerTotals',
+
   // Composer (POST but purely a query/export – no data is mutated)
-  'composerAll',
+  'composerFull',
   'composerExporter',
 
   // In/Out board (read)
   'loadInOutBoard',
-  'loadInOutBoardHistory',
+  'loadInOutBoardHistoryFull',
+  'loadInOutBoardHistoryTotals',
 
   // Monitors
   'teamMonitorLoad',

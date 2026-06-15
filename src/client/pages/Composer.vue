@@ -328,7 +328,7 @@ async function loadData() {
     limit: limit.value
   };
   try {
-    const res = await Meteor.callAsync('composerAll', searchTerms);
+    const res = await Meteor.callAsync('composerFull', searchTerms);
     times.value = res.times;
     meta.value = res.meta;
     currency.value = res.currency;

@@ -2,16 +2,20 @@
 
 import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import { Times, Clients, Projects, Tenants } from '/src/shared/collections/collections.js';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
+
+dayjs.extend(utc);
 
 const inputSchema = z.object({
   projectPickers: z.array(z.object({}).passthrough()),
   searchUsers: z.array(z.string()),
   period: z.object({
-    start: z.date().nullable().optional(),
-    end: z.date().nullable().optional(),
-  }),
+    start: z.date(),
+    end: z.date(),
+  }).refine(d => d.end >= d.start, { message: 'period.end must not be before period.start' }),
   taskDesc: z.string().optional(),
   tagColor: z.object({}).passthrough(),
   tagText: z.string().optional(),
@@ -20,16 +24,13 @@ const inputSchema = z.object({
     second: z.string(),
     third: z.string(),
   }),
-  limit: z.union([z.number(), z.string()]),
+  limit: z.union([z.number(), z.string()]).optional(),
 });
 
-export default async function composerAll(user, searchTerms) {
+export default async function timesheetExplorerTotals(user, searchTerms) {
   if (!user.permissions.composer) throw new Meteor.Error('403', 'No permission to access composer');
   const parsed = inputSchema.safeParse(searchTerms);
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
-
-  const tenant = await Tenants.findOneAsync(user.tenantId);
-  const { currency, composerExportersFront } = tenant;
 
   const query = { tenantId: user.tenantId };
   const meta = {};
@@ -84,15 +85,10 @@ export default async function composerAll(user, searchTerms) {
     meta.users = await Meteor.users.find({ tenantId: user.tenantId, _id: { $in: userIdsUnique } }, { fields: { name: 1 }, sort: { name: 1 } }).fetchAsync();
   }
 
-  if (searchTerms.period.start || searchTerms.period.end) {
-    const startDate = searchTerms.period.start;
-    const endDate = searchTerms.period.end;
-    const dateQuery = {};
-    if (startDate) dateQuery.$gt = startDate;
-    if (endDate) dateQuery.$lt = endDate;
-    query.date = dateQuery;
-    meta.period = searchTerms.period;
-  }
+  const periodStart = dayjs.utc(searchTerms.period.start).startOf('day').toDate();
+  const periodEnd = dayjs.utc(searchTerms.period.end).endOf('day').toDate();
+  query.date = { $gt: periodStart, $lt: periodEnd };
+  meta.period = { start: periodStart, end: periodEnd };
 
   if (searchTerms.taskDesc) {
     const str = searchTerms.taskDesc;
@@ -172,6 +168,9 @@ export default async function composerAll(user, searchTerms) {
     limit,
   }).fetchAsync();
 
+  const limitInfo = { limitReached: timesRes.length >= limit, explanation: '' };
+  if (limitInfo.limitReached) limitInfo.explanation = `Query limit was ${limit}, this was reached. Some results are likely omitted due to this. Consider making search terms narrower.`;
+
   // join owners for times
   const ownerIds1 = [...new Set(timesRes.map(time => time.owner))].sort();
   const ownersRes1 = await Meteor.users.find({ tenantId: user.tenantId, _id: { $in: ownerIds1 } }, { fields: { name: 1 } }).fetchAsync();
@@ -207,10 +206,49 @@ export default async function composerAll(user, searchTerms) {
   });
   // /join clients for times
 
+  // build per-user totals
+  const userTotals = [];
+  for (const time of timesWithClientsJoined) {
+    const minutes = time.endMinute - time.startMinute;
+
+    let userEntry = userTotals.find(u => u.userId === time.owner);
+    if (!userEntry) {
+      userEntry = {
+        userId: time.owner,
+        name: time.ownerName,
+        minutesTotal: 0,
+        hoursTotal: 0,
+        minutesPerProject: [],
+      };
+      userTotals.push(userEntry);
+    }
+    userEntry.minutesTotal += minutes;
+
+    let projectEntry = userEntry.minutesPerProject.find(p => p.projectName === time.projectName && p.clientName === time.clientName);
+    if (!projectEntry) {
+      projectEntry = {
+        projectName: time.projectName,
+        clientName: time.clientName,
+        minutesTotal: 0,
+        hoursTotal: 0,
+        tasksTotal: 0,
+      };
+      userEntry.minutesPerProject.push(projectEntry);
+    }
+    projectEntry.minutesTotal += minutes;
+    projectEntry.tasksTotal += 1;
+  }
+  for (const userEntry of userTotals) {
+    userEntry.hoursTotal = userEntry.minutesTotal / 60;
+    for (const projectEntry of userEntry.minutesPerProject) {
+      projectEntry.hoursTotal = projectEntry.minutesTotal / 60;
+    }
+  }
+  // /build per-user totals
+
   return {
-    times: timesWithClientsJoined,
+    userTotals,
     meta,
-    currency,
-    composerExportersFront,
+    limit: limitInfo,
   };
 }

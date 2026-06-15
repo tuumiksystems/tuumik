@@ -2,17 +2,21 @@
 
 import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
+import { Tenants } from '/src/shared/collections/collections.js';
 
 const inputSchema = z.object({
   searchedUserId: z.string(),
   teamId: z.string(),
 });
 
-export default async function loadInOutBoard(user, args) {
+export default async function loadInOutBoardCurrent(user, args) {
   const { searchedUserId, teamId } = args;
   if (!user.permissions.inOutView) throw new Meteor.Error('403', 'No permission to view in/out board');
   const parsed = inputSchema.safeParse(args);
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
+
+  const tenant = await Tenants.findOneAsync(user.tenantId);
+  const { inOutOptions } = tenant;
 
   const queryForSearch = {
     tenantId: user.tenantId,
@@ -30,7 +34,7 @@ export default async function loadInOutBoard(user, args) {
 
   const query = searchedUserId ? queryForSearch : queryForTeams;
 
-  return Meteor.users.find(query, {
+  const usersRes = await Meteor.users.find(query, {
     fields: {
       name: 1,
       pic: 1,
@@ -44,4 +48,20 @@ export default async function loadInOutBoard(user, args) {
       inTeams: 1,
     },
   }).fetchAsync();
+
+  // join options
+  const usersWithOptionsJoined = usersRes.map(u => {
+    const option = inOutOptions.find(opt => opt.id === u.inOutStatus);
+    return {
+      ...u,
+      text: option?.text,
+      work: option?.work,
+    };
+  });
+  // /join options
+
+  return {
+    users: usersWithOptionsJoined,
+    inOutOptions,
+  };
 }

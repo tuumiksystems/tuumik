@@ -1,19 +1,24 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
-import coreLoadInOutBoard from '/src/server/core/loadInOutBoard.js';
-import coreLoadInOutBoardHistory from '/src/server/core/loadInOutBoardHistory.js';
+import coreLoadInOutBoardCurrent from '/src/server/core/loadInOutBoardCurrent.js';
+import coreLoadInOutBoardHistoryFull from '/src/server/core/loadInOutBoardHistoryFull.js';
+import coreLoadInOutBoardHistoryTotals from '/src/server/core/loadInOutBoardHistoryTotals.js';
 
 Meteor.methods({
-  async loadInOutBoard(args) {
+  async loadInOutBoardCurrent(args) {
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    return await coreLoadInOutBoard(user, args);
+    return await coreLoadInOutBoardCurrent(user, args);
   },
-
-  async loadInOutBoardHistory(args) {
+  async loadInOutBoardHistoryFull(args) {
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    return await coreLoadInOutBoardHistory(user, args);
+    return await coreLoadInOutBoardHistoryFull(user, args);
+  },
+  async loadInOutBoardHistoryTotals(args) {
+    if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
+    const user = await Meteor.users.findOneAsync(this.userId);
+    return await coreLoadInOutBoardHistoryTotals(user, args);
   },
 });
