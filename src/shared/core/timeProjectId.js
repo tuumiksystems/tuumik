@@ -26,6 +26,5 @@ export default async function timeProjectId(user, timeId, projectId) {
   }
 
   const query = { _id: timeId, owner: user._id };
-  if (Meteor.isServer) query.tenantId = user.tenantId;
   await Times.updateAsync(query, { $unset: unsetObj, $set: setObj });
 }

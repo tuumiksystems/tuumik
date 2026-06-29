@@ -20,13 +20,12 @@ export default async function userMonitorLoad(user, dates, userId) {
 
   const targetUserId = userId && user.permissions.monitor ? userId : user._id;
   const targetUser = await Meteor.users.findOneAsync(
-    { tenantId: user.tenantId, _id: targetUserId },
-    { fields: { name: 1, inOutStatus: 1, inOutNote: 1, inOutETA: 1, inOutUpdateAt: 1, pic: 1 } },
+    { _id: targetUserId },
+    { fields: { name: 1, nameShort: 1, inOutStatus: 1, inOutNote: 1, inOutETA: 1, inOutUpdateAt: 1, pic: 1 } },
   );
 
   const statusesRes = await Statuses.find(
     {
-      tenantId: user.tenantId,
       $or: [
         { start: { $gt: dates.startLocal, $lt: dates.endLocal } },
         { end: { $gt: dates.startLocal, $lt: dates.endLocal } },
@@ -49,7 +48,6 @@ export default async function userMonitorLoad(user, dates, userId) {
 
   const timesRes = await Times.find(
     {
-      tenantId: user.tenantId,
       owner: targetUserId,
       date: { $gt: dates.startUTC, $lt: dates.endUTC },
     },
@@ -73,7 +71,7 @@ export default async function userMonitorLoad(user, dates, userId) {
 
   // join projects for times
   const projectIds1 = [...new Set(timesRes.map(time => time.projectId))].sort();
-  const projectsRes1 = await Projects.find({ tenantId: user.tenantId, _id: { $in: projectIds1 } }, { fields: { name: 1, clientId: 1 } }).fetchAsync();
+  const projectsRes1 = await Projects.find({ _id: { $in: projectIds1 } }, { fields: { name: 1, clientId: 1 } }).fetchAsync();
   const timesWithProjectsJoined = timesRes.map(time => {
     const x = time;
     const projectDoc = projectsRes1.find(project => project._id === time.projectId);
@@ -85,7 +83,7 @@ export default async function userMonitorLoad(user, dates, userId) {
 
   // join clients for times
   const clientIds1 = [...new Set(timesWithProjectsJoined.map(time => time.clientId))].sort();
-  const clientsRes1 = await Clients.find({ tenantId: user.tenantId, _id: { $in: clientIds1 } }, { fields: { name: 1 } }).fetchAsync();
+  const clientsRes1 = await Clients.find({ _id: { $in: clientIds1 } }, { fields: { name: 1 } }).fetchAsync();
   const timesWithClientsJoined = timesRes.map(time => {
     const x = time;
     const clientDoc = clientsRes1.find(client => client._id === time.clientId);

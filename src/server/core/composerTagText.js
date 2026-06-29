@@ -14,5 +14,5 @@ export default async function composerTagText(user, selTimes, text) {
   const parsed = inputSchema.safeParse({ selTimes, text });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  await Times.updateAsync({ tenantId: user.tenantId, _id: { $in: selTimes } }, { $set: { tagText: text, lastModified: new Date() } }, { multi: true });
+  await Times.updateAsync({ _id: { $in: selTimes } }, { $set: { tagText: text, lastModified: new Date() } }, { multi: true });
 }

@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
-import { Tenants } from '/src/shared/collections/collections.js';
+import { Tenant } from '/src/shared/collections/collections.js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -31,8 +31,8 @@ export default async function adminMainSettingsSave(user, settings) {
   const parsed = inputSchema.safeParse(settings);
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  await Tenants.updateAsync(
-    { _id: user.tenantId },
+  await Tenant.updateAsync(
+    {},
     {
       $set: {
         name: settings.name,

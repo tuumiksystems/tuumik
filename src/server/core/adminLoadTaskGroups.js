@@ -7,7 +7,7 @@ export default async function adminLoadTaskGroups(user) {
   if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to access this section');
 
   const res = await TaskGroups.find(
-    { tenantId: user.tenantId },
+    {},
     {
       fields: { name: 1, position: 1, showByDefault: 1, types: 1 },
       sort: { position: 1 },

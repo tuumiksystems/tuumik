@@ -14,10 +14,10 @@ export default async function adminDeleteTaskGroup(user, taskGroupId) {
   const parsed = inputSchema.safeParse({ taskGroupId });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const projectsExist = await Projects.findOneAsync({ tenantId: user.tenantId, taskGroupIds: taskGroupId });
+  const projectsExist = await Projects.findOneAsync({ taskGroupIds: taskGroupId });
   if (projectsExist) throw new Meteor.Error('403', 'Cannot delete task group since it is used in existing projects');
 
-  await TaskGroups.removeAsync({ tenantId: user.tenantId, _id: taskGroupId });
+  await TaskGroups.removeAsync({ _id: taskGroupId });
 
   return adminLoadTaskGroups(user);
 }

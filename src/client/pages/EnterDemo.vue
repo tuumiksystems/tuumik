@@ -5,14 +5,14 @@
     <div class="main-pane ext-pane">
       <h2 class="top-h2">START DEMO</h2>
       <div class="demo-text">
-        The live demo is a free and convenient way to quickly assess Tuumik's features in a temporary environment. It creates a sample organization with some user accounts and fills those
-        accounts with randomly generated data. It showcases a law firm with lawyers tracking their work. These demo accounts will be automatically deleted after a while. Feel free to try
+        The live demo is a free and convenient way to quickly assess Tuumik's features in a temporary environment. It logs you into a sample organization with some user accounts that have been
+        filled with randomly generated data. It showcases a law firm with lawyers tracking their work. These demo accounts will be automatically deleted after a while. Feel free to try
         out the app in the demo.
       </div>
       <div v-if="!loading" class="btn-submit" @click="createDemo()">START DEMO</div>
       <div v-if="loading" class="spinner"></div>
       <div v-if="loading">
-        Creating demo accounts. Please wait.
+        Loading. Please wait.
       </div>
     </div>
   </div>

@@ -14,7 +14,7 @@ export default async function getProjectForEdit(user, projectId) {
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
   const projectRes = await Projects.findOneAsync(
-    { tenantId: user.tenantId, _id: projectId },
+    { _id: projectId },
     {
       fields: {
         name: 1,
@@ -31,10 +31,10 @@ export default async function getProjectForEdit(user, projectId) {
 
   if (!projectRes) throw new Meteor.Error('404', 'Specified project not found');
 
-  const clientRes = await Clients.findOneAsync({ tenantId: user.tenantId, _id: projectRes.clientId }, { fields: { name: 1 } });
+  const clientRes = await Clients.findOneAsync({ _id: projectRes.clientId }, { fields: { name: 1 } });
   if (!clientRes) throw new Meteor.Error('500', 'Client for project not found');
 
-  const taskGroupsRes = await TaskGroups.find({ tenantId: user.tenantId }, { fields: { name: 1, default: 1, types: 1 }, sort: { position: 1 } }).fetchAsync();
+  const taskGroupsRes = await TaskGroups.find({}, { fields: { name: 1, default: 1, types: 1 }, sort: { position: 1 } }).fetchAsync();
 
   return {
     project: { ...projectRes, clientName: clientRes.name },

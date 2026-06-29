@@ -7,7 +7,7 @@ export default async function clientHistory(user) {
   if (!user.permissions.clientsEdit) throw new Meteor.Error('403', 'No permission to add clients');
 
   const res = await Clients.find(
-    { tenantId: user.tenantId },
+    {},
     {
       fields: { name: 1, created: 1 },
       sort: { created: -1 },

@@ -17,6 +17,5 @@ export default async function timeClearProject(user, timeId) {
   const { clientId } = curProject;
 
   const query = { _id: timeId, owner: user._id };
-  if (Meteor.isServer) query.tenantId = user.tenantId;
   await Times.updateAsync(query, { $unset: { projectId: '' }, $set: { clientId, lastModified: new Date() } });
 }

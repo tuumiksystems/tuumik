@@ -2,30 +2,25 @@
 
 <template>
   <div>
-    <div v-if="selectedUser" class="sel-user">
-      Showing user:
-      {{ selectedUser.name }}
-    </div>
-    <div v-else-if="selectedTeam" class="sel-team">
-      Showing team:
-      {{ selectedTeam.name }}
-    </div>
+    <InOutIconsTitleDesk :selected-team="selectedTeam" :selected-user="selectedUser" />
     <div class="board-holder">
       <div
         v-for="inOutUser in inOutUsers"
         :key="inOutUser._id"
-        :class="{ 'm-row-on': editUser && inOutUser._id === editUser._id, 'is-recent': isRecent(inOutUser.inOutUpdateAt) }"
-        class="m-row"
+        :class="{ 'user-holder-on': editUser && inOutUser._id === editUser._id, 'is-recent': isRecent(inOutUser.inOutUpdateAt) }"
+        class="user-holder"
         @click="openEditPopup(inOutUser)"
       >
-        <div :style="avatarStyle(inOutUser)" class="avatar-holder"></div>
+        <div v-if="inOutUser.pic" :style="avatarPicStyle(inOutUser)" class="avatar-pic"></div>
+        <div v-else-if="inOutUser.nameShort" class="avatar-text"><div class="avatar-text-name">{{ inOutUser.nameShort }}</div></div>
+        <div v-else class="avatar-pic"></div>
         <div :style="statusStyle(inOutUser.inOutStatus)" class="m-status">
           <span class="m-status2">{{ statusText(inOutUser.inOutStatus) }}</span>
         </div>
-        <span class="m-name">{{ inOutUser.name }}</span>
-        <span v-if="inOutUser.inOutETA" class="m-eta-desc"> ETA: {{ inOutUser.inOutETA }} </span>
-        <span class="m-note">{{ inOutUser.inOutNote }}</span>
-        <span class="m-bottom">
+        <div class="m-name">{{ inOutUser.name }}</div>
+        <div v-if="inOutUser.inOutETA" class="m-eta-desc"> ETA: {{ inOutUser.inOutETA }} </div>
+        <div class="m-note">{{ inOutUser.inOutNote }}</div>
+        <div class="m-bottom">
           <span v-if="isToday(inOutUser.inOutUpdateAt)" class="updated-today">
             {{ displayTime(inOutUser.inOutUpdateAt, true) }}
           </span>
@@ -35,7 +30,7 @@
           <span v-else class="updated-past">{{ displayDate(inOutUser.inOutUpdateAt, true) }}</span>
           <span v-if="inOutUser.inOutUpdateById && inOutUser.inOutUpdateById === inOutUser._id" class="m-updater-user">Self</span>
           <span v-else-if="inOutUser.inOutUpdateByName" class="m-updater-user">{{ inOutUser.inOutUpdateByName }}</span>
-        </span>
+        </div>
       </div>
     </div>
   </div>
@@ -43,6 +38,7 @@
 
 <script setup>
 import { useGeneralStore } from '/src/client/stores/general.js';
+import InOutIconsTitleDesk from '/src/client/components/InOut/InOutIconsTitleDesk.vue';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
@@ -60,7 +56,7 @@ const props = defineProps({
 
 const emit = defineEmits(['set-edit-user']);
 
-function avatarStyle(inOutUser) {
+function avatarPicStyle(inOutUser) {
   if (!inOutUser.pic) return false;
   return `background-image: url('${inOutUser.pic}');`;
 }
@@ -112,47 +108,67 @@ function openEditPopup(inOutUser) {
 
 <style scoped>
 .board-holder {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+  margin: 0 0 9em 0;
 }
 
-.m-row {
-  height: 20.7em;
-  width: 14em;
-  margin: 0 0.4em 0.4em 0;
-  padding: 0.4em;
+.user-holder {
+  min-height: 6em;
+  margin: 0 0.4em 2em 0;
+  padding: 0.4em 0.4em 0.4em 7em;
   background-color: #ffffff;
   position: relative;
   box-shadow: 0 0 0.9em 0 rgba(0, 0, 0, 0.07);
   border: 1px solid #cecece;
-  border-radius: 0.3em;
+  border-radius: 0.9em;
+  cursor: pointer;
 }
 
-.m-row-on {
+.user-holder:hover {
+  border: 1px solid #4f4f4f;
+}
+
+.user-holder-on {
   outline: 3px solid #000000;
 }
 
-.avatar-holder {
+.avatar-pic {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 14em;
-  background-color: #e9e9e9;
-  border: 1px solid #cecece;
-  border-radius: 0.3em 0.3em 0 0;
+  top: 1em;
+  left: 1em;
+  height: 4.5em;
+  width: 4.5em;
+  background-color: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 50%;
   background-image: url('/icons/person.svg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
 }
 
-.m-status {
+.avatar-text {
   position: absolute;
-  top: 14em;
-  left: 0;
-  right: 0;
+  top: 1em;
+  left: 1em;
+  height: 4.5em;
+  width: 4.5em;
+  background-color: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: default;
+}
+
+.avatar-text-name {
+  font-size: 2em;
+  font-weight: 600;
+  color: #000000;
+}
+
+.m-status {
   height: 2em;
   line-height: 2em;
   padding: 0 0.6em;
@@ -160,32 +176,21 @@ function openEditPopup(inOutUser) {
 }
 
 .m-status2 {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0.6em;
-  right: 0.6em;
   overflow: hidden;
   white-space: nowrap;
 }
 
 .m-eta-desc {
-  position: absolute;
-  top: 12.7em;
-  right: 0;
   padding: 0 0.3em;
   color: #e4e4e4;
   background-color: #1f1f1f;
   font-weight: 600;
   border-radius: 0.3em;
   overflow: hidden;
+  display: inline-block;
 }
 
 .m-name {
-  position: absolute;
-  top: 16.6em;
-  left: 0.6em;
-  right: 0.6em;
   color: #1f1f1f;
   font-weight: 600;
   white-space: nowrap;
@@ -193,22 +198,13 @@ function openEditPopup(inOutUser) {
 }
 
 .m-note {
-  position: absolute;
-  top: 19.1em;
-  left: 0.6em;
-  right: 0.6em;
-  height: 2.4em;
   color: #1f1f1f;
   line-height: 1em;
   overflow: hidden;
 }
 
 .m-bottom {
-  position: absolute;
-  top: 17.7em;
-  left: 0.6em;
-  right: 0.6em;
-  color: #1f1f1f;
+  color: #4f4f4f;
   white-space: nowrap;
   overflow: hidden;
 }

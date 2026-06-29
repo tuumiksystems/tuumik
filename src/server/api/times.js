@@ -4,6 +4,7 @@ import { WebApp } from 'meteor/webapp';
 import { authorizeApiRequest, apiHandler } from './auth.js';
 import timeInsert from '/src/shared/core/timeInsert.js';
 import timeInsertCopy from '/src/shared/core/timeInsertCopy.js';
+import timeUpdate from '/src/shared/core/timeUpdate.js';
 import timeRemove from '/src/shared/core/timeRemove.js';
 import timeSetPlan from '/src/shared/core/timeSetPlan.js';
 import timeResizeTop from '/src/shared/core/timeResizeTop.js';
@@ -33,6 +34,18 @@ WebApp.handlers.post('/api/times/:id/copy', apiHandler(async (req, res) => {
   if (!user) return;
   await timeInsertCopy(user, req.params.id, req.body.startMinute);
   res.json({ ok: true });
+}));
+
+// Update any subset of fields in one call. Body accepts the same fields as
+// insert (date, startMinute, endMinute, projectId, clientId, taskType,
+// taskDesc, intCom, hideHistory, plan); at least one must be present.
+WebApp.handlers.patch('/api/times/:id/update', apiHandler(async (req, res) => {
+  const user = await authorizeApiRequest(req, res, 'timeUpdate');
+  if (!user) return;
+  const args = { ...req.body };
+  if (req.body.date !== undefined) args.selDate = new Date(`${req.body.date}T00:00:00.001Z`);
+  const result = await timeUpdate(user, req.params.id, args);
+  res.json(result);
 }));
 
 WebApp.handlers.delete('/api/times/:id/delete', apiHandler(async (req, res) => {

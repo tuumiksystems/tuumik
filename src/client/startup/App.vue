@@ -10,6 +10,7 @@
     <RouterView v-else :style="{ fontSize: fontSize, marginTop: marginTopBody, padding: paddingBody }" />
     <SubUser />
     <SubTenant v-if="generalStore.user" />
+    <ExternalSettings v-if="route.meta.external && !generalStore.settings.demoMode" />
     <GlobalNotifier v-if="notifierStore.messages.length" :style="{ fontSize: fontSize }" />
   </div>
 </template>
@@ -23,6 +24,7 @@ import { useGeneralStore } from '/src/client/stores/general.js';
 import { useNotifierStore } from '/src/client/stores/notifier.js';
 import SubUser from '/src/client/components/AppSubs/SubUser.vue';
 import SubTenant from '/src/client/components/AppSubs/SubTenant.vue';
+import ExternalSettings from '/src/client/components/ExternalSettings/ExternalSettings.vue';
 import GlobalNotifier from '/src/client/components/GlobalNotifier/GlobalNotifier.vue';
 import TopMenu from '/src/client/components/TopMenu/TopMenu.vue';
 import TopMenuExternal from '/src/client/components/TopMenuExternal/TopMenuExternal.vue';

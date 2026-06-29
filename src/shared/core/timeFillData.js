@@ -26,6 +26,5 @@ export default async function timeFillData(user, timeId, projectId, taskType, ta
   };
 
   const query = { _id: timeId, owner: user._id };
-  if (Meteor.isServer) query.tenantId = user.tenantId;
   await Times.updateAsync(query, { $set: setFields });
 }

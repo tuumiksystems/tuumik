@@ -16,7 +16,7 @@
         <th class="uth">Edit</th>
       </tr>
       <tr v-for="listUser in listUsers" :key="listUser._id" :class="{ 'disabled-user': listUser.disabled }" class="utr">
-        <td class="utd">{{ listUser.name }}</td>
+        <td class="utd">{{ listUser.name }} <span v-if="listUser.nameShort">({{ listUser.nameShort }})</span></td>
         <td class="utd td-username">
           <span v-if="listUser.username">{{ listUser.username }}</span>
           <span v-else>-</span>

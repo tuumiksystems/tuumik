@@ -14,8 +14,5 @@ export default async function adminSaveUserUsername(user, userId, username) {
   const parsed = inputSchema.safeParse({ userId, username });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const targetUser = await Meteor.users.findOneAsync({ _id: userId });
-  if (user.tenantId !== targetUser.tenantId) throw new Meteor.Error('403', 'Incorrect tenant');
-
   await Accounts.setUsername(userId, username);
 }

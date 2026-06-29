@@ -2,7 +2,8 @@
 
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
-import { Tenants } from '/src/shared/collections/collections';
+import { Tenant } from '/src/shared/collections/collections';
+import { createShortName } from '/src/server/utils/name';
 
 Accounts.config({
   forbidClientAccountCreation: true,
@@ -14,7 +15,6 @@ Accounts.config({
 Accounts.onCreateUser((options, user) => {
   const userDoc = user;
   // move custom fields from the default profile field to top level fields
-  if (options.profile.tenantId) userDoc.tenantId = options.profile.tenantId;
   if (options.profile.name) userDoc.name = options.profile.name;
   if (options.profile.nameNormalized) userDoc.nameNormalized = options.profile.nameNormalized;
   if (options.profile.permissions) userDoc.permissions = options.profile.permissions;
@@ -22,6 +22,7 @@ Accounts.onCreateUser((options, user) => {
   if (options.profile.inTeams) userDoc.inTeams = options.profile.inTeams;
   if (options.profile.pic) userDoc.pic = options.profile.pic;
 
+  userDoc.nameShort = createShortName(userDoc.name);
   userDoc.apiKeyCreation = true;
   userDoc.apiKeys = [];
   userDoc.trackerSimple = options.profile.trackerSimple || true;
@@ -45,10 +46,8 @@ Accounts.onCreateUser((options, user) => {
 Accounts.validateLoginAttempt(async (attempt) => {
   if (!attempt.user || attempt.user.disabled) throw new Meteor.Error('404', 'User not found');
 
-  const tenant = await Tenants.findOneAsync(attempt.user.tenantId);
+  const tenant = await Tenant.findOneAsync();
   if (!tenant) throw new Meteor.Error('403', 'Tenant information could not be retreived');
-
-  if (tenant.preventLogin) throw new Meteor.Error('403', 'Login disabled. Please contact support');
 
   if (attempt.allowed) return true;
   return false;

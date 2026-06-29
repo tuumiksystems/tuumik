@@ -19,7 +19,6 @@ export default async function adminAddUser(user, name, email, password) {
 
   const permissions = {};
   const profile = {
-    tenantId: user.tenantId,
     name,
     nameNormalized: normalizeStringForAC(name),
     permissions,

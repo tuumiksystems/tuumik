@@ -3,7 +3,7 @@
 import { Accounts } from 'meteor/accounts-base';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
 
-export default async tenantId => {
+export default async () => {
   const persons = [
     {
       name: 'John Smith',
@@ -69,6 +69,40 @@ export default async tenantId => {
       name: 'Amanda Green',
       pic: 'https://assets.tuumik.com/users/v1/user16-large.jpg',
     },
+    { name: 'Olivia Bennett' },
+    { name: 'Emma Coleman' },
+    { name: 'Sophia Reed' },
+    { name: 'Isabella Ward' },
+    { name: 'Charlotte Hayes' },
+    { name: 'Mia Foster' },
+    { name: 'Ava Russell' },
+    { name: 'Emily Bryant' },
+    { name: 'Abigail Spencer' },
+    { name: 'Grace Murphy' },
+    { name: 'Lily Hudson' },
+    { name: 'Hannah Wallace' },
+    { name: 'Natalie Brooks' },
+    { name: 'Victoria Sanders' },
+    { name: 'Zoe Patterson' },
+    { name: 'Lauren Fisher' },
+    { name: 'Megan Stewart' },
+    { name: 'Rachel Powell' },
+    { name: 'Sarah Bishop' },
+    { name: 'James Holloway' },
+    { name: 'William Barrett' },
+    { name: 'Daniel Carter' },
+    { name: 'Michael Pearson' },
+    { name: 'Thomas Lawson' },
+    { name: 'Henry Mitchell' },
+    { name: 'Joseph Sullivan' },
+    { name: 'David Newton' },
+    { name: 'Matthew Reeves' },
+    { name: 'Andrew Bradley' },
+    { name: 'Benjamin Watts' },
+    { name: 'Jack Morrison' },
+    { name: 'Samuel Greenwood' },
+    { name: 'Nathan Curtis' },
+    { name: 'Oliver Hampton' },
   ];
 
   for (const person of persons) {
@@ -89,15 +123,15 @@ export default async tenantId => {
     const randomTeamId = Math.random() < 0.5 ? '20' : '30';
 
     const profile = {
-      tenantId,
       name: person.name,
       nameNormalized: normalizeStringForAC(person.name),
       permissions,
       inOutStatus: '6',
       inTeams: ['10', randomTeamId],
-      pic: person.pic,
       enabled: true,
     };
+
+    if (person.pic) profile.pic = person.pic;
 
     let email;
     do {

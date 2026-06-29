@@ -18,6 +18,6 @@ export default async function projectDeleteFn(user, projectId) {
   if (time) throw new Meteor.Error('405', 'Cannot delete project since it has time entries');
 
   await Meteor.users.updateAsync({ defaultProjectId: projectId }, { $set: { defaultProjectId: '' } });
-  await Projects.removeAsync({ tenantId: user.tenantId, _id: projectId });
+  await Projects.removeAsync({ _id: projectId });
   projectDelete({ projectId });
 }

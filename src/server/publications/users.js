@@ -9,11 +9,11 @@ Meteor.publish('usersSelf', async function() {
 
   const user = await Meteor.users.findOneAsync(this.userId);
   return Meteor.users.find(
-    { tenantId: user.tenantId, _id: user._id },
+    { _id: user._id },
     {
       fields: {
-        tenantId: 1,
         name: 1,
+        nameShort: 1,
         emails: 1,
         trackerSimple: 1,
         defaultClientId: 1,

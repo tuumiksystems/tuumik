@@ -14,7 +14,7 @@ export default async function catalogProjectsForClient(user, clientId) {
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
   const res = await Projects.find(
-    { tenantId: user.tenantId, clientId },
+    { clientId },
     { fields: { name: 1, created: 1 }, sort: { created: 1 } },
   ).fetchAsync();
 

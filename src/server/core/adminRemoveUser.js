@@ -14,11 +14,8 @@ export default async function adminRemoveUser(user, userId) {
   const parsed = inputSchema.safeParse({ userId });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const targetUser = await Meteor.users.findOneAsync({ _id: userId });
-  if (user.tenantId !== targetUser.tenantId) throw new Meteor.Error('403', 'Incorrect tenant');
-
-  const timesExist = await Times.findOneAsync({ tenantId: user.tenantId, owner: userId });
+  const timesExist = await Times.findOneAsync({ owner: userId });
   if (timesExist) throw new Meteor.Error('403', 'Cannot delete user since it has existing timesheet entries');
 
-  await Meteor.users.removeAsync({ tenantId: user.tenantId, _id: userId });
+  await Meteor.users.removeAsync({ _id: userId });
 }

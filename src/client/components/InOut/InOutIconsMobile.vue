@@ -2,14 +2,7 @@
 
 <template>
   <div>
-    <div v-if="selectedUser" class="sel-user">
-      Showing user:
-      {{ selectedUser.name }}
-    </div>
-    <div v-else-if="selectedTeam" class="sel-team">
-      Showing team:
-      {{ selectedTeam.name }}
-    </div>
+    <InOutIconsTitleDesk :selected-team="selectedTeam" :selected-user="selectedUser" />
     <div class="board-holder">
       <div
         v-for="inOutUser in inOutUsers"
@@ -18,7 +11,9 @@
         class="user-holder"
         @click="openEditPopup(inOutUser)"
       >
-        <div :style="avatarStyle(inOutUser)" class="avatar-holder"></div>
+        <div v-if="inOutUser.pic" :style="avatarPicStyle(inOutUser)" class="avatar-pic"></div>
+        <div v-else-if="inOutUser.nameShort" class="avatar-text"><div class="avatar-text-name">{{ inOutUser.nameShort }}</div></div>
+        <div v-else class="avatar-pic"></div>
         <div :style="statusStyle(inOutUser.inOutStatus)" class="m-status">
           <span class="m-status2">{{ statusText(inOutUser.inOutStatus) }}</span>
         </div>
@@ -43,6 +38,7 @@
 
 <script setup>
 import { useGeneralStore } from '/src/client/stores/general.js';
+import InOutIconsTitleDesk from '/src/client/components/InOut/InOutIconsTitleDesk.vue';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
@@ -60,7 +56,7 @@ const props = defineProps({
 
 const emit = defineEmits(['set-edit-user']);
 
-function avatarStyle(inOutUser) {
+function avatarPicStyle(inOutUser) {
   if (!inOutUser.pic) return false;
   return `background-image: url('${inOutUser.pic}');`;
 }
@@ -115,42 +111,74 @@ function openEditPopup(inOutUser) {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
+  margin: 0 0 9em 0;
 }
 
 .user-holder {
-  height: 20.7em;
-  width: 14em;
+  height: 14.7em;
+  width: 12em;
   margin: 0 0.4em 0.4em 0;
   padding: 0.4em;
   background-color: #ffffff;
   position: relative;
   box-shadow: 0 0 0.9em 0 rgba(0, 0, 0, 0.07);
   border: 1px solid #cecece;
-  border-radius: 0.3em;
+  border-radius: 0.9em;
+  cursor: pointer;
+}
+
+.user-holder:hover {
+  border: 1px solid #4f4f4f;
 }
 
 .user-holder-on {
   outline: 3px solid #000000;
 }
 
-.avatar-holder {
+.avatar-pic {
   position: absolute;
-  top: 0;
+  top: 1em;
   left: 0;
   right: 0;
-  height: 14em;
-  background-color: #e9e9e9;
-  border: 1px solid #cecece;
-  border-radius: 0.3em 0.3em 0 0;
+  height: 5.5em;
+  width: 5.5em;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 50%;
   background-image: url('/icons/person.svg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
 }
 
+.avatar-text {
+  position: absolute;
+  top: 1em;
+  left: 0;
+  right: 0;
+  height: 5.5em;
+  width: 5.5em;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: default;
+}
+
+.avatar-text-name {
+  font-size: 3em;
+  font-weight: 600;
+  color: #000000;
+}
+
 .m-status {
   position: absolute;
-  top: 14em;
+  top: 8em;
   left: 0;
   right: 0;
   height: 2em;
@@ -171,7 +199,7 @@ function openEditPopup(inOutUser) {
 
 .m-eta-desc {
   position: absolute;
-  top: 12.7em;
+  top: 6.7em;
   right: 0;
   padding: 0 0.3em;
   color: #e4e4e4;
@@ -183,7 +211,7 @@ function openEditPopup(inOutUser) {
 
 .m-name {
   position: absolute;
-  top: 16.6em;
+  top: 10.6em;
   left: 0.6em;
   right: 0.6em;
   color: #1f1f1f;
@@ -194,7 +222,7 @@ function openEditPopup(inOutUser) {
 
 .m-note {
   position: absolute;
-  top: 19.1em;
+  top: 13.1em;
   left: 0.6em;
   right: 0.6em;
   height: 2.4em;
@@ -205,10 +233,10 @@ function openEditPopup(inOutUser) {
 
 .m-bottom {
   position: absolute;
-  top: 17.7em;
+  top: 11.8em;
   left: 0.6em;
   right: 0.6em;
-  color: #1f1f1f;
+  color: #4f4f4f;
   white-space: nowrap;
   overflow: hidden;
 }

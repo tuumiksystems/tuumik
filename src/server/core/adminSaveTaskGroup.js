@@ -19,7 +19,7 @@ export default async function adminSaveTaskGroup(user, taskGroup) {
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
   const { name, position, showByDefault, types } = taskGroup;
-  await TaskGroups.updateAsync({ tenantId: user.tenantId, _id: taskGroup._id }, { $set: { name, position, showByDefault, types } });
+  await TaskGroups.updateAsync({ _id: taskGroup._id }, { $set: { name, position, showByDefault, types } });
 
   return adminLoadTaskGroupForEdit(user, taskGroup._id);
 }

@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
-import { Tenants } from '/src/shared/collections/collections.js';
+import { Tenant } from '/src/shared/collections/collections.js';
 import adminLoadInOutOptions from '/src/server/core/adminLoadInOutOptions.js';
 
 const inputSchema = z.array(
@@ -14,15 +14,15 @@ export default async function adminSaveInOutOptions(user, inOutOptions) {
   const parsed = inputSchema.safeParse(inOutOptions);
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const tenant = await Tenants.findOneAsync(user.tenantId);
+  const tenant = await Tenant.findOneAsync();
   let idCounter = Number.parseInt(tenant.inOutOptionsIdCounter, 10) || 10;
   const optionsProcessed = inOutOptions.map(opt => {
     if (opt.id) return { ...opt };
     idCounter += 1;
     return { ...opt, id: String(idCounter) };
   });
-  await Tenants.updateAsync(
-    { _id: user.tenantId },
+  await Tenant.updateAsync(
+    {},
     { $set: { inOutOptions: optionsProcessed, inOutOptionsIdCounter: idCounter } },
   );
 

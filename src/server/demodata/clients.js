@@ -4,7 +4,7 @@ import { Clients } from '/src/shared/collections/collections.js';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
 import { Random } from 'meteor/random';
 
-export default async tenantId => {
+export default async () => {
   const docs = [];
 
   const clientNames = [
@@ -23,7 +23,6 @@ export default async tenantId => {
     'Norton Systems AB',
     'Telavia Aeronautical Engineering AB',
     'Wilkinson Maynes LLP',
-    /*
     'Finbank AB',
     'Vircom AG',
     'Gilleon Services PLC',
@@ -49,13 +48,11 @@ export default async tenantId => {
     'Altel Manufacturing and Retail AB',
     'Xenimex Entertainment Inc',
     'Indelex Systems AB',
-    */
   ];
 
   for (const clientName of clientNames) {
     const doc = {
       _id: Random.id(),
-      tenantId,
       name: clientName,
       nameNormalized: normalizeStringForAC(clientName),
       reminder: '',

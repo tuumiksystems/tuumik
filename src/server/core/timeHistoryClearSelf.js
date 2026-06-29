@@ -15,7 +15,6 @@ export default async function timeHistoryClearSelf(user, timeId, limit) {
 
   const timesRes = await Times.find(
     {
-      tenantId: user.tenantId,
       owner: user._id,
       projectId: { $exists: true },
       hideHistory: { $ne: true },
@@ -39,7 +38,7 @@ export default async function timeHistoryClearSelf(user, timeId, limit) {
 
   // join projects
   const projectIds = [...new Set(timesRes.map(time => time.projectId))].sort();
-  const projectsRes = await Projects.find({ tenantId: user.tenantId, _id: { $in: projectIds } }, { fields: { name: 1, clientId: 1 } }).fetchAsync();
+  const projectsRes = await Projects.find({ _id: { $in: projectIds } }, { fields: { name: 1, clientId: 1 } }).fetchAsync();
   const timesWithProjectsJoined = timesRes.map(time => {
     const x = time;
     const projectDoc = projectsRes.find(project => project._id === time.projectId);
@@ -51,7 +50,7 @@ export default async function timeHistoryClearSelf(user, timeId, limit) {
 
   // join clients
   const clientIds = [...new Set(timesWithProjectsJoined.map(time => time.clientId))].sort();
-  const clientsRes = await Clients.find({ tenantId: user.tenantId, _id: { $in: clientIds } }, { fields: { name: 1 } }).fetchAsync();
+  const clientsRes = await Clients.find({ _id: { $in: clientIds } }, { fields: { name: 1 } }).fetchAsync();
   const timesWithClientsJoined = timesRes.map(time => {
     const x = time;
     const clientDoc = clientsRes.find(client => client._id === time.clientId);

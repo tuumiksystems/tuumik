@@ -16,7 +16,6 @@ export default async function timeHistoryProjectOthers(user, projectId, limit) {
 
   const timesRes = await Times.find(
     {
-      tenantId: user.tenantId,
       owner: { $ne: user._id },
       projectId,
       hideHistory: { $ne: true },
@@ -39,7 +38,7 @@ export default async function timeHistoryProjectOthers(user, projectId, limit) {
 
   // join owners
   const ownerIds = [...new Set(timesRes.map(time => time.owner))].sort();
-  const ownersRes = await Meteor.users.find({ tenantId: user.tenantId, _id: { $in: ownerIds } }, { fields: { name: 1 } }).fetchAsync();
+  const ownersRes = await Meteor.users.find({ _id: { $in: ownerIds } }, { fields: { name: 1 } }).fetchAsync();
   const timesWithOwnersJoined = timesRes.map(time => {
     const x = time;
     const ownerDoc = ownersRes.find(owner => owner._id === time.owner);

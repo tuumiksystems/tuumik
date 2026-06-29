@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { Times, Clients, Projects, Tenants } from '/src/shared/collections/collections.js';
+import { Times, Clients, Projects, Tenant } from '/src/shared/collections/collections.js';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
 
 dayjs.extend(utc);
@@ -32,7 +32,7 @@ export default async function timesheetExplorerFull(user, searchTerms) {
   const parsed = inputSchema.safeParse(searchTerms);
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const query = { tenantId: user.tenantId };
+  const query = {};
   const meta = {};
 
   if (searchTerms.projectPickers.length) {
@@ -42,7 +42,6 @@ export default async function timesheetExplorerFull(user, searchTerms) {
         projectIds.push(x.projectId);
       } else if (x.clientId) {
         const projects = await Projects.find({
-          tenantId: user.tenantId,
           clientId: x.clientId,
         }).fetchAsync();
         for (const p of projects) projectIds.push(p._id);
@@ -53,7 +52,6 @@ export default async function timesheetExplorerFull(user, searchTerms) {
 
     const metaProjects = await Projects.find(
       {
-        tenantId: user.tenantId,
         _id: { $in: projectIdsUnique },
       },
       { fields: { name: 1, clientId: 1 }, sort: { name: 1 } },
@@ -63,7 +61,6 @@ export default async function timesheetExplorerFull(user, searchTerms) {
     const clientIdsUnique = [...new Set(clientIds)];
     const metaClients = await Clients.find(
       {
-        tenantId: user.tenantId,
         _id: { $in: clientIdsUnique },
       },
       { fields: { name: 1 }, sort: { name: 1 } },
@@ -82,7 +79,7 @@ export default async function timesheetExplorerFull(user, searchTerms) {
     const userIds = searchTerms.searchUsers;
     const userIdsUnique = [...new Set(userIds)];
     query.owner = { $in: userIdsUnique };
-    meta.users = await Meteor.users.find({ tenantId: user.tenantId, _id: { $in: userIdsUnique } }, { fields: { name: 1 }, sort: { name: 1 } }).fetchAsync();
+    meta.users = await Meteor.users.find({ _id: { $in: userIdsUnique } }, { fields: { name: 1 }, sort: { name: 1 } }).fetchAsync();
   }
 
   const periodStart = dayjs.utc(searchTerms.period.start).startOf('day').toDate();
@@ -173,7 +170,7 @@ export default async function timesheetExplorerFull(user, searchTerms) {
 
   // join owners for times
   const ownerIds1 = [...new Set(timesRes.map(time => time.owner))].sort();
-  const ownersRes1 = await Meteor.users.find({ tenantId: user.tenantId, _id: { $in: ownerIds1 } }, { fields: { name: 1 } }).fetchAsync();
+  const ownersRes1 = await Meteor.users.find({ _id: { $in: ownerIds1 } }, { fields: { name: 1 } }).fetchAsync();
   const timesWithOwnersJoined = timesRes.map(time => {
     const x = time;
     const ownerDoc = ownersRes1.find(owner => owner._id === time.owner);
@@ -184,7 +181,7 @@ export default async function timesheetExplorerFull(user, searchTerms) {
 
   // join projects for times
   const projectIds1 = [...new Set(timesWithOwnersJoined.map(time => time.projectId))].sort();
-  const projectsRes1 = await Projects.find({ tenantId: user.tenantId, _id: { $in: projectIds1 } }, { fields: { name: 1, clientId: 1 } }).fetchAsync();
+  const projectsRes1 = await Projects.find({ _id: { $in: projectIds1 } }, { fields: { name: 1, clientId: 1 } }).fetchAsync();
   const timesWithProjectsJoined = timesRes.map(time => {
     const x = time;
     const projectDoc = projectsRes1.find(project => project._id === time.projectId);
@@ -196,7 +193,7 @@ export default async function timesheetExplorerFull(user, searchTerms) {
 
   // join clients for times
   const clientIds1 = [...new Set(timesWithProjectsJoined.map(time => time.clientId))].sort();
-  const clientsRes1 = await Clients.find({ tenantId: user.tenantId, _id: { $in: clientIds1 } }, { fields: { name: 1 } }).fetchAsync();
+  const clientsRes1 = await Clients.find({ _id: { $in: clientIds1 } }, { fields: { name: 1 } }).fetchAsync();
   const timesWithClientsJoined = timesRes.map(time => {
     const x = time;
     const clientDoc = clientsRes1.find(client => client._id === time.clientId);

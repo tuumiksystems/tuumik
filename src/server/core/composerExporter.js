@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
-import { Tenants } from '/src/shared/collections/collections.js';
+import { Tenant } from '/src/shared/collections/collections.js';
 import { appVersion } from '/src/shared/utils/app.js';
 import { fetch } from 'meteor/fetch';
 
@@ -18,7 +18,7 @@ export default async function composerExporter(user, args) {
   const parsed = inputSchema.safeParse(args);
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const tenant = await Tenants.findOneAsync(user.tenantId);
+  const tenant = await Tenant.findOneAsync();
   const { composerExportersBack } = tenant;
   const exporter = composerExportersBack.find(x => x.id === args.exporterId);
 

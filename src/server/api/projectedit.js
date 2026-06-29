@@ -2,13 +2,13 @@
 
 import { WebApp } from 'meteor/webapp';
 import { authorizeApiRequest, apiHandler } from './auth.js';
-import projectSave from '/src/server/core/projectSave.js';
+import projectUpdate from '/src/server/core/projectUpdate.js';
 import projectDeleteFn from '/src/server/core/projectDelete.js';
 
 WebApp.handlers.put('/api/projects/:projectId/update', apiHandler(async (req, res) => {
-  const user = await authorizeApiRequest(req, res, 'projectSave');
+  const user = await authorizeApiRequest(req, res, 'projectUpdate');
   if (!user) return;
-  await projectSave(user, { ...req.body, _id: req.params.projectId });
+  await projectUpdate(user, { ...req.body, _id: req.params.projectId });
   res.json({ ok: true });
 }));
 

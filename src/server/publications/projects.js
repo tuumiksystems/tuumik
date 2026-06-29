@@ -13,7 +13,7 @@ Meteor.publish('projectForTime', async function(projectId) {
 
   const user = await Meteor.users.findOneAsync(this.userId);
   return Projects.find(
-    { tenantId: user.tenantId, _id: projectId },
+    { _id: projectId },
     {
       fields: {
         name: 1,
@@ -36,7 +36,7 @@ Meteor.publish('projectsForClientInTime', async function(clientId) {
 
   const user = await Meteor.users.findOneAsync(this.userId);
   return Projects.find(
-    { tenantId: user.tenantId, clientId },
+    { clientId },
     {
       fields: {
         name: 1,

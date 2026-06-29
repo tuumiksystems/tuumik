@@ -17,6 +17,5 @@ export default async function timeMove(user, timeId, startMinute) {
   const endMinute = startMinute + currentTime.endMinute - currentTime.startMinute;
 
   const query = { _id: timeId, owner: user._id };
-  if (Meteor.isServer) query.tenantId = user.tenantId;
   await Times.updateAsync(query, { $set: { startMinute, endMinute, lastModified: new Date() } });
 }

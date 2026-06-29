@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
-import { Tenants, Clients, Projects } from '/src/shared/collections/collections.js';
+import { Tenant, Clients, Projects } from '/src/shared/collections/collections.js';
 
 const inputSchema = z.object({
   userId: z.string(),
@@ -13,13 +13,14 @@ export default async function adminGetUserForEdit(user, userId) {
   const parsed = inputSchema.safeParse({ userId });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const tenant = await Tenants.findOneAsync(user.tenantId);
+  const tenant = await Tenant.findOneAsync();
 
   const editedUser = await Meteor.users.findOneAsync(
-    { tenantId: user.tenantId, _id: userId },
+    { _id: userId },
     {
       fields: {
         name: 1,
+        nameShort: 1,
         pic: 1,
         emails: 1,
         inOutShow: 1,

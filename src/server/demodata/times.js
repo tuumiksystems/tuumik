@@ -9,7 +9,7 @@ import { Random } from 'meteor/random';
 
 dayjs.extend(utc);
 
-export default async tenantId => {
+export default async () => {
   const docs = [];
 
   const getRandomPleading = () => {
@@ -121,9 +121,9 @@ export default async tenantId => {
     return tasksDescs[Math.floor(Math.random() * tasksDescs.length)];
   };
 
-  const tenantProjects = await Projects.find({ tenantId }).fetchAsync();
+  const projects = await Projects.find({}).fetchAsync();
   const getRandomProject = () => {
-    return tenantProjects[Math.floor(Math.random() * tenantProjects.length)];
+    return projects[Math.floor(Math.random() * projects.length)];
   };
 
   const targetDates = [
@@ -208,8 +208,8 @@ export default async tenantId => {
       .toDate(),
   ];
 
-  const tenantUsers = await Meteor.users.find({ tenantId }).fetchAsync();
-  for (const tenantUser of tenantUsers) {
+  const users = await Meteor.users.find({}).fetchAsync();
+  for (const user of users) {
     for (const targetDate of targetDates) {
       let endMinute = Math.floor(Math.random() * 120 + 400);
       const timesCount = Math.floor(Math.random() * 6 + 3);
@@ -224,9 +224,8 @@ export default async tenantId => {
         endMinute = startMinute + Math.floor(Math.random() * 120 + 6);
         const doc = {
           _id: Random.id(),
-          tenantId,
           date: targetDate,
-          owner: tenantUser._id,
+          owner: user._id,
           startMinute,
           endMinute,
           projectId: getRandomProject()._id,

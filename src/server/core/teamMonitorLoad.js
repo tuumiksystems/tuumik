@@ -19,18 +19,17 @@ export default async function teamMonitorLoad(user, dates, teamId, userId) {
   const parsed = inputSchema.safeParse({ dates, teamId, userId });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const usersQuery = { tenantId: user.tenantId };
+  const usersQuery = {};
   if (userId) {
     usersQuery._id = userId;
   } else {
     usersQuery.inTeams = teamId;
   }
-  const targetUsers = await Meteor.users.find(usersQuery, { fields: { name: 1, inOutStatus: 1, inOutNote: 1, inOutETA: 1, inOutUpdateAt: 1, pic: 1 } }).fetchAsync();
+  const targetUsers = await Meteor.users.find(usersQuery, { fields: { name: 1, nameShort: 1, inOutStatus: 1, inOutNote: 1, inOutETA: 1, inOutUpdateAt: 1, pic: 1 } }).fetchAsync();
   const targetUserIds = targetUsers.map(x => x._id);
 
   const statusesRes = await Statuses.find(
     {
-      tenantId: user.tenantId,
       $or: [
         { start: { $gt: dates.startLocal, $lt: dates.endLocal } },
         { end: { $gt: dates.startLocal, $lt: dates.endLocal } },
@@ -53,7 +52,6 @@ export default async function teamMonitorLoad(user, dates, teamId, userId) {
 
   const timesRes = await Times.find(
     {
-      tenantId: user.tenantId,
       owner: { $in: targetUserIds },
       date: dates.monitorDate,
     },
@@ -77,7 +75,7 @@ export default async function teamMonitorLoad(user, dates, teamId, userId) {
 
   // join projects for times
   const projectIds1 = [...new Set(timesRes.map(time => time.projectId))].sort();
-  const projectsRes1 = await Projects.find({ tenantId: user.tenantId, _id: { $in: projectIds1 } }, { fields: { name: 1, clientId: 1 } }).fetchAsync();
+  const projectsRes1 = await Projects.find({ _id: { $in: projectIds1 } }, { fields: { name: 1, clientId: 1 } }).fetchAsync();
   const timesWithProjectsJoined = timesRes.map(time => {
     const x = time;
     const projectDoc = projectsRes1.find(project => project._id === time.projectId);
@@ -89,7 +87,7 @@ export default async function teamMonitorLoad(user, dates, teamId, userId) {
 
   // join clients for times
   const clientIds1 = [...new Set(timesWithProjectsJoined.map(time => time.clientId))].sort();
-  const clientsRes1 = await Clients.find({ tenantId: user.tenantId, _id: { $in: clientIds1 } }, { fields: { name: 1 } }).fetchAsync();
+  const clientsRes1 = await Clients.find({ _id: { $in: clientIds1 } }, { fields: { name: 1 } }).fetchAsync();
   const timesWithClientsJoined = timesRes.map(time => {
     const x = time;
     const clientDoc = clientsRes1.find(client => client._id === time.clientId);

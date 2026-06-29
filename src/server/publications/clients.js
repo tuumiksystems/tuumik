@@ -13,7 +13,7 @@ Meteor.publish('clientForTime', async function(clientId) {
 
   const user = await Meteor.users.findOneAsync(this.userId);
   return Clients.find(
-    { tenantId: user.tenantId, _id: clientId },
+    { _id: clientId },
     {
       fields: {
         name: 1,

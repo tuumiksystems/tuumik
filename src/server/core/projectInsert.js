@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
-import { Projects, Clients, Tenants } from '/src/shared/collections/collections.js';
+import { Projects, Clients, Tenant } from '/src/shared/collections/collections.js';
 import projectAdd from '/src/server/integrations/project-add.js';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
 
@@ -16,12 +16,11 @@ export default async function projectInsert(user, name, clientId) {
   const parsed = inputSchema.safeParse({ name, clientId });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  if (!Clients.findOneAsync({ tenantId: user.tenantId, _id: clientId })) throw new Meteor.Error('404', 'No client found');
+  if (!Clients.findOneAsync({ _id: clientId })) throw new Meteor.Error('404', 'No client found');
 
-  const tenant = await Tenants.findOneAsync(user.tenantId);
+  const tenant = await Tenant.findOneAsync();
 
   const doc = {
-    tenantId: user.tenantId,
     name,
     nameNormalized: normalizeStringForAC(name),
     clientId,

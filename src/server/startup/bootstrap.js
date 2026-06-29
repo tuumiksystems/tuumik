@@ -44,7 +44,6 @@ import '/src/server/methods/admintaskgroups.js';
 import '/src/server/methods/adminteams.js';
 import '/src/server/methods/adminexporters.js';
 import '/src/server/methods/admininoutoptions.js';
-import '/src/server/methods/admintermination.js';
 
 // methods (shared)
 import '/src/shared/methods/timetracker.js';
@@ -70,7 +69,6 @@ import '/src/server/api/admininoutoptions.js';
 import '/src/server/api/adminmainsettings.js';
 import '/src/server/api/admintaskgroups.js';
 import '/src/server/api/adminteams.js';
-import '/src/server/api/admintermination.js';
 import '/src/server/api/adminusers.js';
 import '/src/server/api/autocomplete.js';
 import '/src/server/api/demodata.js';

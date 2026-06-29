@@ -6,7 +6,7 @@
     <h1 v-if="!client">Not found</h1>
     <div v-else>
       <h1>{{ client.name }}</h1>
-      <form class="main-pane" @submit.prevent="clientSave()">
+      <form class="main-pane" @submit.prevent="clientUpdate()">
         <div class="section-title">GENERAL</div>
         <label for="client-name" class="field-label">CLIENT NAME:</label>
         <input id="client-name" v-model="client.name" placeholder="CLIENT NAME" type="text" maxlength="500" />
@@ -60,10 +60,10 @@ async function clientLoad() {
   }
 }
 
-async function clientSave() {
+async function clientUpdate() {
   loading.value = true;
   try {
-    await Meteor.callAsync('clientSave', client.value);
+    await Meteor.callAsync('clientUpdate', client.value);
     notifierStore.addTemp({ type: 'success', txt: 'CLIENT SAVED' });
     loading.value = false;
   } catch (err) {

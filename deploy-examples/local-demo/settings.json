@@ -6,8 +6,6 @@
   },
   "private": {
     "systemEmail": "noreply@exampledomain.com",
-    "monitorEmail": "monitor@exampledomain.com",
-    "disableSignupAfterSignup": false,
-    "tenantDeletionByTenant": true
+    "monitorEmail": "monitor@exampledomain.com"
   }
 }

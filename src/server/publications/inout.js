@@ -18,14 +18,12 @@ Meteor.publish('inOutUsers', async function(searchedUserId, teamId) {
   }
 
   const queryForSearch = {
-    tenantId: user.tenantId,
     _id: searchedUserId,
     inOutShow: true,
     disabled: { $ne: true },
   };
 
   const queryForTeams = {
-    tenantId: user.tenantId,
     inTeams: teamId,
     inOutShow: true,
     disabled: { $ne: true },
@@ -36,6 +34,7 @@ Meteor.publish('inOutUsers', async function(searchedUserId, teamId) {
   return Meteor.users.find(query, {
     fields: {
       name: 1,
+      nameShort: 1,
       pic: 1,
       inOutShow: 1,
       inOutStatus: 1,

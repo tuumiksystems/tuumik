@@ -15,8 +15,5 @@ export default async function adminSendVerifyEmail(user, userId, email) {
   const parsed = inputSchema.safeParse({ userId, email });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const targetUser = await Meteor.users.findOneAsync({ _id: userId });
-  if (user.tenantId !== targetUser.tenantId) throw new Meteor.Error('403', 'Incorrect tenant');
-
   await Accounts.sendVerificationEmail(userId, email);
 }

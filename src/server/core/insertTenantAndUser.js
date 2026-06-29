@@ -3,7 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import { z } from 'zod';
-import { Global, Tenants } from '/src/shared/collections/collections.js';
+import { Tenant } from '/src/shared/collections/collections.js';
 import inOutOptions from '/src/server/initdata/inout-options.js';
 import insertInitialTaskGroups from '/src/server/initdata/taskgroups.js';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
@@ -21,15 +21,11 @@ const inputSchema = z.object({
     name: z.string(),
     email: z.string().regex(EMAIL_REGEX, 'Unrecognized email format (user)'),
   }),
-  signupCode: z.string(),
 });
 
 export default async function insertTenantAndUser(args) {
   if (Meteor.settings.public.demoMode) throw new Meteor.Error('403', 'Signup not allowed');
-  const global = await Global.findOneAsync();
-  if (!global.allowSignup) throw new Meteor.Error('403', 'Signup not allowed');
-  if (global.signupCode && !args.signupCode) throw new Meteor.Error('403', 'Signup code required');
-  if (global.signupCode !== args.signupCode) throw new Meteor.Error('403', 'Incorrect signup code');
+  if (await Tenant.findOneAsync()) throw new Meteor.Error('403', 'Signup not allowed');
 
   const parsed = inputSchema.safeParse(args);
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
@@ -49,7 +45,7 @@ export default async function insertTenantAndUser(args) {
     { name: 'PDF', id: '11', url: 'http://export:3000/pdf1', apiKey: 'tuumik' },
   ];
 
-  const tenantId = await Tenants.insertAsync({
+  await Tenant.insertAsync({
     name: args.tenant.name,
     email: args.tenant.email,
     phone: args.tenant.phone,
@@ -67,11 +63,10 @@ export default async function insertTenantAndUser(args) {
     composerExportersFront: initialExportersFront,
     composerExportersBack: initialExportersBack,
     exportersIdCounter: 10,
-    preventLogin: false,
     createdAt: new Date(),
   });
 
-  await insertInitialTaskGroups(tenantId);
+  await insertInitialTaskGroups();
 
   const permissionsForFirstUser = {
     timeTracker: true,
@@ -88,34 +83,14 @@ export default async function insertTenantAndUser(args) {
   };
 
   const profile = {
-    tenantId,
     name: args.user.name,
     nameNormalized: normalizeStringForAC(args.user.name),
     permissions: permissionsForFirstUser,
   };
 
-  const userId = await Accounts.createUserAsync({
+  await Accounts.createUserAsync({
     email: args.user.email,
     password: args.password,
     profile,
   });
-
-  await Tenants.updateAsync(tenantId, {
-    $set: {
-      originalSignupData: {
-        tenant: {
-          name: args.tenant.name,
-          email: args.tenant.email,
-          phone: args.tenant.phone,
-        },
-        user: {
-          userId,
-          name: args.user.name,
-          email: args.user.email,
-        },
-      },
-    },
-  });
-
-  if (Meteor.settings.private.disableSignupAfterSignup) await Global.updateAsync({}, { $set: { allowSignup: false } });
 }

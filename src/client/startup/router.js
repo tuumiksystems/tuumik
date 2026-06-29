@@ -39,7 +39,6 @@ import PageAdminExporters from '/src/client/pages/AdminExporters.vue';
 import PageAdminInOutOptions from '/src/client/pages/AdminInOutOptions.vue';
 import PageAdminTaskGroupEdit from '/src/client/pages/AdminTaskGroupEdit.vue';
 import PageAdminSubscriptions from '/src/client/pages/AdminSubscriptions.vue';
-import PageAdminTerminate from '/src/client/pages/AdminTerminate.vue';
 
 import { Meteor } from 'meteor/meteor';
 import dayjs from 'dayjs';
@@ -336,14 +335,6 @@ const routes = [
     meta: {
       requirePermission: 'admin',
       title: 'Subscriptions',
-    },
-  },
-  {
-    path: '/admin/termination',
-    component: PageAdminTerminate,
-    meta: {
-      requirePermission: 'admin',
-      title: 'Terminate Organization',
     },
   },
   // /admin

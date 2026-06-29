@@ -1,6 +1,6 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
-import { Tenants } from '/src/shared/collections/collections.js';
+import { Tenant } from '/src/shared/collections/collections.js';
 import inOutOptions from '/src/server/initdata/inout-options.js';
 
 export default async () => {
@@ -20,7 +20,7 @@ export default async () => {
     { name: 'PDF', id: '11', url: 'http://export:3000/pdf1', apiKey: 'tuumik' },
   ];
 
-  const tenantId = await Tenants.insertAsync({
+  await Tenant.insertAsync({
     name: 'Sample Law Firm',
     email: 'demo@tuumik.com',
     phone: '+12345678912345',
@@ -37,9 +37,7 @@ export default async () => {
     homeView: 'recent',
     composerExportersFront: initialExportersFront,
     composerExportersBack: initialExportersBack,
-    preventLogin: false,
     demo: true,
     createdAt: new Date(),
   });
-  return tenantId;
 };

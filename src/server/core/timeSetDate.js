@@ -17,7 +17,7 @@ export default async function timeSetDate(user, timeId, selDate) {
   if (!parsed.success) throw new Meteor.Error('403', parsed.error.issues[0].message);
 
   await Times.updateAsync(
-    { tenantId: user.tenantId, _id: timeId, owner: user._id },
+    { _id: timeId, owner: user._id },
     { $set: { date: selDate, lastModified: new Date() } },
   );
 }

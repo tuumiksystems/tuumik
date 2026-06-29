@@ -7,6 +7,7 @@ import normalizeStringForAC from '/src/shared/utils/normalization.js';
 const inputSchema = z.object({
   _id: z.string(),
   name: z.string(),
+  nameShort: z.string().max(3),
   pic: z.string(),
   permissions: z.object({}).passthrough(),
   trackerSimple: z.boolean(),
@@ -23,7 +24,6 @@ export default async function adminSaveUserGeneral(user, editedUser) {
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
   const targetUser = await Meteor.users.findOneAsync({ _id: editedUser._id });
-  if (user.tenantId !== targetUser.tenantId) throw new Meteor.Error('403', 'Incorrect tenant');
 
   const { permissions } = editedUser;
   const perms = {
@@ -45,11 +45,12 @@ export default async function adminSaveUserGeneral(user, editedUser) {
   }
 
   await Meteor.users.updateAsync(
-    { tenantId: user.tenantId, _id: editedUser._id },
+    { _id: editedUser._id },
     {
       $set: {
         name: editedUser.name,
         nameNormalized: normalizeStringForAC(editedUser.name),
+        nameShort: editedUser.nameShort,
         pic: editedUser.pic,
         permissions: perms,
         trackerSimple: editedUser.trackerSimple,

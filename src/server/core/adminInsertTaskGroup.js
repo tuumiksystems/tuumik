@@ -14,11 +14,10 @@ export default async function adminInsertTaskGroup(user, name) {
   const parsed = inputSchema.safeParse({ name });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const lastPos = await TaskGroups.findOneAsync({ tenantId: user.tenantId }, { fields: { position: 1 }, sort: { position: -1 } });
+  const lastPos = await TaskGroups.findOneAsync({}, { fields: { position: 1 }, sort: { position: -1 } });
   const position = lastPos ? lastPos.position + 1 : 1;
 
   await TaskGroups.insertAsync({
-    tenantId: user.tenantId,
     name,
     position,
     showByDefault: false,

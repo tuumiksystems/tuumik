@@ -6,6 +6,7 @@ export const useGeneralStore = defineStore('general', () => {
   const userId = ref(undefined);
   const user = ref(undefined);
   const tenant = ref(undefined);
+  const allowSignup = ref(false);
   const settings = ref(Meteor.settings.public);
   const isMobile = ref(true);
   const zoomBody = ref(localStorage.zoomBody ? Number.parseInt(localStorage.zoomBody, 10) : 12);
@@ -25,5 +26,5 @@ export const useGeneralStore = defineStore('general', () => {
     }
   }
 
-  return { userId, user, tenant, settings, isMobile, zoomBody, zoomBodyInc, zoomBodyDec, pwaBeforeInstall };
+  return { userId, user, tenant, allowSignup, settings, isMobile, zoomBody, zoomBodyInc, zoomBodyDec, pwaBeforeInstall };
 });

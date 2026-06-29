@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import coreGetProjectForEdit from '/src/server/core/getProjectForEdit.js';
-import coreProjectSave from '/src/server/core/projectSave.js';
+import coreProjectUpdate from '/src/server/core/projectUpdate.js';
 import coreProjectDelete from '/src/server/core/projectDelete.js';
 
 Meteor.methods({
@@ -11,10 +11,10 @@ Meteor.methods({
     const user = await Meteor.users.findOneAsync(this.userId);
     return await coreGetProjectForEdit(user, projectId);
   },
-  async projectSave(project) {
+  async projectUpdate(project) {
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    return await coreProjectSave(user, project);
+    return await coreProjectUpdate(user, project);
   },
   async projectDelete(projectId) {
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');

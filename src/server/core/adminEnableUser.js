@@ -12,8 +12,5 @@ export default async function adminEnableUser(user, userId) {
   const parsed = inputSchema.safeParse({ userId });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const targetUser = await Meteor.users.findOneAsync({ _id: userId });
-  if (user.tenantId !== targetUser.tenantId) throw new Meteor.Error('403', 'Incorrect tenant');
-
-  await Meteor.users.updateAsync({ tenantId: user.tenantId, _id: userId }, { $set: { disabled: false } });
+  await Meteor.users.updateAsync({ _id: userId }, { $set: { disabled: false } });
 }

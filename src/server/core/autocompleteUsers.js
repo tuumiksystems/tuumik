@@ -17,7 +17,7 @@ export default async function autocompleteUsers(user, searchString) {
   const searchQuery = new RegExp(normalized);
 
   const res = await Meteor.users.find(
-    { tenantId: user.tenantId, nameNormalized: searchQuery },
+    { nameNormalized: searchQuery },
     { fields: { name: 1 }, limit: 15 },
   ).fetchAsync();
 

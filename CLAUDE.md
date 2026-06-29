@@ -1,5 +1,7 @@
 This is a time tracking app written in Meteor/Node and Vue 3.
 
+The app is single-tenant. The `Tenant` collection (in /src/shared/collections/collections.js) holds at most one document, retrieved with `Tenant.findOneAsync()` (and updated with an empty selector, e.g. `Tenant.updateAsync({}, ...)`). Documents are not scoped by tenant — there is no `tenantId` field on users or other documents, and queries do not filter by tenant. Signup (/src/server/core/insertTenantAndUser.js) creates the single tenant plus the first admin user and is refused once a tenant already exists. When demo mode is enabled, /src/server/core/createDemo.js creates or refreshes demo data and logs the visitor into a demo user account.
+
 In /src/server/core/ and /src/shared/core/ there are core functions that can be called either via DDP by Meteor methods or via HTTP endpoints.
 The Meteor methods are in /src/server/methods/ and /src/shared/methods/. And the HTTP endpoints are in /src/server/api/.
 

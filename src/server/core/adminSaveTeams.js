@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
-import { Tenants } from '/src/shared/collections/collections.js';
+import { Tenant } from '/src/shared/collections/collections.js';
 import adminLoadTeams from '/src/server/core/adminLoadTeams.js';
 
 const inputSchema = z.array(
@@ -14,14 +14,14 @@ export default async function adminSaveTeams(user, teams) {
   const parsed = inputSchema.safeParse(teams);
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const tenant = await Tenants.findOneAsync(user.tenantId);
+  const tenant = await Tenant.findOneAsync();
   let idCounter = Number.parseInt(tenant.teamsIdCounter, 10) || 10;
   const teamsProcessed = teams.map(team => {
     if (team.id) return { ...team };
     idCounter += 1;
     return { ...team, id: String(idCounter) };
   });
-  await Tenants.updateAsync({ _id: user.tenantId }, { $set: { teams: teamsProcessed, teamsIdCounter: idCounter } });
+  await Tenant.updateAsync({}, { $set: { teams: teamsProcessed, teamsIdCounter: idCounter } });
 
   return adminLoadTeams(user);
 }

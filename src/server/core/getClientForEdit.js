@@ -14,7 +14,7 @@ export default async function getClientForEdit(user, clientId) {
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
   const clientRes = await Clients.findOneAsync(
-    { tenantId: user.tenantId, _id: clientId },
+    { _id: clientId },
     {
       fields: {
         name: 1,

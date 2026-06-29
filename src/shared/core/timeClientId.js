@@ -14,6 +14,5 @@ export default async function timeClientId(user, timeId, clientId) {
   if (!parsed.success) throw new Error(parsed.error.issues[0].message);
 
   const query = { _id: timeId, owner: user._id };
-  if (Meteor.isServer) query.tenantId = user.tenantId;
   await Times.updateAsync(query, { $set: { clientId, lastModified: new Date() } });
 }

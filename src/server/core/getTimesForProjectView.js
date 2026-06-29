@@ -15,7 +15,6 @@ export default async function getTimesForProjectView(user, projectId) {
 
   const limit = 20;
   const query = {
-    tenantId: user.tenantId,
     projectId,
   };
 
@@ -40,7 +39,7 @@ export default async function getTimesForProjectView(user, projectId) {
 
   // join owners
   const ownerIds = [...new Set(timesRes.map(time => time.owner))].sort();
-  const ownersRes = await Meteor.users.find({ tenantId: user.tenantId, _id: { $in: ownerIds } }, { fields: { name: 1 } }).fetchAsync();
+  const ownersRes = await Meteor.users.find({ _id: { $in: ownerIds } }, { fields: { name: 1 } }).fetchAsync();
   const timesWithOwnersJoined = timesRes.map(time => {
     const x = time;
     const ownerDoc = ownersRes.find(owner => owner._id === time.owner);

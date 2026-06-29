@@ -1,14 +1,13 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
-import { Tenants } from '/src/shared/collections/collections.js';
+import { Tenant } from '/src/shared/collections/collections.js';
 
 export default async function getUserAndTenantSelf(user) {
   const currentUser = await Meteor.users.findOneAsync(
     { _id: user._id },
     {
       fields: {
-        tenantId: 1,
         name: 1,
         emails: 1,
         trackerSimple: 1,
@@ -24,8 +23,8 @@ export default async function getUserAndTenantSelf(user) {
 
   if (!currentUser) throw new Meteor.Error('404', 'User not found');
 
-  const tenant = await Tenants.findOneAsync(
-    { _id: user.tenantId },
+  const tenant = await Tenant.findOneAsync(
+    {},
     {
       fields: {
         name: 1,

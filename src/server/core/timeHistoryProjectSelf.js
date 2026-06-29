@@ -16,7 +16,6 @@ export default async function timeHistoryProjectSelf(user, timeId, projectId, li
 
   const timesRes = await Times.find(
     {
-      tenantId: user.tenantId,
       owner: user._id,
       projectId,
       hideHistory: { $ne: true },

@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
-import { Statuses, Tenants } from '/src/shared/collections/collections.js';
+import { Statuses, Tenant } from '/src/shared/collections/collections.js';
 
 const inputSchema = z.object({
   userIds: z.array(z.string()).min(1),
@@ -19,7 +19,7 @@ export default async function loadInOutBoardHistoryTotals(user, args) {
   const parsed = inputSchema.safeParse({ userIds: normalizedIds, startLocal, endLocal });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const tenant = await Tenants.findOneAsync(user.tenantId);
+  const tenant = await Tenant.findOneAsync();
   const { inOutOptions } = tenant;
 
   const limit = Meteor.settings.public.inOutHistoryLimit || 2000;
@@ -31,7 +31,6 @@ export default async function loadInOutBoardHistoryTotals(user, args) {
 
   const statusesRes = await Statuses.find(
     {
-      tenantId: user.tenantId,
       $or: [
         { start: { $gt: startLocal, $lt: endLocal } },
         { end: { $gt: startLocal, $lt: endLocal } },
@@ -73,7 +72,7 @@ export default async function loadInOutBoardHistoryTotals(user, args) {
 
   // join owners for statuses
   const ownerIds1 = [...new Set(statusesRes.map(status => status.userId))].sort();
-  const ownersRes1 = await Meteor.users.find({ tenantId: user.tenantId, _id: { $in: ownerIds1 } }, { fields: { name: 1 } }).fetchAsync();
+  const ownersRes1 = await Meteor.users.find({ _id: { $in: ownerIds1 } }, { fields: { name: 1 } }).fetchAsync();
   // /join owners for statuses
 
   // build per-user totals

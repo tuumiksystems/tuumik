@@ -27,8 +27,14 @@
     <div class="circle-btn circle-btn-next" @click="dateNext()">
       <span class="c-tip">NEXT DATE</span>
     </div>
-    <div v-if="dispMode === 'vert'" class="info-bar-vert">Team monitor</div>
-    <div v-if="dispMode === 'text'" class="info-bar-text">Team monitor</div>
+    <div v-if="dispMode === 'vert'" class="info-bar-vert">
+      <TeamMonitorVertTitleMobile v-if="generalStore.isMobile" :selected-team="selectedTeam" :selected-user="selectedUser" />
+      <TeamMonitorVertTitleDesk v-else :selected-team="selectedTeam" :selected-user="selectedUser" />
+    </div>
+    <div v-if="dispMode === 'text'" class="info-bar-text">
+      <TeamMonitorTextTitleMobile v-if="generalStore.isMobile" :selected-team="selectedTeam" :selected-user="selectedUser" />
+      <TeamMonitorTextTitleDesk v-else :selected-team="selectedTeam" :selected-user="selectedUser" />
+    </div>
     <div :class="{ 'main-holder-vert': dispMode === 'vert', 'main-holder-text': dispMode === 'text' }">
       <TeamMonitorUser v-for="targetUser in targetUsers" :key="targetUser._id" :monitor-date="monitorDate" :target-user="targetUser" :disp-mode="dispMode" :size-vert="sizeVert" />
     </div>
@@ -65,6 +71,10 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import TeamMonitorDate from '/src/client/components/TeamMonitor/TeamMonitorDate.vue';
 import TeamMonitorUser from '/src/client/components/TeamMonitor/TeamMonitorUser.vue';
+import TeamMonitorVertTitleDesk from '/src/client/components/TeamMonitor/TeamMonitorVertTitleDesk.vue';
+import TeamMonitorVertTitleMobile from '/src/client/components/TeamMonitor/TeamMonitorVertTitleMobile.vue';
+import TeamMonitorTextTitleDesk from '/src/client/components/TeamMonitor/TeamMonitorTextTitleDesk.vue';
+import TeamMonitorTextTitleMobile from '/src/client/components/TeamMonitor/TeamMonitorTextTitleMobile.vue';
 import AutoComplete from '/src/client/components/AutoComplete/AutoComplete.vue';
 
 dayjs.extend(utc);
@@ -239,7 +249,7 @@ function setSizeVert(change) {
 function selectTeam(team) {
   selectedTeam.value = team;
   localStorage.monitorTeamId = team.id;
-  selectedUser.value = '';
+  selectedUser.value = null;
   loadData();
 }
 
@@ -348,11 +358,8 @@ function addUserFromAc(result) {
   top: 6em;
   left: 0;
   right: 0;
-  height: 4em;
-  padding: 0 1.2em;
+  height: 6.8em; /* this info-bar-vert element here with this specific height is necessary to hide content in TeamMonitorVert.vue at certain height when scrolling */
   background-color: #ffffff;
-  display: flex;
-  align-items: center;
   z-index: 10;
 }
 

@@ -13,7 +13,7 @@ Meteor.publish('timesOnDate', async function(selDate) {
 
   const user = await Meteor.users.findOneAsync(this.userId);
   return Times.find(
-    { tenantId: user.tenantId, date: selDate, owner: user._id },
+    { date: selDate, owner: user._id },
     {
       fields: {
         date: 1,

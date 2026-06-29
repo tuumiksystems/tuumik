@@ -1,13 +1,13 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
-import { Tenants } from '/src/shared/collections/collections.js';
+import { Tenant } from '/src/shared/collections/collections.js';
 
 export default async function adminMainSettingsLoad(user) {
   if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to access main settings');
 
-  const res = await Tenants.findOneAsync(
-    { _id: user.tenantId },
+  const res = await Tenant.findOneAsync(
+    {},
     {
       fields: {
         name: 1,

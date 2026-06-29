@@ -16,7 +16,6 @@ export default async function clientInsert(user, name) {
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
   const doc = {
-    tenantId: user.tenantId,
     name,
     nameNormalized: normalizeStringForAC(name),
     reminder: '',

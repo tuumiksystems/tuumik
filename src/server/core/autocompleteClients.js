@@ -18,7 +18,6 @@ export default async function autocompleteClients(user, searchString) {
 
   const res = await Clients.find(
     {
-      tenantId: user.tenantId,
       nameNormalized: searchQuery,
       $or: [{ hidden: { $ne: true } }, { allowAccess: { $in: [user._id] } }],
     },

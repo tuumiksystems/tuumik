@@ -8,7 +8,7 @@ import { Random } from 'meteor/random';
 
 dayjs.extend(utc);
 
-export default async tenantId => {
+export default async () => {
   const docs = [];
 
   const getEveningStatus = () => {
@@ -90,7 +90,7 @@ export default async tenantId => {
     return text[Math.floor(Math.random() * text.length)];
   };
 
-  const setUserStatus = async (tenantUser, updateDate) => {
+  const setUserStatus = async (user, updateDate) => {
     let status = String(Math.floor(Math.random() * 6 + 1));
     const prevStatus = docs.length ? docs[docs.length - 1].status : '';
     while (status === prevStatus) {
@@ -104,14 +104,14 @@ export default async tenantId => {
     if (status !== '1' && status !== '5' && Math.random() < 0.15) eta = getRandomETA();
 
     await Meteor.users.updateAsync(
-      { _id: tenantUser._id },
+      { _id: user._id },
       {
         $set: {
           inOutStatus: status,
           inOutNote: note,
           inOutETA: eta,
-          inOutUpdateById: tenantUser._id,
-          inOutUpdateByName: tenantUser.name,
+          inOutUpdateById: user._id,
+          inOutUpdateByName: user.name,
           inOutUpdateAt: updateDate,
         },
       },
@@ -123,8 +123,8 @@ export default async tenantId => {
     .subtract(7, 'days')
     .toDate();
   const nowDate = new Date();
-  const tenantUsers = await Meteor.users.find({ tenantId }).fetchAsync();
-  for (const tenantUser of tenantUsers) {
+  const users = await Meteor.users.find({}).fetchAsync();
+  for (const user of users) {
     let counterDate = dayjs.utc(startDate).toDate();
     while (counterDate < nowDate) {
       const start = dayjs.utc(counterDate).toDate();
@@ -143,20 +143,19 @@ export default async tenantId => {
       counterDate = dayjs.utc(counterDate).add(x.addMinutes, 'minutes').toDate();
       const doc = {
         _id: Random.id(),
-        tenantId,
-        userId: tenantUser._id,
+        userId: user._id,
         start,
         end: counterDate,
         status: x.status,
         note,
         eta,
-        updaters: [{ id: tenantUser._id, name: tenantUser.name }],
+        updaters: [{ id: user._id, name: user.name }],
       };
       if (doc.end < nowDate) {
         docs.push(doc);
       } else {
         const updateDate = docs.length ? docs[docs.length - 1].end : nowDate;
-        await setUserStatus(tenantUser, updateDate);
+        await setUserStatus(user, updateDate);
       }
     }
   }

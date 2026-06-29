@@ -18,7 +18,6 @@ export default async function autocompleteProjects(user, searchString) {
 
   const res = await Projects.find(
     {
-      tenantId: user.tenantId,
       nameNormalized: searchQuery,
       $or: [{ hidden: { $ne: true } }, { allowAccess: { $in: [user._id] } }],
     },

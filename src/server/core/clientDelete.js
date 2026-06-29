@@ -14,10 +14,10 @@ export default async function clientDeleteFn(user, clientId) {
   const parsed = inputSchema.safeParse({ clientId });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const project = await Projects.findOneAsync({ tenantId: user.tenantId, clientId });
+  const project = await Projects.findOneAsync({ clientId });
   if (project) throw new Meteor.Error('405', 'Cannot delete client since it has projects');
 
   await Meteor.users.updateAsync({ defaultClientId: clientId }, { $set: { defaultClientId: '' } });
-  await Clients.removeAsync({ tenantId: user.tenantId, _id: clientId });
+  await Clients.removeAsync({ _id: clientId });
   clientDelete({ clientId });
 }

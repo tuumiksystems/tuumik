@@ -4,15 +4,8 @@
   <div>
     <form class="main-pane" @submit.prevent="signup1()">
       <h2 class="top-h2">SIGN UP</h2>
-      <div v-if="!allowSignup" class="disabled-notice">
+      <div v-if="!generalStore.allowSignup" class="disabled-notice">
         Signup is disabled on this server. Please contact an administrator if you wish to sign up.
-      </div>
-      <div v-else-if="showCodeSection">
-        <div class="code-notice">
-          Signing up requires a code. Please contact an administrator if you wish to sign up.
-        </div>
-        <label for="code" class="field-label">SIGNUP CODE:</label>
-        <input id="code" v-model="signupCode" type="text" maxlength="50" />
       </div>
       <div class="section-title">ORGANIZATION SIGNING UP FOR TUUMIK</div>
       <label for="tenant-name" class="field-label">ORGANIZATION NAME:</label>
@@ -39,8 +32,8 @@
       <label for="psw-second" class="field-label">PASSWORD AGAIN:</label>
       <input id="psw-second" v-model="password2" type="password" maxlength="100" />
       <div class="legal-notice">
-        This software application (hereinafter "Tuumik") is developed by Tuumik Systems OÜ, a company registered in Estonia. Tuumik is protected by copyright.
-        To obtain a license to use Tuumik, please contact info@tuumik.com. More information available at
+        This software application is developed by Tuumik Systems OÜ, a company registered in Estonia. Tuumik is protected by copyright.
+        Licensing information is available at
         <a href="https://www.tuumik.com" target="_blank" class="rlink">www.tuumik.com.</a>
       </div>
       <input type="submit" value="CREATE ORGANIZATION AND USER ACCOUNT" class="btn-submit" />
@@ -52,7 +45,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useRoute } from 'vue-router';
 import { useGeneralStore } from '/src/client/stores/general.js';
 import { useNotifierStore } from '/src/client/stores/notifier.js';
 import { Meteor } from 'meteor/meteor';
@@ -60,7 +52,6 @@ import { hashPassword } from '/src/client/utils/accounts';
 import { isValidEmailAddress, isValidPasswordStrength } from '/src/client/utils/validation';
 
 const router = useRouter();
-const route = useRoute();
 const generalStore = useGeneralStore();
 const notifierStore = useNotifierStore();
 
@@ -72,28 +63,10 @@ const tenant = ref(tenantInit);
 const user = ref(userInit);
 const password1 = ref('');
 const password2 = ref('');
-const signupCode = ref('');
-const showCodeSection = ref(false);
-const allowSignup = ref(true);
 
 onMounted(() => {
   if (generalStore.settings.demoMode) router.push('/');
-  loadSignupSettings();
-  if (route.query.code) signupCode.value = route.query.code;
 });
-
-async function loadSignupSettings() {
-  loading.value = true;
-  try {
-    const res = await Meteor.callAsync('loadSignupSettings');
-    showCodeSection.value = res.requireSignupCode;
-    allowSignup.value = res.allowSignup;
-    loading.value = false;
-  } catch (err) {
-    notifierStore.addTemp({ type: 'error', txt: err.reason });
-    loading.value = false;
-  }
-}
 
 function signup1() {
   if (!tenant.value.name || !tenant.value.email || !tenant.value.phone || !user.value.name || !user.value.email || !password1.value) {
@@ -141,7 +114,6 @@ async function signup6() {
     tenant: tenant.value,
     user: user.value,
     password: hashPassword(password1.value),
-    signupCode: signupCode.value,
   };
   try {
     await Meteor.callAsync('insertTenantAndUser', args);
@@ -157,14 +129,6 @@ async function signup6() {
 
 <style scoped>
 .disabled-notice {
-  padding: 2em;
-  background-color: #ececec;
-  border-radius: 0.3em;
-  font-weight: 600;
-  margin: 2em 0 1em 0;
-}
-
-.code-notice {
   padding: 2em;
   background-color: #ececec;
   border-radius: 0.3em;

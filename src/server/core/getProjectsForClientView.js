@@ -12,7 +12,7 @@ export default async function getProjectsForClientView(user, clientId) {
   if (!parsed.success) throw new Error(parsed.error.issues[0].message);
 
   const projectsRes = await Projects.find(
-    { tenantId: user.tenantId, clientId },
+    { clientId },
     {
       fields: { name: 1, created: 1 },
       sort: { created: 1 },

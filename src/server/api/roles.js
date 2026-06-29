@@ -79,7 +79,7 @@ const REGULAR_READ_ONLY_PERMISSIONS = [
 const REGULAR_WRITE_PERMISSIONS = [
   // Clients (write)
   'clientInsert',
-  'clientSave',
+  'clientUpdate',
   'clientDelete',
 
   // Composer (write)
@@ -94,12 +94,13 @@ const REGULAR_WRITE_PERMISSIONS = [
 
   // Projects (write)
   'projectInsert',
-  'projectSave',
+  'projectUpdate',
   'projectDelete',
 
   // Times (write)
   'timeInsert',
   'timeInsertCopy',
+  'timeUpdate',       // PATCH /api/times/:id/update  (any subset of insert fields)
   'timeRemove',
   'timeSetPlan',
   'timeEditTiming',   // PATCH /api/times/:id/timing  (move / resize / startAndEnd)
@@ -140,9 +141,6 @@ const ADMIN_PERMISSIONS = [
   // Teams
   'loadTeams',
   'saveTeams',
-
-  // Tenant
-  'terminateTenant',
 
   // Users
   'usersList',

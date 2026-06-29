@@ -3,6 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import coreTimeInsert from '/src/shared/core/timeInsert.js';
 import coreTimeInsertCopy from '/src/shared/core/timeInsertCopy.js';
+import coreTimeUpdate from '/src/shared/core/timeUpdate.js';
 import coreTimeRemove from '/src/shared/core/timeRemove.js';
 import coreTimeSetPlan from '/src/shared/core/timeSetPlan.js';
 import coreTimeResizeTop from '/src/shared/core/timeResizeTop.js';
@@ -29,6 +30,11 @@ Meteor.methods({
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
     return await coreTimeInsertCopy(user, sourceTimeId, startMinute);
+  },
+  async timeUpdate(timeId, args) {
+    if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
+    const user = await Meteor.users.findOneAsync(this.userId);
+    return await coreTimeUpdate(user, timeId, args);
   },
   async timeRemove(timeId) {
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');

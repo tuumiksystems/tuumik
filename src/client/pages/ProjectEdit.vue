@@ -7,7 +7,7 @@
     <div v-else>
       <h1>{{ project.name }}</h1>
       <div class="subtext">{{ project.clientName }}</div>
-      <form class="main-pane" @submit.prevent="projectSave()">
+      <form class="main-pane" @submit.prevent="projectUpdate()">
         <div class="section-title">GENERAL</div>
         <label for="project-name" class="field-label">PROJECT NAME:</label>
         <input id="project-name" v-model="project.name" placeholder="PROJECT NAME" type="text" maxlength="500" />
@@ -75,10 +75,10 @@ async function projectLoad() {
   }
 }
 
-async function projectSave() {
+async function projectUpdate() {
   loading.value = true;
   try {
-    await Meteor.callAsync('projectSave', project.value);
+    await Meteor.callAsync('projectUpdate', project.value);
     notifierStore.addTemp({ type: 'success', txt: 'PROJECT SAVED' });
     loading.value = false;
   } catch (err) {

@@ -2,9 +2,8 @@
 
 import { TaskGroups } from '/src/shared/collections/collections.js';
 
-export default async tenantId => {
+export default async () => {
   await TaskGroups.insertAsync({
-    tenantId,
     name: 'English',
     position: 1,
     showByDefault: true,

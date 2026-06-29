@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
-import { Times, Tenants, Projects } from '/src/shared/collections/collections.js';
+import { Times, Tenant, Projects } from '/src/shared/collections/collections.js';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
 
 const inputSchema = z.object({
@@ -18,14 +18,15 @@ const inputSchema = z.object({
   projectId: z.string().optional(),
   hideHistory: z.boolean().optional(),
   intCom: z.string().max(500, 'Internal comment length limit exceeded').optional(),
+  plan: z.boolean().optional(),
 });
 
 export default async function timeInsert(user, args) {
-  const { selDate, startMinute, endMinute, taskType, taskDesc, clientId, projectId, hideHistory, intCom } = args;
+  const { selDate, startMinute, endMinute, taskType, taskDesc, clientId, projectId, hideHistory, intCom, plan } = args;
   const parsed = inputSchema.safeParse(args);
   if (!parsed.success) throw new Meteor.Error('403', parsed.error.issues[0].message);
 
-  const tenant = await Tenants.findOneAsync(user.tenantId);
+  const tenant = await Tenant.findOneAsync();
   const { trackerStep } = tenant;
   const step = trackerStep === 1 || trackerStep === 6 ? 18 : trackerStep;
   const autoEndMinute = startMinute < 1440 - step - 1 ? startMinute + step : 1440;
@@ -35,7 +36,7 @@ export default async function timeInsert(user, args) {
     owner: user._id,
     startMinute,
     endMinute: endMinute !== undefined ? endMinute : autoEndMinute,
-    plan: false,
+    plan: plan !== undefined ? plan : false,
     tagColor: '',
     tagText: '',
     lastModified: new Date(),
@@ -65,8 +66,6 @@ export default async function timeInsert(user, args) {
   }
   if (intCom !== undefined) doc.intCom = intCom;
   if (hideHistory) doc.hideHistory = hideHistory;
-
-  if (Meteor.isServer) doc.tenantId = user.tenantId;
 
   const timeId = await Times.insertAsync(doc);
   return { timeId };

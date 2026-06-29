@@ -10,7 +10,7 @@
       <RouterLink to="/login" class="mlink">
         LOG IN
       </RouterLink>
-      <RouterLink v-if="!generalStore.settings.demoMode" to="/signup" class="mlink">
+      <RouterLink v-if="!generalStore.settings.demoMode && generalStore.allowSignup" to="/signup" class="mlink">
         SIGN UP
       </RouterLink>
       <RouterLink v-if="generalStore.settings.demoMode" to="/start-demo" class="mlink">

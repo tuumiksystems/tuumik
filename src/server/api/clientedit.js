@@ -2,13 +2,13 @@
 
 import { WebApp } from 'meteor/webapp';
 import { authorizeApiRequest, apiHandler } from './auth.js';
-import clientSave from '/src/server/core/clientSave.js';
+import clientUpdate from '/src/server/core/clientUpdate.js';
 import clientDeleteFn from '/src/server/core/clientDelete.js';
 
 WebApp.handlers.put('/api/clients/:clientId/update', apiHandler(async (req, res) => {
-  const user = await authorizeApiRequest(req, res, 'clientSave');
+  const user = await authorizeApiRequest(req, res, 'clientUpdate');
   if (!user) return;
-  await clientSave(user, { ...req.body, _id: req.params.clientId });
+  await clientUpdate(user, { ...req.body, _id: req.params.clientId });
   res.json({ ok: true });
 }));
 

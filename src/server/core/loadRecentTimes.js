@@ -21,7 +21,6 @@ export default async function loadRecentTimes(user, cutoff) {
 
   const timesRes = await Times.find(
     {
-      tenantId: user.tenantId,
       owner: user._id,
       date: { $gt: startDate, $lt: endDate },
     },
@@ -43,7 +42,7 @@ export default async function loadRecentTimes(user, cutoff) {
 
   // join projects for times
   const projectIds1 = [...new Set(timesRes.map(time => time.projectId))].sort();
-  const projectsRes1 = await Projects.find({ tenantId: user.tenantId, _id: { $in: projectIds1 } }, { fields: { name: 1, clientId: 1 } }).fetchAsync();
+  const projectsRes1 = await Projects.find({ _id: { $in: projectIds1 } }, { fields: { name: 1, clientId: 1 } }).fetchAsync();
   const timesWithProjectsJoined = timesRes.map(time => {
     const x = time;
     const projectDoc = projectsRes1.find(project => project._id === time.projectId);
@@ -55,7 +54,7 @@ export default async function loadRecentTimes(user, cutoff) {
 
   // join clients for times
   const clientIds1 = [...new Set(timesWithProjectsJoined.map(time => time.clientId))].sort();
-  const clientsRes1 = await Clients.find({ tenantId: user.tenantId, _id: { $in: clientIds1 } }, { fields: { name: 1 } }).fetchAsync();
+  const clientsRes1 = await Clients.find({ _id: { $in: clientIds1 } }, { fields: { name: 1 } }).fetchAsync();
   const timesWithClientsJoined = timesRes.map(time => {
     const x = time;
     const clientDoc = clientsRes1.find(client => client._id === time.clientId);

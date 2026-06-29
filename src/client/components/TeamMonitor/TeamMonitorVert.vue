@@ -3,7 +3,9 @@
 <template>
   <div class="user-holder">
     <div class="headerbar">
-      <div :style="avatarStyle(targetUser)" class="avatar-holder"></div>
+      <div v-if="targetUser.pic" :style="avatarPicStyle(targetUser)" class="avatar-pic"></div>
+      <div v-else-if="targetUser.nameShort" class="avatar-text"><div class="avatar-text-name">{{ targetUser.nameShort }}</div></div>
+      <div v-else class="avatar-pic"></div>
       <div class="hb-content">
         <div v-if="targetUser && targetUser.name" class="hb-name">{{ targetUser.name }}</div>
         <div>
@@ -47,7 +49,7 @@ function baseBackground() {
   return { image, size };
 }
 
-function avatarStyle(targetUser) {
+function avatarPicStyle(targetUser) {
   if (!targetUser.pic) return false;
   return `background-image: url('${targetUser.pic}');`;
 }
@@ -75,26 +77,49 @@ function displayDuration3(millis) {
   position: sticky;
   top: 10em;
   height: 6em;
-  margin: -1px -1px 0 -1px;
-  background-color: #e0e0e0;
+  margin: -1px -3px 0 -1px;
+  background-color: #ffffff;
   border: 1px solid #cecece;
-  border-radius: 0.3em;
-  z-index: 1;
+  border-radius: 3em;
+  z-index: 20;
+  overflow: hidden;
 }
 
-.avatar-holder {
+.avatar-pic {
   position: absolute;
   top: 0;
   left: 0;
-  height: 5.8em;
-  width: 5.8em;
-  background-color: #e9e9e9;
-  border: 1px solid #cecece;
-  border-radius: 0.3em 0.3em 0 0;
+  height: 5.5em;
+  width: 5.5em;
+  background-color: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 50%;
   background-image: url('/icons/person.svg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
+}
+
+.avatar-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 5.5em;
+  width: 5.5em;
+  background-color: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: default;
+}
+
+.avatar-text-name {
+  font-size: 3em;
+  font-weight: 600;
+  color: #000000;
 }
 
 .hb-content {
@@ -124,7 +149,8 @@ function displayDuration3(millis) {
 
 .hb-time {
   color: #000000;
-  background-color: #ffffff;
+  background-color: #ececec;
+  border: 1px solid #cecece;
   padding: 2px 6px;
   border-radius: 3px;
   font-weight: 600;

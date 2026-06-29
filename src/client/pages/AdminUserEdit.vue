@@ -11,6 +11,9 @@
       <form class="main-pane" @submit.prevent="saveUserGeneral1()">
         <label for="name" class="field-label">NAME:</label>
         <input id="name" v-model="editedUser.name" type="text" maxlength="50" />
+        <label for="nameShort" class="field-label">SHORT NAME (INITIALS):</label>
+        <input id="nameShort" v-model="editedUser.nameShort" type="text" maxlength="3" />
+        <div class="field-tip">0 to 3 characters. Shown as the user's avatar initials.</div>
         <label for="pic" class="field-label">PROFILE PICTURE:</label>
         <input id="pic" v-model="editedUser.pic" type="text" maxlength="150" />
         <div class="field-tip">Recommended: 500x500px JPG or PNG.</div>

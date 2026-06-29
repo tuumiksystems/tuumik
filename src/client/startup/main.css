@@ -41,9 +41,10 @@ a:link, a:visited, a:hover, a:active {
 
 /* LOADING SPINNER */
 .spinner {
-  border: 3px dashed #00ab6a;
-  border-bottom: 1px dashed transparent;
-  border-radius: 50%;
+  background-image: url('/icons/spinner.svg');
+  background-repeat: no-repeat;
+  background-size: auto 100%;
+  background-position: center center;
   animation: spinner 3000ms 0ms infinite forwards linear;
 }
 

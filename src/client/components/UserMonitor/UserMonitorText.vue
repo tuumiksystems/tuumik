@@ -3,7 +3,9 @@
 <template>
   <div class="user-holder">
     <div class="headerbar">
-      <div :style="avatarStyle(targetUser)" class="avatar-holder"></div>
+      <div v-if="targetUser.pic" :style="avatarPicStyle(targetUser)" class="avatar-pic"></div>
+      <div v-else-if="targetUser.nameShort" class="avatar-text"><div class="avatar-text-name">{{ targetUser.nameShort }}</div></div>
+      <div v-else class="avatar-pic"></div>
       <div v-if="targetUser && targetUser.name" class="hb-name">{{ targetUser.name }}</div>
       <div>
         <span>{{ displayDate(targetDay.dateUTC, false, 'dddd') }}</span>&nbsp;<span>{{ displayDate(targetDay.dateUTC) }}</span>
@@ -74,7 +76,7 @@ const props = defineProps({
   targetUser: { type: Object, required: true },
 });
 
-function avatarStyle(targetUser) {
+function avatarPicStyle(targetUser) {
   if (!targetUser.pic) return false;
   return `background-image: url('${targetUser.pic}');`;
 }
@@ -110,33 +112,53 @@ function displayDuration3(millis) {
 }
 
 .headerbar {
-  height: 10em;
+  height: 7em;
   border-bottom: 10px solid #cecece;
-  padding: 0 0 0 10em;
+  padding: 0 0 0 7em;
   display: flex;
   flex-direction: column;
   position: relative;
 }
 
-.avatar-holder {
+.avatar-pic {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
-  height: 9em;
-  width: 9em;
-  margin: 0 1em 0 0;
-  background-color: #e9e9e9;
-  border: 1px solid #cecece;
-  border-radius: 0.3em 0.3em 0 0;
+  height: 5.5em;
+  width: 5.5em;
+  background-color: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 50%;
   background-image: url('/icons/person.svg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
 }
 
+.avatar-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 5.5em;
+  width: 5.5em;
+  background-color: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: default;
+}
+
+.avatar-text-name {
+  font-size: 3em;
+  font-weight: 600;
+  color: #000000;
+}
+
 .hb-name {
   font-weight: 600;
-  margin: 0.7em 0 0 0;
 }
 
 .hb-work {
@@ -165,7 +187,7 @@ function displayDuration3(millis) {
   width: 100%;
   border-collapse: collapse;
   color: #1f1f1f;
-  margin: 0 0 3em 0;
+  margin: 0 0 6em 0;
 }
 
 .ttr {
@@ -201,7 +223,7 @@ function displayDuration3(millis) {
 
 /* TIMES MOBILE */
 .times-holder {
-  margin: 0 0 1em 0;
+  margin: 0 0 6em 0;
 }
 
 .times-row {

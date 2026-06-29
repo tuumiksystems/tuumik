@@ -13,12 +13,11 @@ export default async function getTimesForClientView(user, clientId) {
   const parsed = inputSchema.safeParse({ clientId });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const clientProjects = await Projects.find({ tenantId: user.tenantId, clientId }).fetchAsync();
+  const clientProjects = await Projects.find({ clientId }).fetchAsync();
   const allProjectIds = clientProjects.map(project => project._id);
 
   const limit = 20;
   const query = {
-    tenantId: user.tenantId,
     projectId: { $in: allProjectIds },
   };
 
@@ -43,9 +42,9 @@ export default async function getTimesForClientView(user, clientId) {
 
   // join projects and owners
   const projectIds = [...new Set(timesRes.map(time => time.projectId))].sort();
-  const projectsRes = await Projects.find({ tenantId: user.tenantId, _id: { $in: projectIds } }, { fields: { name: 1 } }).fetchAsync();
+  const projectsRes = await Projects.find({ _id: { $in: projectIds } }, { fields: { name: 1 } }).fetchAsync();
   const ownerIds = [...new Set(timesRes.map(time => time.owner))].sort();
-  const ownersRes = await Meteor.users.find({ tenantId: user.tenantId, _id: { $in: ownerIds } }, { fields: { name: 1 } }).fetchAsync();
+  const ownersRes = await Meteor.users.find({ _id: { $in: ownerIds } }, { fields: { name: 1 } }).fetchAsync();
   const timesWithJoins = timesRes.map(time => {
     const x = time;
     const projectDoc = projectsRes.find(project => project._id === time.projectId);

@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
-import { Tenants, Statuses } from '/src/shared/collections/collections.js';
+import { Tenant, Statuses } from '/src/shared/collections/collections.js';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
@@ -26,7 +26,7 @@ export default async function setInOutOthers(user, targetUserId, board) {
   if (!targetUser) throw new Meteor.Error('404', 'Target user not found');
 
   if (board.status !== undefined) {
-    const tenant = await Tenants.findOneAsync(user.tenantId);
+    const tenant = await Tenant.findOneAsync();
     if (!tenant.inOutOptions.find(opt => opt.id === board.status)) throw new Meteor.Error('400', 'Unrecognized in/out status');
   }
 
@@ -43,7 +43,7 @@ export default async function setInOutOthers(user, targetUserId, board) {
   if (board.eta !== undefined) setObj.inOutETA = board.eta;
 
   await Meteor.users.updateAsync(
-    { tenantId: user.tenantId, _id: targetUserId },
+    { _id: targetUserId },
     { $set: setObj },
   );
 
@@ -54,7 +54,6 @@ export default async function setInOutOthers(user, targetUserId, board) {
 
   const recentStatus = await Statuses.findOneAsync(
     {
-      tenantId: user.tenantId,
       userId: user._id,
       start: { $gt: recentStart, $lt: recentEnd },
     },
@@ -64,7 +63,7 @@ export default async function setInOutOthers(user, targetUserId, board) {
     // if a status document was just created a moment ago, update it rather than creating a new one
     // purpose here is to consolidate updates that are done in quick succession into a single document
     await Statuses.updateAsync(
-      { tenantId: user.tenantId, _id: recentStatus._id },
+      { _id: recentStatus._id },
       {
         $set: {
           end: dateNow,
@@ -80,7 +79,6 @@ export default async function setInOutOthers(user, targetUserId, board) {
   } else {
     // if there is no recent enough status document, create a new one
     await Statuses.insertAsync({
-      tenantId: user.tenantId,
       userId: targetUser._id,
       start: targetUser.inOutUpdateAt,
       end: dateNow,

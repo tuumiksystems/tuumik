@@ -27,8 +27,14 @@
     <div class="circle-btn circle-btn-next" @click="dateNext()">
       <span class="c-tip">NEXT WEEK</span>
     </div>
-    <div v-if="dispMode === 'vert'" class="info-bar-vert">User monitor</div>
-    <div v-if="dispMode === 'text'" class="info-bar-text">User monitor</div>
+    <div v-if="dispMode === 'vert'" class="info-bar-vert">
+      <UserMonitorVertTitleMobile v-if="generalStore.isMobile" :selected-user="selectedUser" />
+      <UserMonitorVertTitleDesk v-else :selected-user="selectedUser" />
+    </div>
+    <div v-if="dispMode === 'text'" class="info-bar-text">
+      <UserMonitorTextTitleMobile v-if="generalStore.isMobile" :selected-user="selectedUser" />
+      <UserMonitorTextTitleDesk v-else :selected-user="selectedUser" />
+    </div>
     <div :class="{ 'main-holder-vert': dispMode === 'vert', 'main-holder-text': dispMode === 'text' }">
       <UserMonitorDay v-for="targetDay in targetDays" :key="targetDay._id" :monitor-date="monitorDate" :target-day="targetDay" :target-user="targetUser" :disp-mode="dispMode" :size-vert="sizeVert" />
     </div>
@@ -53,6 +59,10 @@ import utc from 'dayjs/plugin/utc';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import UserMonitorDate from '/src/client/components/UserMonitor/UserMonitorDate.vue';
 import UserMonitorDay from '/src/client/components/UserMonitor/UserMonitorDay.vue';
+import UserMonitorVertTitleDesk from '/src/client/components/UserMonitor/UserMonitorVertTitleDesk.vue';
+import UserMonitorVertTitleMobile from '/src/client/components/UserMonitor/UserMonitorVertTitleMobile.vue';
+import UserMonitorTextTitleDesk from '/src/client/components/UserMonitor/UserMonitorTextTitleDesk.vue';
+import UserMonitorTextTitleMobile from '/src/client/components/UserMonitor/UserMonitorTextTitleMobile.vue';
 import AutoComplete from '/src/client/components/AutoComplete/AutoComplete.vue';
 
 dayjs.extend(utc);
@@ -83,6 +93,7 @@ watch(() => props.monitorDate, (to, from) => {
 });
 
 onMounted(() => {
+  if (generalStore.user) selectedUser.value = generalStore.user;
   loadData();
 });
 
@@ -345,11 +356,8 @@ function addUserFromAc(result) {
   top: 6em;
   left: 0;
   right: 0;
-  height: 4em;
-  padding: 0 1.2em;
+  height: 6.8em; /* this info-bar-vert element here with this specific height is necessary to hide content in UserMonitorVert.vue at certain height when scrolling */
   background-color: #ffffff;
-  display: flex;
-  align-items: center;
   z-index: 10;
 }
 

@@ -4,7 +4,7 @@
   <div>
     <h1>About & Legal</h1>
     <div class="app-version">Tuumik {{ appVersion }}</div>
-    This software application (hereinafter "Tuumik") is developed by Tuumik Systems OÜ, a company registered in Estonia. Tuumik is protected by copyright.
+    This software application is developed by Tuumik Systems OÜ, a company registered in Estonia. Tuumik is protected by copyright.
     <br />
     More information available at
     <a href="https://www.tuumik.com" target="_blank" class="rlink">www.tuumik.com.</a>

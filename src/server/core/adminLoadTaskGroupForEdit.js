@@ -14,7 +14,7 @@ export default async function adminLoadTaskGroupForEdit(user, taskGroupId) {
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
   const res = await TaskGroups.findOneAsync(
-    { tenantId: user.tenantId, _id: taskGroupId },
+    { _id: taskGroupId },
     { fields: { name: 1, position: 1, showByDefault: 1, types: 1 } },
   );
   if (!res) throw new Meteor.Error('404', 'Task group not found');

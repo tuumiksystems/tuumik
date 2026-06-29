@@ -1,16 +1,15 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
-import { Tenants } from '/src/shared/collections/collections.js';
+import { Tenant } from '/src/shared/collections/collections.js';
 
-Meteor.publish('tenant', async function() {
+Meteor.publish('tenant', function() {
   if (!this.userId) {
     return this.ready();
   }
 
-  const user = await Meteor.users.findOneAsync(this.userId);
-  return Tenants.find(
-    { _id: user.tenantId },
+  return Tenant.find(
+    {},
     {
       fields: {
         name: 1,
