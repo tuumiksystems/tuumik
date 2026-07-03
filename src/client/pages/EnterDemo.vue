@@ -9,7 +9,8 @@
         filled with randomly generated data. It showcases a law firm with lawyers tracking their work. These demo accounts will be automatically deleted after a while. Feel free to try
         out the app in the demo.
       </div>
-      <div v-if="!loading" class="btn-submit" @click="createDemo()">START DEMO</div>
+      <input v-if="route.query.reset !== undefined && !loading" v-model="demoResetPassword" type="password" placeholder="RESET PASSWORD" class="mt-1" />
+      <div v-if="!loading" class="btn-submit mt-1" @click="createDemo()">START DEMO</div>
       <div v-if="loading" class="spinner"></div>
       <div v-if="loading">
         Loading. Please wait.
@@ -22,16 +23,18 @@
 import { ref } from 'vue';
 import { Meteor } from 'meteor/meteor';
 import { useNotifierStore } from '/src/client/stores/notifier.js';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const notifierStore = useNotifierStore();
 const router = useRouter();
+const route = useRoute();
 const loading = ref(false);
+const demoResetPassword = ref('');
 
 async function createDemo() {
   loading.value = true;
   try {
-    const res = await Meteor.callAsync('createDemo');
+    const res = await Meteor.callAsync('createDemo', demoResetPassword.value);
     logIntoDemoAccount(res);
   } catch (err) {
     notifierStore.addTemp({ type: 'error', txt: err.reason });

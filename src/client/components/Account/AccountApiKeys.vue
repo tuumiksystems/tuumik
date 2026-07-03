@@ -49,7 +49,7 @@
         </select>
         <label for="desc" class="field-label">DESCRIPTION (OPTIONAL):</label>
         <input id="desc" v-model="newKeyDesc" type="text" maxlength="50" />
-        <input type="submit" value="ADD API KEY" class="btn-submit mr-1" />
+        <input type="submit" value="ADD API KEY" class="btn-submit mt-1 mr-1" />
         <span class="btn" @click="showForm = false">CANCEL</span>
         <div v-if="loading" class="spinner spinner-global"></div>
       </form>

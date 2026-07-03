@@ -11,7 +11,10 @@ import insertDemoStatuses from '/src/server/demodata/statuses.js';
 import insertInitialTaskGroups from '/src/server/initdata/taskgroups.js';
 import removeTenantData from '/src/server/termination/remove-tenant-data.js';
 
-const DEMO_MAX_AGE_MS = 48 * 60 * 60 * 1000;
+// How long before demo data is considered stale and rebuilt on next entry.
+// Read from the environment (in hours), falling back to 24.
+const DEMO_MAX_AGE_HOURS = Number.parseInt(process.env.DEMO_MAX_AGE_HOURS, 10) || 24;
+const DEMO_MAX_AGE_MS = DEMO_MAX_AGE_HOURS * 60 * 60 * 1000;
 
 async function createDemoData() {
   await insertDemoTenant();
@@ -19,8 +22,10 @@ async function createDemoData() {
   await insertDemoAccounts();
   await insertDemoClients();
   await insertDemoProjects();
-  await insertDemoTimes();
+  // statuses first: timesheet entries are derived from the generated in/out
+  // work periods so the two stay consistent
   await insertDemoStatuses();
+  await insertDemoTimes();
 }
 
 // Pick a user account to enter the demo with. First choose randomly among accounts
@@ -34,8 +39,19 @@ async function pickDemoUser() {
   return Meteor.users.findOneAsync({}, { sort: { lastDemoEntry: 1 } });
 }
 
-export default async function createDemo() {
+export default async function createDemo(demoResetPassword) {
   if (!Meteor.settings.public.demoMode) throw new Meteor.Error('403', 'App is not running in demo mode');
+
+  // A correct reset password forces an immediate wipe and rebuild of the demo data,
+  // without waiting for it to go stale. Only available when the DEMO_RESET_PASSWORD
+  // environment variable is set.
+  let forceReset = false;
+  if (demoResetPassword) {
+    if (!process.env.DEMO_RESET_PASSWORD || demoResetPassword !== process.env.DEMO_RESET_PASSWORD) {
+      throw new Meteor.Error('403', 'Invalid demo reset password');
+    }
+    forceReset = true;
+  }
 
   const tenant = await Tenant.findOneAsync();
 
@@ -46,7 +62,8 @@ export default async function createDemo() {
     // never wipe data or log visitors in when the existing tenant is not a demo tenant.
     if (!tenant.demo) throw new Meteor.Error('403', 'Issue found with demo data, please make sure demo mode is not enabled by mistake');
 
-    if (Date.now() - new Date(tenant.createdAt).getTime() > DEMO_MAX_AGE_MS) {
+    const demoExpired = Date.now() - new Date(tenant.createdAt).getTime() > DEMO_MAX_AGE_MS;
+    if (forceReset || demoExpired) {
       await removeTenantData();
       await createDemoData();
     }

@@ -21,6 +21,7 @@ Accounts.onCreateUser((options, user) => {
   if (options.profile.inOutStatus) userDoc.inOutStatus = options.profile.inOutStatus;
   if (options.profile.inTeams) userDoc.inTeams = options.profile.inTeams;
   if (options.profile.pic) userDoc.pic = options.profile.pic;
+  userDoc.timezone = options.profile.timezone || 'UTC';
 
   userDoc.nameShort = createShortName(userDoc.name);
   userDoc.apiKeyCreation = true;
@@ -31,7 +32,7 @@ Accounts.onCreateUser((options, user) => {
   userDoc.inOutShow = true;
   if (!userDoc.inOutStatus) userDoc.inOutStatus = '1';
   userDoc.inOutNote = '';
-  userDoc.inOutETA = '';
+  userDoc.inOutETA = null;
   userDoc.inOutUpdateAt = new Date();
   userDoc.inOutUpdateById = '';
   userDoc.inOutUpdateByName = '';

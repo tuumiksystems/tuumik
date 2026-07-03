@@ -23,7 +23,7 @@
         <input v-model="taskType.txt" type="text" maxlength="100" class="type-inp" />
         <div class="option-select" @click="selectedIndex = selectedIndex === index ? -1 : index"></div>
       </div>
-      <input type="submit" value="SAVE CHANGES" class="btn-submit" />
+      <input type="submit" value="SAVE CHANGES" class="btn-submit mt-1" />
     </form>
   </div>
 </template>

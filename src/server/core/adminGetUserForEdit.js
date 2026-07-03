@@ -31,6 +31,7 @@ export default async function adminGetUserForEdit(user, userId) {
         defaultProjectId: 1,
         inTeams: 1,
         apiKeyCreation: 1,
+        timezone: 1,
         created: 1,
         disabled: 1,
       },

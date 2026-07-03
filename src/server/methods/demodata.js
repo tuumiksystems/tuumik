@@ -4,8 +4,8 @@ import { Meteor } from 'meteor/meteor';
 import coreCreateDemo from '/src/server/core/createDemo.js';
 
 Meteor.methods({
-  async createDemo() {
+  async createDemo(demoResetPassword) {
     if (this.userId) throw new Meteor.Error('403', 'Cannot create demo when logged in');
-    return await coreCreateDemo();
+    return await coreCreateDemo(demoResetPassword);
   },
 });

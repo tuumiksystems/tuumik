@@ -17,6 +17,14 @@ body {
   background-color: #00ab6a;
 }
 
+.body-ask-auth {
+  background-image: url('/icons/loginbg.svg');
+  background-repeat: repeat;
+  background-size: 3em;
+  background-position: left top;
+  background-color: #00ab6a;
+}
+
 h1 {
   font-size: 1.9em;
   font-weight: 300;
@@ -243,7 +251,6 @@ div .sm-btn-off:hover {
   background-color: #00ab6a;
   color: #f9f9f9;
   padding: 0.5em 0.6em;
-  margin: 1em 0 0 0;
   border: 1px solid #00ab6a;
   border-radius: 0.3em;
   font-weight: 600;

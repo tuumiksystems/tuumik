@@ -2,58 +2,59 @@
 
 import { createRouter, createWebHistory } from 'vue-router';
 
-import PageLogin from '/src/client/pages/Login.vue';
+import PageEnterDemo from '/src/client/pages/EnterDemo.vue';
+import PageForgotPsw from '/src/client/pages/ForgotPsw.vue';
 import PageLoggedOut from '/src/client/pages/LoggedOut.vue';
+import PageLogin from '/src/client/pages/Login.vue';
+import PageResetPswLink from '/src/client/pages/ResetPswLink.vue';
 import PageSignup from '/src/client/pages/Signup.vue';
 import PageVerifEmailLink from '/src/client/pages/VerifEmailLink.vue';
-import PageForgotPsw from '/src/client/pages/ForgotPsw.vue';
-import PageResetPswLink from '/src/client/pages/ResetPswLink.vue';
-import PageEnterDemo from '/src/client/pages/EnterDemo.vue';
 
+import PageAbout from '/src/client/pages/About.vue';
+import PageAccount from '/src/client/pages/Account.vue';
+import PageAssets from '/src/client/pages/Assets.vue';
+import PageCatalog from '/src/client/pages/Catalog.vue';
+import PageClientAdd from '/src/client/pages/ClientAdd.vue';
+import PageClientEdit from '/src/client/pages/ClientEdit.vue';
+import PageClientView from '/src/client/pages/ClientView.vue';
+import PageComposer from '/src/client/pages/Composer.vue';
 import PageHome from '/src/client/pages/Home.vue';
-import PageTimeTracker from '/src/client/pages/TimeTracker.vue';
+import PageInOut from '/src/client/pages/InOut.vue';
+import PageInstall from '/src/client/pages/Install.vue';
+import PageOauthAuthorize from '/src/client/pages/OauthAuthorize.vue';
+import PageProjectAdd from '/src/client/pages/ProjectAdd.vue';
+import PageProjectEdit from '/src/client/pages/ProjectEdit.vue';
+import PageProjectView from '/src/client/pages/ProjectView.vue';
 import PageRecent from '/src/client/pages/Recent.vue';
 import PageTeamMonitor from '/src/client/pages/TeamMonitor.vue';
+import PageTimeTracker from '/src/client/pages/TimeTracker.vue';
 import PageUserMonitor from '/src/client/pages/UserMonitor.vue';
-import PageCatalog from '/src/client/pages/Catalog.vue';
-import PageAssets from '/src/client/pages/Assets.vue';
-import PageClientAdd from '/src/client/pages/ClientAdd.vue';
-import PageProjectAdd from '/src/client/pages/ProjectAdd.vue';
-import PageClientView from '/src/client/pages/ClientView.vue';
-import PageProjectView from '/src/client/pages/ProjectView.vue';
-import PageClientEdit from '/src/client/pages/ClientEdit.vue';
-import PageProjectEdit from '/src/client/pages/ProjectEdit.vue';
-import PageComposer from '/src/client/pages/Composer.vue';
-import PageInOut from '/src/client/pages/InOut.vue';
-import PageAccount from '/src/client/pages/Account.vue';
-import PageAbout from '/src/client/pages/About.vue';
-import PageInstall from '/src/client/pages/Install.vue';
 
-import PageAdminUsers from '/src/client/pages/AdminUsers.vue';
-import PageAdminUserAdd from '/src/client/pages/AdminUserAdd.vue';
-import PageAdminUserEdit from '/src/client/pages/AdminUserEdit.vue';
-import PageAdminMainSettings from '/src/client/pages/AdminMainSettings.vue';
-import PageAdminTaskGroups from '/src/client/pages/AdminTaskGroups.vue';
-import PageAdminTeams from '/src/client/pages/AdminTeams.vue';
 import PageAdminExporters from '/src/client/pages/AdminExporters.vue';
 import PageAdminInOutOptions from '/src/client/pages/AdminInOutOptions.vue';
-import PageAdminTaskGroupEdit from '/src/client/pages/AdminTaskGroupEdit.vue';
+import PageAdminMainSettings from '/src/client/pages/AdminMainSettings.vue';
 import PageAdminSubscriptions from '/src/client/pages/AdminSubscriptions.vue';
+import PageAdminTaskGroupEdit from '/src/client/pages/AdminTaskGroupEdit.vue';
+import PageAdminTaskGroups from '/src/client/pages/AdminTaskGroups.vue';
+import PageAdminTeams from '/src/client/pages/AdminTeams.vue';
+import PageAdminUserAdd from '/src/client/pages/AdminUserAdd.vue';
+import PageAdminUserEdit from '/src/client/pages/AdminUserEdit.vue';
+import PageAdminUsers from '/src/client/pages/AdminUsers.vue';
 
-import { Meteor } from 'meteor/meteor';
 import dayjs from 'dayjs';
+import { Meteor } from 'meteor/meteor';
 
 const routes = [
   // external
   {
     path: '/login',
     component: PageLogin,
-    meta: { external: true, topMenuExternal: true, bottomMenuExternal: true },
+    meta: { external: true, bodyClass: 'body-external', topMenuExternal: true, bottomMenuExternal: true },
   },
   {
     path: '/bye',
     component: PageLoggedOut,
-    meta: { external: true, topMenuExternal: true },
+    meta: { external: true, bodyClass: 'body-external', topMenuExternal: true },
   },
   {
     path: '/logout',
@@ -66,27 +67,27 @@ const routes = [
   {
     path: '/signup',
     component: PageSignup,
-    meta: { external: true, topMenuExternal: true },
+    meta: { external: true, bodyClass: 'body-external', topMenuExternal: true },
   },
   {
     path: '/verify-email/:token',
     component: PageVerifEmailLink,
-    meta: { external: true, noTopMenu: true },
+    meta: { external: true, bodyClass: 'body-external', noTopMenu: true },
   },
   {
     path: '/forgot-password',
     component: PageForgotPsw,
-    meta: { external: true, topMenuExternal: true },
+    meta: { external: true, bodyClass: 'body-external', topMenuExternal: true },
   },
   {
     path: '/reset-password/:token',
     component: PageResetPswLink,
-    meta: { external: true, topMenuExternal: true },
+    meta: { external: true, bodyClass: 'body-external', topMenuExternal: true },
   },
   {
     path: '/start-demo',
     component: PageEnterDemo,
-    meta: { external: true, topMenuExternal: true },
+    meta: { external: true, bodyClass: 'body-external', topMenuExternal: true },
     beforeEnter: (to, from, next) => {
       if (!Meteor.settings.public.demoMode) next('/');
       next();
@@ -252,6 +253,11 @@ const routes = [
     meta: { title: 'Settings' },
   },
   {
+    path: '/oauth/authorize',
+    component: PageOauthAuthorize,
+    meta: { title: 'Authorize', bodyClass: 'body-ask-auth', noTopMenu: true },
+  },
+  {
     path: '/about',
     component: PageAbout,
     meta: { title: 'About' },
@@ -347,7 +353,7 @@ export const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   if (!to.meta.external && !Meteor.userId()) {
-    next('/login');
+    next({ path: '/login', query: { redirect: to.fullPath } });
   } else {
     next();
   }

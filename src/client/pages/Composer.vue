@@ -235,10 +235,10 @@
       </div>
       <div v-if="!composerExportersFront.length">No export methods configured.</div>
       <span v-for="compExp in composerExportersFront" :key="compExp.id" class="exp-btn-holder">
-        <div v-if="loadingExport" class="btn-submit exp-btn-off">
+        <div v-if="loadingExport" class="btn-submit mt-1 exp-btn-off">
           {{ compExp.name }}
         </div>
-        <div v-else class="btn-submit" @click="sendToExporter(compExp)">
+        <div v-else class="btn-submit mt-1" @click="sendToExporter(compExp)">
           {{ compExp.name }}
         </div>
       </span>
@@ -247,7 +247,7 @@
       </div>
       <div v-else-if="exportFiles.length">
         <div v-for="exportFile in exportFiles" :key="exportFile.fileName">
-          <a :href="exportFile.fileData" :download="exportFile.fileName" class="btn-submit export-save">
+          <a :href="exportFile.fileData" :download="exportFile.fileName" class="btn-submit mt-1 export-save">
             DOWNLOAD
             <div class="export-save-name">{{ exportFile.fileName }}</div>
           </a>

@@ -19,7 +19,7 @@
         <input v-model="client.email" type="text" placeholder="EMAIL" class="main-inp" />
         <label for="address" class="field-label">ADDRESS:</label>
         <textarea v-model="client.address" rows="4" maxlength="2000" placeholder="ADDRESS" class="main-inp"></textarea>
-        <input type="submit" value="SAVE CHANGES" class="btn-submit" />
+        <input type="submit" value="SAVE CHANGES" class="btn-submit mt-1" />
         <div class="section-title deletion-sec">DELETION</div>
         <span class="btn" @click="clientDelete()">
           DELETE CLIENT

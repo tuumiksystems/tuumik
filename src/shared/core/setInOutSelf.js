@@ -12,7 +12,7 @@ const inputSchema = z.object({
   board: z.object({
     status: z.string().optional(),
     note: z.string().optional(),
-    eta: z.string().optional(),
+    eta: z.union([z.date(), z.null()]).optional(),
   }).passthrough(),
 });
 
@@ -21,10 +21,13 @@ export default async function setInOutSelf(user, board) {
   const parsed = inputSchema.safeParse({ board });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
+  const tenant = await Tenant.findOneAsync();
   if (board.status !== undefined) {
-    const tenant = await Tenant.findOneAsync();
     if (!tenant.inOutOptions.find(opt => opt.id === board.status)) throw new Meteor.Error('400', 'Unrecognized in/out status');
   }
+
+  // IANA tz this status is authored in, stored so each record is self-describing
+  const tz = user.timezone || tenant?.defaultTimezone || 'UTC';
 
   const dateNow = new Date();
 
@@ -66,6 +69,7 @@ export default async function setInOutSelf(user, board) {
           status: user.inOutStatus,
           note: user.inOutNote,
           eta: user.inOutETA,
+          tz,
         },
         $addToSet: {
           updaters: { id: user.inOutUpdateById, name: user.inOutUpdateByName },
@@ -81,6 +85,7 @@ export default async function setInOutSelf(user, board) {
       status: user.inOutStatus,
       note: user.inOutNote,
       eta: user.inOutETA,
+      tz,
       updaters: [{ id: user.inOutUpdateById, name: user.inOutUpdateByName }],
     });
   }

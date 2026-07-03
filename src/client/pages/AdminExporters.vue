@@ -20,7 +20,7 @@
         <input v-model="exporter.apiKey" type="text" maxlength="100" placeholder="API KEY" class="text-inp" />
         <div class="option-select" @click="selectedIndex = selectedIndex === index ? -1 : index"></div>
       </div>
-      <input type="submit" value="SAVE CHANGES" class="btn-submit" />
+      <input type="submit" value="SAVE CHANGES" class="btn-submit mt-1" />
     </form>
     <div v-if="loading" class="spinner spinner-global"></div>
   </div>

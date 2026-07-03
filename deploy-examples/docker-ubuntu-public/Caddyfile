@@ -5,6 +5,12 @@ tuumik.example.com {
 	handle /mcp/* {
 		reverse_proxy mcp:3000
 	}
+	handle /.well-known/oauth-protected-resource {
+		reverse_proxy mcp:3000
+	}
+	handle /.well-known/oauth-protected-resource/* {
+		reverse_proxy mcp:3000
+	}
 	handle {
 		reverse_proxy app:3000
 	}

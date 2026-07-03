@@ -142,7 +142,7 @@ export default async function timesheetExplorerFull(user, searchTerms) {
   meta.sort = searchTerms.sort;
 
   let limit = Number.parseInt(searchTerms.limit) || 1000;
-  if (Meteor.settings.public.composerLimit && limit > Meteor.settings.public.composerLimit) limit = Meteor.settings.public.composerLimit;
+  if (Meteor.settings.public.timesheetExplorerLimit && limit > Meteor.settings.public.timesheetExplorerLimit) limit = Meteor.settings.public.timesheetExplorerLimit;
   meta.limit = limit;
 
   const timesRes = await Times.find(query, {

@@ -13,7 +13,7 @@ const inputSchema = z.object({
   board: z.object({
     status: z.string().optional(),
     note: z.string().optional(),
-    eta: z.string().optional(),
+    eta: z.union([z.date(), z.null()]).optional(),
   }).passthrough(),
 });
 
@@ -25,10 +25,13 @@ export default async function setInOutOthers(user, targetUserId, board) {
   const targetUser = await Meteor.users.findOneAsync(targetUserId);
   if (!targetUser) throw new Meteor.Error('404', 'Target user not found');
 
+  const tenant = await Tenant.findOneAsync();
   if (board.status !== undefined) {
-    const tenant = await Tenant.findOneAsync();
     if (!tenant.inOutOptions.find(opt => opt.id === board.status)) throw new Meteor.Error('400', 'Unrecognized in/out status');
   }
+
+  // IANA tz this status is authored in; the status belongs to targetUser
+  const tz = targetUser.timezone || tenant?.defaultTimezone || 'UTC';
 
   const dateNow = new Date();
 
@@ -70,6 +73,7 @@ export default async function setInOutOthers(user, targetUserId, board) {
           status: targetUser.inOutStatus,
           note: targetUser.inOutNote,
           eta: targetUser.inOutETA,
+          tz,
         },
         $addToSet: {
           updaters: { id: targetUser.inOutUpdateById, name: targetUser.inOutUpdateByName },
@@ -85,6 +89,7 @@ export default async function setInOutOthers(user, targetUserId, board) {
       status: targetUser.inOutStatus,
       note: targetUser.inOutNote,
       eta: targetUser.inOutETA,
+      tz,
       updaters: [{ id: targetUser.inOutUpdateById, name: targetUser.inOutUpdateByName }],
     });
   }

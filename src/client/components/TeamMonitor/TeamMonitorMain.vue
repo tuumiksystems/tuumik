@@ -69,6 +69,8 @@ import { useNotifierStore } from '/src/client/stores/notifier.js';
 import { Meteor } from 'meteor/meteor';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import { dayBoundsInTz } from '/src/shared/utils/time.js';
 import TeamMonitorDate from '/src/client/components/TeamMonitor/TeamMonitorDate.vue';
 import TeamMonitorUser from '/src/client/components/TeamMonitor/TeamMonitorUser.vue';
 import TeamMonitorVertTitleDesk from '/src/client/components/TeamMonitor/TeamMonitorVertTitleDesk.vue';
@@ -78,6 +80,7 @@ import TeamMonitorTextTitleMobile from '/src/client/components/TeamMonitor/TeamM
 import AutoComplete from '/src/client/components/AutoComplete/AutoComplete.vue';
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const router = useRouter();
 const generalStore = useGeneralStore();
@@ -136,71 +139,70 @@ async function loadData() {
 }
 
 function processData(res) {
-  const step1 = res.targetUsers.map(targetUser => {
-    const statuses = [];
-    const times = [];
-    for (const status of res.statuses) {
-      if (status.userId === targetUser._id) statuses.push(status);
-    }
-    for (const time of res.times) {
-      if (time.owner === targetUser._id) times.push(time);
-    }
-    return { ...targetUser, statuses, times };
-  });
-
-  // fix status items that start before start of day
-  const startOfDay = dayjs(props.dateStr).startOf('day').toDate();
-  const step2 = step1.map(targetUser => {
-    const statuses = targetUser.statuses.map(statusItem => {
-      if (statusItem.start < startOfDay) return { ...statusItem, start: startOfDay };
-      return { ...statusItem };
-    });
-    return { ...targetUser, statuses };
-  });
-
-  // fix status items that end after end of day
-  const endOfDay = dayjs(props.dateStr).endOf('day').toDate();
-  const step3 = step2.map(targetUser => {
-    const statuses = targetUser.statuses.map(statusItem => {
-      if (statusItem.end > endOfDay) return { ...statusItem, end: endOfDay };
-      return { ...statusItem };
-    });
-    return { ...targetUser, statuses };
-  });
-
-  // add last status item from user's current status
+  const dayStr = props.dateStr;
+  const tenantDefaultTz = generalStore.tenant?.defaultTimezone || 'UTC';
   const nowDate = new Date();
-  const step4 = step3.map(targetUser => {
+
+  // each user may sit in a different tz, and a single user may even have
+  // statuses in different tzs across the period (if they traveled), so bucket
+  // and clamp EACH status by its OWN stored tz — not a single shared day
+  // boundary and not the user's current profile tz
+  const step1 = res.targetUsers.map(targetUser => {
+    const userTz = targetUser.timezone || tenantDefaultTz;
+    const statuses = [];
+
+    for (const status of res.statuses) {
+      if (status.userId !== targetUser._id) continue;
+      const stz = status.tz || userTz;
+      const { startOfDay, endOfDay } = dayBoundsInTz(dayStr, stz);
+      const overlaps = (status.start > startOfDay && status.start < endOfDay)
+        || (status.end > startOfDay && status.end < endOfDay)
+        || (status.start < startOfDay && status.end > endOfDay);
+      if (!overlaps) continue;
+      const clamped = { ...status, tz: stz };
+      if (clamped.start < startOfDay) clamped.start = startOfDay;
+      if (clamped.end > endOfDay) clamped.end = endOfDay;
+      statuses.push(clamped);
+    }
+
+    // live "current status" — genuinely "now", authored in the user's current
+    // profile tz; bucket/clamp with that tz and stamp it for rendering
+    const { startOfDay, endOfDay } = dayBoundsInTz(dayStr, userTz);
     if (targetUser.inOutUpdateAt < endOfDay && startOfDay < nowDate) {
-      const n = targetUser;
-      const newStatus = {
+      statuses.push({
         userId: targetUser._id,
         start: targetUser.inOutUpdateAt > startOfDay ? targetUser.inOutUpdateAt : startOfDay,
         end: nowDate < endOfDay ? nowDate : endOfDay,
         status: targetUser.inOutStatus,
         note: targetUser.inOutNote,
         eta: targetUser.inOutETA,
-      };
-      n.statuses.push(newStatus);
-      return n;
+        tz: userTz,
+      });
     }
-    return targetUser;
+
+    const times = [];
+    for (const time of res.times) {
+      if (time.owner === targetUser._id) times.push(time);
+    }
+
+    return { ...targetUser, statuses, times };
   });
 
-  // join status options into statuses
+  // join status options into statuses, ensuring every status carries a tz
   const { inOutOptions } = generalStore.tenant;
-  const step5 = step4.map(targetUser => {
+  const step2 = step1.map(targetUser => {
     const statuses = targetUser.statuses.map(statusItem => {
-      const currentOpt = inOutOptions.find(opt => opt.id === statusItem.status);
-      if (currentOpt) return { ...statusItem, ...currentOpt };
+      const withTz = { ...statusItem, tz: statusItem.tz || targetUser.timezone || tenantDefaultTz };
+      const currentOpt = inOutOptions.find(opt => opt.id === withTz.status);
+      if (currentOpt) return { ...withTz, ...currentOpt };
       const unknownOpt = { text: 'UNDEFINED', work: false, colorBG: '#3f3f3f', colorTxt: '#ffffff' };
-      return { ...statusItem, ...unknownOpt };
+      return { ...withTz, ...unknownOpt };
     });
     return { ...targetUser, statuses };
   });
 
-  // calculate status statistics
-  const step6 = step5.map(targetUser => {
+  // calculate status statistics (from instants, so DST-safe)
+  const step3 = step2.map(targetUser => {
     let workTotal = 0;
     for (const statusItem of targetUser.statuses) {
       if (statusItem.work) workTotal += statusItem.end - statusItem.start;
@@ -209,7 +211,7 @@ function processData(res) {
   });
 
   // calculate times statistics
-  const step7 = step6.map(targetUser => {
+  const step4 = step3.map(targetUser => {
     let timesTotal = 0;
     for (const time of targetUser.times) {
       timesTotal += time.endMinute - time.startMinute;
@@ -217,7 +219,7 @@ function processData(res) {
     return { ...targetUser, timesTotal };
   });
 
-  targetUsers.value = step7;
+  targetUsers.value = step4;
 }
 
 function datePrev() {

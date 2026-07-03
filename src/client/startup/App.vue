@@ -5,8 +5,8 @@
     <TopMenu v-if="generalStore.user && !route.meta.noTopMenu && !route.meta.topMenuExternal" :style="{ fontSize: fontSize }" />
     <TopMenuExternal v-else-if="route.meta.topMenuExternal" :style="{ fontSize: fontSize }" />
     <BottomMenuExternal v-if="route.meta.bottomMenuExternal" :style="{ fontSize: fontSize }" />
-    <div v-if="generalStore.userId && (!generalStore.user || !generalStore.tenant)" class="spinner spinner-global"></div>
-    <LacksPermission v-else-if="generalStore.userId && lacksPermission" />
+    <div v-if="!route.meta.external && (!generalStore.user || !generalStore.tenant)" class="spinner spinner-global"></div>
+    <LacksPermission v-else-if="!route.meta.external && lacksPermission" />
     <RouterView v-else :style="{ fontSize: fontSize, marginTop: marginTopBody, padding: paddingBody }" />
     <SubUser />
     <SubTenant v-if="generalStore.user" />
@@ -56,12 +56,9 @@ const marginTopBody = computed(() => {
   return '0px';
 });
 
-watch(route, (to, from) => {
-  if (to.meta.external) {
-    document.body.classList.add('body-external');
-  } else {
-    document.body.classList.remove('body-external');
-  }
+watch(() => route.meta.bodyClass, (newClass, oldClass) => {
+  if (oldClass) document.body.classList.remove(oldClass);
+  if (newClass) document.body.classList.add(newClass);
 }, { immediate: true });
 
 onMounted(() => {

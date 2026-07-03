@@ -48,7 +48,7 @@ const inOutOptions = [
     text: 'VACATION',
     work: false,
     colorBG: '#6c7b95',
-    colorTxt: '#000000',
+    colorTxt: '#ffffff',
   },
 ];
 

@@ -23,15 +23,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useGeneralStore } from '/src/client/stores/general.js';
-import { useRouter } from 'vue-router';
 import { Meteor } from 'meteor/meteor';
 import { Tracker } from 'meteor/tracker';
+import { ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useGeneralStore } from '/src/client/stores/general.js';
 import { appVersion } from '/src/shared/utils/app.js';
 
 const generalStore = useGeneralStore();
 const router = useRouter();
+const route = useRoute();
 const email = ref('');
 const password = ref('');
 const err = ref(undefined);
@@ -39,9 +40,11 @@ const loggingIn = ref(false);
 
 function submitForm() {
   err.value = undefined;
-  Meteor.loginWithPassword(email.value, password.value, err => {
+  Meteor.loginWithPassword(email.value, password.value, (err) => {
     if (!err) {
-      router.push('/');
+      // only in-app paths, so the query param cannot redirect to another site
+      const redirect = typeof route.query.redirect === 'string' && route.query.redirect.startsWith('/') ? route.query.redirect : '/';
+      router.push(redirect);
     } else {
       err.value = err;
     }

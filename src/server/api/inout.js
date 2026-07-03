@@ -9,6 +9,18 @@ import loadInOutBoardHistoryTotals from '/src/server/core/loadInOutBoardHistoryT
 import setInOutSelf from '/src/shared/core/setInOutSelf.js';
 import setInOutOthers from '/src/shared/core/setInOutOthers.js';
 
+// Over HTTP (JSON) an ETA arrives as an ISO 8601 string; the core expects an
+// absolute Date instant (or null to clear). Coerce at the boundary, mirroring
+// how startLocal/endLocal are converted above.
+function coerceBoardEta(board) {
+  if (board && typeof board.eta === 'string') {
+    const d = new Date(board.eta);
+    if (Number.isNaN(d.getTime())) throw new Meteor.Error('400', 'eta must be a valid ISO 8601 timestamp or null');
+    return { ...board, eta: d };
+  }
+  return board;
+}
+
 WebApp.handlers.get('/api/inout/board/current', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'loadInOutBoard');
   if (!user) return;
@@ -43,13 +55,13 @@ WebApp.handlers.post('/api/inout/board-history/totals', apiHandler(async (req, r
 WebApp.handlers.patch('/api/inout/set/self', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'setInOutSelf');
   if (!user) return;
-  await setInOutSelf(user, req.body.board);
+  await setInOutSelf(user, coerceBoardEta(req.body.board));
   res.json({ ok: true });
 }));
 
 WebApp.handlers.patch('/api/inout/set/:userId', apiHandler(async (req, res) => {
   const user = await authorizeApiRequest(req, res, 'setInOutOthers');
   if (!user) return;
-  await setInOutOthers(user, req.params.userId, req.body.board);
+  await setInOutOthers(user, req.params.userId, coerceBoardEta(req.body.board));
   res.json({ ok: true });
 }));

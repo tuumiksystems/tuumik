@@ -16,7 +16,7 @@
         <div class="field-tip">0 to 3 characters. Shown as the user's avatar initials.</div>
         <label for="pic" class="field-label">PROFILE PICTURE:</label>
         <input id="pic" v-model="editedUser.pic" type="text" maxlength="150" />
-        <div class="field-tip">Recommended: 500x500px JPG or PNG.</div>
+        <div class="field-tip">Recommended: 400x400px JPG.</div>
         <label class="field-label">PERMISSIONS:</label>
         <div class="chk-holder-hori">
           <label class="chk-label">
@@ -64,6 +64,12 @@
             <span>ADMIN PANEL</span>
           </label>
         </div>
+        <div class="section-title">TIMEZONE</div>
+        <label for="timezone" class="field-label">TIMEZONE:</label>
+        <select id="timezone" v-model="editedUser.timezone">
+          <option v-for="tz in timezones" :key="tz" :value="tz">{{ tz }}</option>
+        </select>
+        <div class="field-tip">Used to render this user's in/out board and times in their own local wall clock.</div>
         <div class="section-title">TIME TRACKER</div>
         <label class="field-label">SIMPLE TRACKER:</label>
         <label class="single-checkbox-label">
@@ -104,23 +110,23 @@
           <input v-model="editedUser.apiKeyCreation" type="checkbox" />
           <span>ENABLED</span>
         </label>
-        <input type="submit" value="SAVE CHANGES" class="btn-submit" />
+        <input type="submit" value="SAVE CHANGES" class="btn-submit mt-1" />
       </form>
       <form class="main-pane" @submit.prevent="saveUserUsername1()">
         <label for="username" class="field-label">USERNAME:</label>
         <input id="username" v-model="editedUser.username" type="text" maxlength="50" />
-        <input type="submit" value="CHANGE USERNAME" class="btn-submit" />
+        <input type="submit" value="CHANGE USERNAME" class="btn-submit mt-1" />
       </form>
       <form class="main-pane" @submit.prevent="saveUserPassword1()">
         <label for="password" class="field-label">PASSWORD:</label>
         <input id="password" v-model="password" type="text" maxlength="50" />
         <div class="field-tip">At least 1 upper case, 1 lower case, 1 number. At least 8 characters.</div>
-        <input type="submit" value="CHANGE PASSWORD" class="btn-submit" />
+        <input type="submit" value="CHANGE PASSWORD" class="btn-submit mt-1" />
       </form>
       <form class="main-pane" @submit.prevent="addUserEmail1()">
         <label for="email" class="field-label">EMAIL ADDRESS:</label>
         <input id="email" v-model="newEmail" type="text" maxlength="100" />
-        <input type="submit" value="ADD EMAIL ADDRESS" class="btn-submit" />
+        <input type="submit" value="ADD EMAIL ADDRESS" class="btn-submit mt-1" />
         <div v-for="email in editedUser.emails" :key="email.address" class="email-row">
           <div class="email-address">{{ email.address }}</div>
           <div v-if="email.verified" class="email-verified">VERIFIED</div>
@@ -163,6 +169,8 @@ const editedUser = ref(null);
 const newEmail = ref('');
 const password = ref('');
 
+const timezones = ref(typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : ['UTC']);
+
 onMounted(() => {
   loadUser();
 });
@@ -173,6 +181,10 @@ async function loadUser() {
   try {
     const res = await Meteor.callAsync('getUserForEdit', userId);
     editedUser.value = res.editedUser;
+    // defensive fallback: users predating the timezone field have none stored
+    if (!editedUser.value.timezone) editedUser.value.timezone = generalStore.tenant?.defaultTimezone || 'UTC';
+    // make sure the currently stored tz is always selectable, even if not in the list
+    if (!timezones.value.includes(editedUser.value.timezone)) timezones.value = [editedUser.value.timezone, ...timezones.value];
     loading.value = false;
   } catch (err) {
     notifierStore.addTemp({ type: 'error', txt: err.reason });

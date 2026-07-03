@@ -16,6 +16,7 @@ export default async function adminMainSettingsLoad(user) {
         currency: 1,
         dateFormat: 1,
         timeFormat: 1,
+        defaultTimezone: 1,
         weekStart: 1,
         thouMark: 1,
         decimalMark: 1,

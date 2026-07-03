@@ -36,6 +36,7 @@ import '/src/server/methods/teammonitor.js';
 import '/src/server/methods/usermonitor.js';
 import '/src/server/methods/recent.js';
 import '/src/server/methods/users.js';
+import '/src/server/methods/oauth.js';
 
 // methods (server side) (admin)
 import '/src/server/methods/adminusers.js';
@@ -78,3 +79,4 @@ import '/src/server/api/inout.js';
 import '/src/server/api/projectpicker.js';
 import '/src/server/api/usersettings.js';
 import '/src/server/api/users.js';
+import '/src/server/api/oauth.js';

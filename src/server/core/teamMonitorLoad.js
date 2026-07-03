@@ -25,15 +25,23 @@ export default async function teamMonitorLoad(user, dates, teamId, userId) {
   } else {
     usersQuery.inTeams = teamId;
   }
-  const targetUsers = await Meteor.users.find(usersQuery, { fields: { name: 1, nameShort: 1, inOutStatus: 1, inOutNote: 1, inOutETA: 1, inOutUpdateAt: 1, pic: 1 } }).fetchAsync();
+  const targetUsers = await Meteor.users.find(usersQuery, { fields: { name: 1, nameShort: 1, inOutStatus: 1, inOutNote: 1, inOutETA: 1, inOutUpdateAt: 1, pic: 1, timezone: 1 } }).fetchAsync();
   const targetUserIds = targetUsers.map(x => x._id);
+
+  // Users shown may be in different tzs, so the correct absolute window for the
+  // day differs per user. Widen the queried window by a safe margin so it
+  // captures every timezone's version of the period; the client does exact
+  // per-user bucketing/clamping (using each status's own stored tz).
+  const statusWindowMarginMs = 14 * 60 * 60 * 1000;
+  const statusWindowStart = new Date(dates.startLocal.getTime() - statusWindowMarginMs);
+  const statusWindowEnd = new Date(dates.endLocal.getTime() + statusWindowMarginMs);
 
   const statusesRes = await Statuses.find(
     {
       $or: [
-        { start: { $gt: dates.startLocal, $lt: dates.endLocal } },
-        { end: { $gt: dates.startLocal, $lt: dates.endLocal } },
-        { start: { $lt: dates.startLocal }, end: { $gt: dates.endLocal } },
+        { start: { $gt: statusWindowStart, $lt: statusWindowEnd } },
+        { end: { $gt: statusWindowStart, $lt: statusWindowEnd } },
+        { start: { $lt: statusWindowStart }, end: { $gt: statusWindowEnd } },
       ],
       userId: { $in: targetUserIds },
     },
@@ -45,6 +53,7 @@ export default async function teamMonitorLoad(user, dates, teamId, userId) {
         status: 1,
         note: 1,
         eta: 1,
+        tz: 1,
         updaters: 1,
       },
     },

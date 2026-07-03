@@ -51,6 +51,7 @@ export default async function insertTenantAndUser(args) {
     phone: args.tenant.phone,
     dateFormat: 'DD.MM.YYYY',
     timeFormat: 'HH:mm',
+    defaultTimezone: 'UTC',
     weekStart: 'mon',
     thouMark: 'comma',
     decimalMark: 'period',
@@ -86,6 +87,7 @@ export default async function insertTenantAndUser(args) {
     name: args.user.name,
     nameNormalized: normalizeStringForAC(args.user.name),
     permissions: permissionsForFirstUser,
+    timezone: 'UTC',
   };
 
   await Accounts.createUserAsync({

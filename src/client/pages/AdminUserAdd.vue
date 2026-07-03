@@ -11,7 +11,7 @@
       <label for="password" class="field-label">PASSWORD:</label>
       <input id="password" v-model="password" type="password" maxlength="50" />
       <div class="field-tip">At least 1 upper case, 1 lower case, 1 number. At least 8 characters.</div>
-      <input type="submit" value="CREATE USER" class="btn-submit" />
+      <input type="submit" value="CREATE USER" class="btn-submit mt-1" />
     </form>
   </div>
 </template>

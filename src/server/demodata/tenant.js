@@ -26,6 +26,7 @@ export default async () => {
     phone: '+12345678912345',
     dateFormat: 'DD.MM.YYYY',
     timeFormat: 'HH:mm',
+    defaultTimezone: 'Europe/Tallinn',
     weekStart: 'mon',
     thouMark: 'comma',
     decimalMark: 'period',

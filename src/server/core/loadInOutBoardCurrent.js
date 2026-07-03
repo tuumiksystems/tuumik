@@ -44,6 +44,7 @@ export default async function loadInOutBoardCurrent(user, args) {
       inOutUpdateByName: 1,
       inOutUpdateAt: 1,
       inTeams: 1,
+      timezone: 1,
     },
   }).fetchAsync();
 

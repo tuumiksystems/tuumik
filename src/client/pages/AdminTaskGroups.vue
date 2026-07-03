@@ -36,7 +36,7 @@
     </table>
 
     <form class="add-form" @submit.prevent="insertTaskGroup1()">
-      <input id="name-new" v-model="nameNew" type="text" maxlength="40" placeholder="NAME" />
+      <input id="name-new" v-model="nameNew" type="text" maxlength="40" placeholder="NAME" class="mr-1" />
       <input type="submit" value="ADD TASK GROUP" class="btn-submit" />
     </form>
   </div>
@@ -145,10 +145,6 @@ async function deleteTaskGroup(taskGroup) {
 
 .add-form {
   margin: 3em 0 0 0;
-}
-
-.btn-submit {
-  margin-top: 0;
 }
 
 #name-new {

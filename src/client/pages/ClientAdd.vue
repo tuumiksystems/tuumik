@@ -7,7 +7,7 @@
     <form class="main-pane" @submit.prevent="clientInsert1()">
       <label for="client-name" class="field-label">CLIENT NAME:</label>
       <input id="client-name" v-model="name" type="text" maxlength="500" />
-      <input type="submit" value="CREATE CLIENT" class="btn-submit" />
+      <input type="submit" value="CREATE CLIENT" class="btn-submit mt-1" />
     </form>
     <ClientAddHistory />
   </div>

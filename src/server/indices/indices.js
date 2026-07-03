@@ -1,7 +1,7 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
 import { Meteor } from 'meteor/meteor';
-import { TaskGroups, Times, Statuses, Clients, Projects } from '/src/shared/collections/collections.js';
+import { TaskGroups, Times, Statuses, Clients, Projects, OauthClients, OauthCodes, OauthGrants } from '/src/shared/collections/collections.js';
 
 export default function() {
   Meteor.users.rawCollection().createIndex({ nameNormalized: 1 });
@@ -15,4 +15,13 @@ export default function() {
   Clients.rawCollection().createIndex({ nameNormalized: 1 });
 
   Projects.rawCollection().createIndex({ nameNormalized: 1 });
+
+  OauthClients.rawCollection().createIndex({ clientId: 1 }, { unique: true });
+
+  OauthCodes.rawCollection().createIndex({ codeId: 1 }, { unique: true });
+  OauthCodes.rawCollection().createIndex({ expires: 1 }, { expireAfterSeconds: 0 });
+
+  OauthGrants.rawCollection().createIndex({ accessTokenId: 1 }, { unique: true });
+  OauthGrants.rawCollection().createIndex({ refreshTokenId: 1 }, { unique: true });
+  OauthGrants.rawCollection().createIndex({ userId: 1 });
 }

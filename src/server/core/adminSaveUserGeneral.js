@@ -16,6 +16,7 @@ const inputSchema = z.object({
   inOutShow: z.boolean(),
   inTeams: z.array(z.string()),
   apiKeyCreation: z.boolean(),
+  timezone: z.string().min(1, 'Timezone is required'),
 });
 
 export default async function adminSaveUserGeneral(user, editedUser) {
@@ -44,6 +45,12 @@ export default async function adminSaveUserGeneral(user, editedUser) {
     throw new Meteor.Error('403', 'User cannot remove admin from itself');
   }
 
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: editedUser.timezone });
+  } catch (err) {
+    throw new Meteor.Error('400', 'Unrecognized timezone');
+  }
+
   await Meteor.users.updateAsync(
     { _id: editedUser._id },
     {
@@ -59,6 +66,7 @@ export default async function adminSaveUserGeneral(user, editedUser) {
         inOutShow: editedUser.inOutShow,
         inTeams: editedUser.inTeams,
         apiKeyCreation: editedUser.apiKeyCreation,
+        timezone: editedUser.timezone,
       },
     },
   );

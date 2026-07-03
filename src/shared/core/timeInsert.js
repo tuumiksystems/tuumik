@@ -39,6 +39,7 @@ export default async function timeInsert(user, args) {
     plan: plan !== undefined ? plan : false,
     tagColor: '',
     tagText: '',
+    tz: user.timezone || tenant?.defaultTimezone || 'UTC',
     lastModified: new Date(),
   };
 

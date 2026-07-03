@@ -2,7 +2,7 @@
   "public": {
     "email": false,
     "demoMode": false,
-    "composerLimit": 1000
+    "timesheetExplorerLimit": 3000
   },
   "private": {
     "systemEmail": "noreply@exampledomain.com",

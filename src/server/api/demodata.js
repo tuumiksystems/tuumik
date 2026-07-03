@@ -5,6 +5,6 @@ import { apiHandler } from './auth.js';
 import createDemo from '/src/server/core/createDemo.js';
 
 WebApp.handlers.post('/api/demo', apiHandler(async (req, res) => {
-  const email = await createDemo();
+  const email = await createDemo(req.body?.demoResetPassword);
   res.json({ email });
 }));

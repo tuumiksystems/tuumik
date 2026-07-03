@@ -36,7 +36,7 @@
         Licensing information is available at
         <a href="https://www.tuumik.com" target="_blank" class="rlink">www.tuumik.com.</a>
       </div>
-      <input type="submit" value="CREATE ORGANIZATION AND USER ACCOUNT" class="btn-submit" />
+      <input type="submit" value="CREATE ORGANIZATION AND USER ACCOUNT" class="btn-submit mt-1" />
       <div v-if="loading" class="spinner spinner-global"></div>
     </form>
   </div>

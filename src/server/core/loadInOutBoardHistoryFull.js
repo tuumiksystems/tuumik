@@ -46,6 +46,7 @@ export default async function loadInOutBoardHistoryFull(user, args) {
         status: 1,
         note: 1,
         eta: 1,
+        tz: 1,
         updaters: 1,
       },
       limit,

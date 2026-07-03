@@ -36,7 +36,7 @@
       <UserMonitorTextTitleDesk v-else :selected-user="selectedUser" />
     </div>
     <div :class="{ 'main-holder-vert': dispMode === 'vert', 'main-holder-text': dispMode === 'text' }">
-      <UserMonitorDay v-for="targetDay in targetDays" :key="targetDay._id" :monitor-date="monitorDate" :target-day="targetDay" :target-user="targetUser" :disp-mode="dispMode" :size-vert="sizeVert" />
+      <UserMonitorDay v-for="targetDay in targetDays" :key="targetDay.dateStr" :monitor-date="monitorDate" :target-day="targetDay" :target-user="targetUser" :disp-mode="dispMode" :size-vert="sizeVert" />
     </div>
     <div v-if="showTeamsPopup" class="teams-popup">
       <div class="teams-title">SHOW USER</div>
@@ -56,7 +56,9 @@ import { useNotifierStore } from '/src/client/stores/notifier.js';
 import { Meteor } from 'meteor/meteor';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import isoWeek from 'dayjs/plugin/isoWeek';
+import { dayBoundsInTz } from '/src/shared/utils/time.js';
 import UserMonitorDate from '/src/client/components/UserMonitor/UserMonitorDate.vue';
 import UserMonitorDay from '/src/client/components/UserMonitor/UserMonitorDay.vue';
 import UserMonitorVertTitleDesk from '/src/client/components/UserMonitor/UserMonitorVertTitleDesk.vue';
@@ -66,6 +68,7 @@ import UserMonitorTextTitleMobile from '/src/client/components/UserMonitor/UserM
 import AutoComplete from '/src/client/components/AutoComplete/AutoComplete.vue';
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.extend(isoWeek);
 
 const router = useRouter();
@@ -117,111 +120,102 @@ async function loadData() {
 }
 
 function processData(res) {
-  // create a days array
+  // the target user's CURRENT profile tz — used only for the synthesized live
+  // "current status" and as a fallback for statuses that have no stored tz
+  const targetUserTz = res.targetUser.timezone || generalStore.tenant?.defaultTimezone || 'UTC';
+
+  // create a days array, each labelled by its UTC calendar date
   const days = [];
   let currentDay = dayjs.utc(res.dates.startUTC).toDate();
   while (currentDay < res.dates.endUTC) {
-    const dateStr = dayjs(currentDay).format('YYYY-MM-DD');
+    const dateStr = dayjs.utc(currentDay).format('YYYY-MM-DD');
     const dateUTC = dayjs.utc(dateStr, 'YYYY-MM-DD').hour(0).minute(0).second(0).millisecond(1).toDate();
-    const startLocal = dayjs(dateStr, 'YYYY-MM-DD').startOf('day').toDate();
-    const endLocal = dayjs(dateStr, 'YYYY-MM-DD').endOf('day').toDate();
-    days.push({ dateUTC, startLocal, endLocal });
+    days.push({ dateStr, dateUTC, statuses: [], times: [] });
     currentDay = dayjs.utc(currentDay).add(1, 'day').toDate();
   }
-  const step1 = days;
 
-  // move times and statuses into correct days
-  const step2 = step1.map(targetDay => {
-    const statuses = [];
-    const times = [];
-    for (const status of res.statuses) {
-      const t = targetDay;
-      const s = status;
-      if ((s.start > t.startLocal && s.start < t.endLocal) || (s.end > t.startLocal && s.end < t.endLocal) || (s.start < t.startLocal && s.end > t.endLocal)) statuses.push(status);
+  // move statuses into the correct days: bucket each status into every day it
+  // overlaps, computing that day's boundaries in the STATUS's OWN stored tz, and
+  // clamp it to those boundaries. Using the status's own tz (not the user's
+  // current profile tz) keeps historical data correct even if the user later
+  // changes timezone.
+  for (const status of res.statuses) {
+    const stz = status.tz || targetUserTz;
+    for (const targetDay of days) {
+      const { startOfDay, endOfDay } = dayBoundsInTz(targetDay.dateStr, stz);
+      const overlaps = (status.start > startOfDay && status.start < endOfDay)
+        || (status.end > startOfDay && status.end < endOfDay)
+        || (status.start < startOfDay && status.end > endOfDay);
+      if (!overlaps) continue;
+      const clamped = { ...status, tz: stz };
+      if (clamped.start < startOfDay) clamped.start = startOfDay;
+      if (clamped.end > endOfDay) clamped.end = endOfDay;
+      targetDay.statuses.push(clamped);
     }
-    for (const time of res.times) {
-      if (time.date.getTime() === targetDay.dateUTC.getTime()) times.push(time);
-    }
-    return { ...targetDay, statuses, times };
-  });
+  }
 
-  // fix status items that start before start of day
-  const step3 = step2.map(targetDay => {
-    const startOfDay = targetDay.startLocal;
-    const statuses = targetDay.statuses.map(statusItem => {
-      if (statusItem.start < startOfDay) return { ...statusItem, start: startOfDay };
-      return { ...statusItem };
-    });
-    return { ...targetDay, statuses };
-  });
+  // move times into the correct days (times are naive minutes keyed by their
+  // UTC-midnight date, so tz never enters here)
+  for (const time of res.times) {
+    const targetDay = days.find(d => d.dateUTC.getTime() === time.date.getTime());
+    if (targetDay) targetDay.times.push(time);
+  }
 
-  // fix status items that end after end of day
-  const step4 = step3.map(targetDay => {
-    const endOfDay = targetDay.endLocal;
-    const statuses = targetDay.statuses.map(statusItem => {
-      if (statusItem.end > endOfDay) return { ...statusItem, end: endOfDay };
-      return { ...statusItem };
-    });
-    return { ...targetDay, statuses };
-  });
-
-  // add last status item from user's current status
+  // add last status item from user's current status (the live "now" edge). This
+  // is genuinely "now", authored in the user's current profile tz, so bucket and
+  // clamp it with that tz and stamp it with that tz for rendering.
   const nowDate = new Date();
-  const step5 = step4.map(targetDay => {
-    const startOfDay = targetDay.startLocal;
-    const endOfDay = targetDay.endLocal;
+  for (const targetDay of days) {
+    const { startOfDay, endOfDay } = dayBoundsInTz(targetDay.dateStr, targetUserTz);
     if (res.targetUser.inOutUpdateAt < endOfDay && startOfDay < nowDate) {
-      const n = targetDay;
-      const newStatus = {
+      targetDay.statuses.push({
         userId: res.targetUser._id,
         start: res.targetUser.inOutUpdateAt > startOfDay ? res.targetUser.inOutUpdateAt : startOfDay,
         end: nowDate < endOfDay ? nowDate : endOfDay,
         status: res.targetUser.inOutStatus,
         note: res.targetUser.inOutNote,
         eta: res.targetUser.inOutETA,
-      };
-      n.statuses.push(newStatus);
-      return n;
+        tz: targetUserTz,
+      });
     }
-    return targetDay;
-  });
+  }
 
-  // join status options into statuses
+  // join status options into statuses, ensuring every status carries a tz
   const inOutOptions = generalStore.tenant.inOutOptions;
-  const step6 = step5.map(targetDay => {
-    const statuses = targetDay.statuses.map(statusItem => {
-      const currentOpt = inOutOptions.find(opt => opt.id === statusItem.status);
-      if (currentOpt) return { ...statusItem, ...currentOpt };
+  for (const targetDay of days) {
+    targetDay.statuses = targetDay.statuses.map(statusItem => {
+      const withTz = { ...statusItem, tz: statusItem.tz || targetUserTz };
+      const currentOpt = inOutOptions.find(opt => opt.id === withTz.status);
+      if (currentOpt) return { ...withTz, ...currentOpt };
       const unknownOpt = {
         text: 'UNDEFINED',
         work: false,
         colorBG: '#3f3f3f',
         colorTxt: '#ffffff',
       };
-      return { ...statusItem, ...unknownOpt };
+      return { ...withTz, ...unknownOpt };
     });
-    return { ...targetDay, statuses };
-  });
+  }
 
-  // calculate status statistics
-  const step7 = step6.map(targetDay => {
+  // calculate status statistics (from instants, so DST-safe)
+  for (const targetDay of days) {
     let workTotal = 0;
     for (const statusItem of targetDay.statuses) {
       if (statusItem.work) workTotal += statusItem.end - statusItem.start;
     }
-    return { ...targetDay, workTotal };
-  });
+    targetDay.workTotal = workTotal;
+  }
 
   // calculate times statistics
-  const step8 = step7.map(targetDay => {
+  for (const targetDay of days) {
     let timesTotal = 0;
     for (const time of targetDay.times) {
       timesTotal += time.endMinute - time.startMinute;
     }
-    return { ...targetDay, timesTotal };
-  });
+    targetDay.timesTotal = timesTotal;
+  }
 
-  targetDays.value = step8;
+  targetDays.value = days;
   targetUser.value = res.targetUser;
 }
 

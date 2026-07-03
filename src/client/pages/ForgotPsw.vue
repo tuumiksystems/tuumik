@@ -8,7 +8,7 @@
       <form v-else-if="!linkSent" @submit.prevent="sendLink1()">
         <label for="email" class="field-label">EMAIL:</label>
         <input id="email" v-model="email" type="text" maxlength="100" />
-        <input type="submit" value="SEND RESET EMAIL" class="btn-submit" />
+        <input type="submit" value="SEND RESET EMAIL" class="btn-submit mt-1" />
       </form>
       <div v-else>Password reset link sent to email address.</div>
     </div>

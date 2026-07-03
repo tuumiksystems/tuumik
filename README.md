@@ -30,7 +30,9 @@ Tuumik runs on the web and is installable as a PWA on computers and mobile devic
 
 You can find additional documentation in [/docs](docs/).
 
-## Tuumik Export
+## Related repositories
+
+Tuumik uses [Tuumik MCP](https://github.com/tuumiksystems/tuumik-mcp) to integrate with AI tools.
 
 Tuumik uses [Tuumik Export](https://github.com/tuumiksystems/tuumik-export) to generate files.
 

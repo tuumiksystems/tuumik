@@ -10,7 +10,7 @@
         <input id="psw-first" v-model="password1" type="password" maxlength="100" />
         <label for="psw-second" class="field-label">NEW PASSWORD AGAIN:</label>
         <input id="psw-second" v-model="password2" type="password" maxlength="100" />
-        <input type="submit" value="RESET PASSWORD" class="btn-submit" />
+        <input type="submit" value="RESET PASSWORD" class="btn-submit mt-1" />
       </form>
     </div>
     <div v-if="loading" class="spinner spinner-global"></div>

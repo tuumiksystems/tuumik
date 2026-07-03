@@ -17,6 +17,7 @@ export default async function getUserAndTenantSelf(user) {
         inOutNote: 1,
         permissions: 1,
         pic: 1,
+        timezone: 1,
       },
     },
   );
@@ -31,6 +32,7 @@ export default async function getUserAndTenantSelf(user) {
         numberFormat: 1,
         dateFormat: 1,
         timeFormat: 1,
+        defaultTimezone: 1,
         weekStart: 1,
         thouMark: 1,
         decimalMark: 1,

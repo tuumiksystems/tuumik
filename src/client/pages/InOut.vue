@@ -121,7 +121,7 @@ import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useGeneralStore } from '/src/client/stores/general.js';
 import { Meteor } from 'meteor/meteor';
 import { Tracker } from 'meteor/tracker';
-import dayjs from 'dayjs';
+import { etaPresetToInstant } from '/src/shared/utils/time.js';
 import InOutListDesk from '/src/client/components/InOut/InOutListDesk.vue';
 import InOutListMobile from '/src/client/components/InOut/InOutListMobile.vue';
 import InOutIconsDesk from '/src/client/components/InOut/InOutIconsDesk.vue';
@@ -202,27 +202,14 @@ function clearInOutNote() {
   showNoteInput.value = false;
 }
 
-function makeETADesc(eta) {
-  const dateFormat = generalStore.tenant.dateFormat;
-  const timeFormat = generalStore.tenant.timeFormat;
-  if (eta === 'clear') return '';
-  if (eta === '15m') return `${dayjs().add(15, 'minutes').format(timeFormat)} (15m)`;
-  if (eta === '30m') return `${dayjs().add(30, 'minutes').format(timeFormat)} (30m)`;
-  if (eta === '1h') return `${dayjs().add(1, 'hours').format(timeFormat)} (1h)`;
-  if (eta === '2h') return `${dayjs().add(2, 'hours').format(timeFormat)} (2h)`;
-  if (eta === '3h') return `${dayjs().add(3, 'hours').format(timeFormat)} (3h)`;
-  if (eta === '4h') return `${dayjs().add(4, 'hours').format(timeFormat)} (4h)`;
-  if (eta === 'evening') return `${dayjs().format(dateFormat)} (evening)`;
-  if (eta === 'tomorrow') return `${dayjs().add(1, 'days').format(dateFormat)} (tomorrow)`;
-  return '';
-}
-
 async function setInOutETA(eta) {
   loading.value = true;
-  const desc = makeETADesc(eta);
   const targetUserId = editUser.value?._id;
-  editUser.value.inOutETA = desc;
-  const board = { eta: desc };
+  // ETA is stored as an absolute instant; "evening"/"tomorrow" are anchored in
+  // the target user's configured timezone
+  const instant = etaPresetToInstant(eta, editUser.value?.timezone);
+  editUser.value.inOutETA = instant;
+  const board = { eta: instant };
   try {
     await Meteor.callAsync('setInOutOthers', targetUserId, board);
     loading.value = false;

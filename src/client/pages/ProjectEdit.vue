@@ -31,7 +31,7 @@
         </label>
         <label for="project-reminder" class="field-label">REMINDER:</label>
         <input id="project-reminder" v-model="project.reminder" placeholder="REMINDER" type="text" maxlength="500" />
-        <input type="submit" value="SAVE CHANGES" class="btn-submit" />
+        <input type="submit" value="SAVE CHANGES" class="btn-submit mt-1" />
         <div class="section-title deletion-sec">DELETION</div>
         <span class="btn" @click="projectDelete()">
           DELETE PROJECT

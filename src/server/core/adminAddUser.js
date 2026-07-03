@@ -3,6 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import { z } from 'zod';
+import { Tenant } from '/src/shared/collections/collections.js';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -17,11 +18,14 @@ export default async function adminAddUser(user, name, email, password) {
   const parsed = inputSchema.safeParse({ name, email });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
+  const tenant = await Tenant.findOneAsync({}, { fields: { defaultTimezone: 1 } });
+
   const permissions = {};
   const profile = {
     name,
     nameNormalized: normalizeStringForAC(name),
     permissions,
+    timezone: tenant?.defaultTimezone || 'UTC',
   };
   const createdUserId = await Accounts.createUserAsync({ email, password, profile });
 

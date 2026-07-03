@@ -6,13 +6,16 @@
       <span class="m-status2">{{ status.text }}</span>
     </div>
     <div v-if="status.note" class="spopup-note">Note: {{ status.note }}</div>
-    <div v-if="status.eta" class="spopup-eta">ETA: {{ status.eta }}</div>
+    <div v-if="status.eta" class="spopup-eta">ETA: {{ displayEta(status) }}</div>
     <div class="spopup-dur">{{ displayDuration4(status) }}</div>
   </div>
 </template>
 
 <script setup>
-import { minutesToDuration } from '/src/shared/utils/time.js';
+import { minutesToDuration, displayEtaInTz } from '/src/shared/utils/time.js';
+import { useGeneralStore } from '/src/client/stores/general.js';
+
+const generalStore = useGeneralStore();
 
 const props = defineProps({
   status: { type: Object, required: true },
@@ -20,6 +23,10 @@ const props = defineProps({
   x: { type: Number, default: 0 },
   y: { type: Number, default: 0 },
 });
+
+function displayEta(status) {
+  return displayEtaInTz(status.eta, status.tz, generalStore.tenant.dateFormat, generalStore.tenant.timeFormat);
+}
 
 function statusboxPopupStyle() {
   return `left: ${props.x + 10}px; top: ${props.y + 10}px;`;

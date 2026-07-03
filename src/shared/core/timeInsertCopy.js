@@ -30,6 +30,7 @@ export default async function timeInsertCopy(user, sourceTimeId, startMinute) {
     plan: false,
     tagColor: '',
     tagText: '',
+    tz: user.timezone || tenant?.defaultTimezone || 'UTC',
     lastModified: new Date(),
   };
 

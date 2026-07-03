@@ -10,6 +10,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { minutesInTz } from '/src/shared/utils/time.js';
 import UserMonitorStatusPopup from '/src/client/components/UserMonitor/UserMonitorStatusPopup.vue';
 
 const props = defineProps({
@@ -27,8 +28,11 @@ function updateMousePosition(event) {
 
 function statusboxStyle(status) {
   const pixelsPerMinute = 2;
-  const startMinute = status.start.getHours() * 60 + status.start.getMinutes();
-  const endMinute = status.end.getHours() * 60 + status.end.getMinutes();
+  // Position by the status's OWN stored tz (not the viewer's browser tz), so the
+  // board looks identical regardless of where it is viewed from.
+  const tz = status.tz || 'UTC';
+  const startMinute = minutesInTz(status.start, tz);
+  const endMinute = minutesInTz(status.end, tz);
   const top = startMinute * pixelsPerMinute;
   const bottom = (1440 - endMinute) * pixelsPerMinute;
   return `top: ${top}px; bottom: ${bottom}px; background-color: ${status.colorBG};`;

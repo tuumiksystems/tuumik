@@ -13,10 +13,11 @@
       <label for="new-psw2" class="field-label">NEW PASSWORD AGAIN:</label>
       <span v-if="passwordNew1 && passwordNew1 === passwordNew2" class="match">[MATCH]</span>
       <input id="new-psw2" v-model="passwordNew2" type="password" maxlength="50" />
-      <input type="submit" value="CHANGE PASSWORD" class="btn-submit" />
+      <input type="submit" value="CHANGE PASSWORD" class="btn-submit mt-1" />
       <div v-if="loading" class="spinner spinner-global"></div>
     </form>
     <AccountApiKeys />
+    <AccountConnectedApps />
   </div>
 </template>
 
@@ -26,6 +27,7 @@ import { useNotifierStore } from '/src/client/stores/notifier.js';
 import { Accounts } from 'meteor/accounts-base';
 import { isValidPasswordStrength } from '/src/client/utils/validation';
 import AccountApiKeys from '/src/client/components/Account/AccountApiKeys.vue';
+import AccountConnectedApps from '/src/client/components/Account/AccountConnectedApps.vue';
 
 const notifierStore = useNotifierStore();
 

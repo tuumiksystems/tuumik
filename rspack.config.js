@@ -1,4 +1,5 @@
 const { defineConfig } = require('@meteorjs/rspack');
+const { DefinePlugin } = require('@rspack/core');
 const { VueLoaderPlugin } = require('vue-loader');
 
 /**
@@ -14,7 +15,14 @@ const { VueLoaderPlugin } = require('vue-loader');
 module.exports = defineConfig(Meteor => {
   return {
     ...Meteor.isClient && {
-      plugins: [new VueLoaderPlugin()],
+      plugins: [
+        new VueLoaderPlugin(),
+        new DefinePlugin({
+          __VUE_OPTIONS_API__: JSON.stringify(false),
+          __VUE_PROD_DEVTOOLS__: JSON.stringify(false),
+          __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(false),
+        }),
+      ],
       module: {
         rules: [
           {

@@ -13,6 +13,7 @@ const inputSchema = z.object({
   currency: z.object({ str: z.string(), sign: z.string() }),
   dateFormat: z.enum(['DD.MM.YYYY', 'MM.DD.YYYY', 'YYYY.MM.DD'], { message: 'Unrecognised date format' }),
   timeFormat: z.enum(['HH:mm', 'h:mm A'], { message: 'Unrecognised time format' }),
+  defaultTimezone: z.string().min(1, 'Default timezone is required'),
   weekStart: z.string(),
   thouMark: z.enum(['comma', 'space'], { message: 'Unrecognised thousands separator' }),
   decimalMark: z.enum(['period', 'comma'], { message: 'Unrecognised decimal separator' }),
@@ -31,6 +32,12 @@ export default async function adminMainSettingsSave(user, settings) {
   const parsed = inputSchema.safeParse(settings);
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: settings.defaultTimezone });
+  } catch (err) {
+    throw new Meteor.Error('400', 'Unrecognized default timezone');
+  }
+
   await Tenant.updateAsync(
     {},
     {
@@ -44,6 +51,7 @@ export default async function adminMainSettingsSave(user, settings) {
         },
         dateFormat: settings.dateFormat,
         timeFormat: settings.timeFormat,
+        defaultTimezone: settings.defaultTimezone,
         weekStart: settings.weekStart,
         thouMark: settings.thouMark,
         decimalMark: settings.decimalMark,

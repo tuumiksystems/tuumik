@@ -1,6 +1,6 @@
 services:
   app:
-    image: tuumik/tuumik:1.1.4
+    image: tuumik/tuumik:1.1.5
     depends_on:
       - mongo
     restart: unless-stopped
@@ -11,12 +11,17 @@ services:
       PORT: 3000
       TZ: Etc/UTC
       USER_API_KEY_EXPIRY_DAYS: 90
+      OAUTH_ACCESS_TOKEN_EXPIRY_MINUTES: 60
+      OAUTH_REFRESH_TOKEN_EXPIRY_DAYS: 90
+      DEMO_MAX_AGE_HOURS: 24
+      DEMO_PERIOD_DAYS: 36
+      DEMO_RESET_PASSWORD: ""
       METEOR_SETTINGS: |
         {
           "public": {
             "email": false,
             "demoMode": true,
-            "composerLimit": 1000
+            "timesheetExplorerLimit": 3000
           },
           "private": {
             "systemEmail": "noreply@exampledomain.com",
@@ -52,11 +57,16 @@ services:
       API_KEY: tuumik
 
   mcp:
-    image: tuumik/tuumik-mcp:1.0.3
+    image: tuumik/tuumik-mcp:1.0.4
     restart: unless-stopped
     environment:
       PORT: 3000
       APP_URL: http://app:3000
+      # browser-reachable URLs advertised in OAuth metadata:
+      # PUBLIC_APP_URL must match the app's ROOT_URL; the MCP server shares
+      # the app's domain (Caddy routes /mcp and the OAuth well-known paths here)
+      PUBLIC_APP_URL: https://tuumik.example.com
+      PUBLIC_MCP_URL: https://tuumik.example.com
 
 volumes:
   tuumikdb:

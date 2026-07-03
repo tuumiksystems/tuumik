@@ -12,7 +12,7 @@
       <div :class="{ 'single-drop-filled': client }" class="single-drop">
         <span v-if="client">{{ client.name }}</span>
       </div>
-      <input type="submit" value="CREATE PROJECT" class="btn-submit" />
+      <input type="submit" value="CREATE PROJECT" class="btn-submit mt-1" />
     </form>
     <ProjectAddHistory />
   </div>

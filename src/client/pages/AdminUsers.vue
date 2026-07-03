@@ -3,7 +3,7 @@
 <template>
   <div>
     <h1>User Accounts ({{ listUsers.length }})</h1>
-    <RouterLink to="/admin/users/add" class="btn-submit btn-new-user">
+    <RouterLink to="/admin/users/add" class="btn-submit btn-new-user mt-1 mb-2">
       CREATE NEW USER
     </RouterLink>
     <table v-if="listUsers.length" class="userstable">
@@ -89,7 +89,6 @@ function displayDate(date, notUtc, customFormat) {
 <style scoped>
 .btn-new-user {
   padding: 1em 2em;
-  margin-bottom: 2em;
   color: white;
 }
 

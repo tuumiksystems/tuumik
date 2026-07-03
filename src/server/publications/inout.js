@@ -44,6 +44,7 @@ Meteor.publish('inOutUsers', async function(searchedUserId, teamId) {
       inOutUpdateByName: 1,
       inOutUpdateAt: 1,
       inTeams: 1,
+      timezone: 1,
     },
   });
 });

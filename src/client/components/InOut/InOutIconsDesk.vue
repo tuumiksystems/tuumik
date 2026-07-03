@@ -18,7 +18,7 @@
           <span class="m-status2">{{ statusText(inOutUser.inOutStatus) }}</span>
         </div>
         <span class="m-name">{{ inOutUser.name }}</span>
-        <span v-if="inOutUser.inOutETA" class="m-eta-desc"> ETA: {{ inOutUser.inOutETA }} </span>
+        <span v-if="inOutUser.inOutETA" class="m-eta-desc"> ETA: {{ displayEta(inOutUser) }} </span>
         <span class="m-note">{{ inOutUser.inOutNote }}</span>
         <span class="m-bottom">
           <span v-if="isToday(inOutUser.inOutUpdateAt)" class="updated-today">
@@ -38,6 +38,7 @@
 
 <script setup>
 import { useGeneralStore } from '/src/client/stores/general.js';
+import { displayEtaInTz } from '/src/shared/utils/time.js';
 import InOutIconsTitleDesk from '/src/client/components/InOut/InOutIconsTitleDesk.vue';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -73,6 +74,10 @@ function statusText(inOutStatus) {
   const inOutOptions = generalStore.tenant.inOutOptions;
   const opt = inOutOptions.find(x => x.id === inOutStatus);
   return opt?.text ? opt.text : '-';
+}
+
+function displayEta(inOutUser) {
+  return displayEtaInTz(inOutUser.inOutETA, inOutUser.timezone, generalStore.tenant.dateFormat, generalStore.tenant.timeFormat);
 }
 
 function displayDate(date, notUtc, customFormat) {

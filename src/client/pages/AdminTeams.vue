@@ -15,7 +15,7 @@
         <input v-model="team.name" type="text" maxlength="30" class="text-inp" />
         <div class="option-select" @click="selectedIndex = selectedIndex === index ? -1 : index"></div>
       </div>
-      <input type="submit" value="SAVE CHANGES" class="btn-submit" />
+      <input type="submit" value="SAVE CHANGES" class="btn-submit mt-1" />
     </form>
   </div>
 </template>

@@ -22,6 +22,7 @@ Meteor.publish('usersSelf', async function() {
         inOutNote: 1,
         permissions: 1,
         pic: 1,
+        timezone: 1,
       },
     },
   );

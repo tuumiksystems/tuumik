@@ -29,6 +29,11 @@
         <option value="HH:mm">HH:mm (13:25)</option>
         <option value="h:mm A">h:mm A (1:25 PM)</option>
       </select>
+      <label for="default-timezone" class="field-label">DEFAULT TIMEZONE:</label>
+      <select id="default-timezone" v-model="mainSettings.defaultTimezone">
+        <option v-for="tz in timezones" :key="tz" :value="tz">{{ tz }}</option>
+      </select>
+      <div class="field-tip">Used as the default timezone for new users and as a fallback when a user or record has none.</div>
       <label for="week-format" class="field-label">WEEK FORMAT:</label>
       <select id="week-format" v-model="mainSettings.weekStart">
         <option value="mon">Week starts on Monday</option>
@@ -58,7 +63,7 @@
         <option value="15">15 minutes</option>
         <option value="30">30 minutes</option>
       </select>
-      <input type="submit" value="SAVE CHANGES" class="btn-submit" />
+      <input type="submit" value="SAVE CHANGES" class="btn-submit mt-1" />
     </form>
     <div v-if="loading" class="spinner spinner-global"></div>
   </div>
@@ -79,6 +84,7 @@ const mainSettingsInit = {
   currency: '',
   dateFormat: '',
   timeFormat: '',
+  defaultTimezone: 'UTC',
   weekStart: '',
   thouMark: '',
   decimalMark: '',
@@ -87,6 +93,8 @@ const mainSettingsInit = {
 };
 const mainSettings = ref(mainSettingsInit);
 const loading = ref(false);
+
+const timezones = ref(typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : ['UTC']);
 
 onMounted(() => {
   loadData();
@@ -97,6 +105,9 @@ async function loadData() {
   try {
     const res = await Meteor.callAsync('mainSettingsLoad');
     mainSettings.value = res;
+    // defensive fallback: tenants predating the field have no defaultTimezone
+    if (!mainSettings.value.defaultTimezone) mainSettings.value.defaultTimezone = 'UTC';
+    if (!timezones.value.includes(mainSettings.value.defaultTimezone)) timezones.value = [mainSettings.value.defaultTimezone, ...timezones.value];
     loading.value = false;
   } catch (err) {
     notifierStore.addTemp({ type: 'error', txt: err.reason });
