@@ -19,8 +19,10 @@ export default async function clientInsert(user, name) {
     name,
     nameNormalized: normalizeStringForAC(name),
     reminder: '',
-    created: new Date(),
-    lastModified: new Date(),
+    createdAt: new Date(),
+    createdBy: { id: user._id, name: user.name },
+    modifiedAt: new Date(),
+    modifiedBy: { id: user._id, name: user.name },
   };
 
   const id = await Clients.insertAsync(doc);

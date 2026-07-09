@@ -17,5 +17,5 @@ export default async function timeMove(user, timeId, startMinute) {
   const endMinute = startMinute + currentTime.endMinute - currentTime.startMinute;
 
   const query = { _id: timeId, owner: user._id };
-  await Times.updateAsync(query, { $set: { startMinute, endMinute, lastModified: new Date() } });
+  await Times.updateAsync(query, { $set: { startMinute, endMinute, modifiedAt: new Date(), modifiedBy: { id: user._id, name: user.name } } });
 }

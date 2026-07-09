@@ -45,7 +45,7 @@ async function loadProjects() {
   loading.value = true;
   const clientId = props.client._id;
   try {
-    const res = await Meteor.callAsync('catalogProjectsForClient', clientId);
+    const res = await Meteor.callAsync('catalogProjects', clientId);
     projects.value = res;
     loading.value = false;
   } catch (err) {
@@ -55,7 +55,7 @@ async function loadProjects() {
 }
 
 function projectYear(project) {
-  return dayjs(project.created).format('YYYY');
+  return dayjs(project.createdAt).format('YYYY');
 }
 </script>
 

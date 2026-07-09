@@ -18,6 +18,6 @@ export default async function timeSetDate(user, timeId, selDate) {
 
   await Times.updateAsync(
     { _id: timeId, owner: user._id },
-    { $set: { date: selDate, lastModified: new Date() } },
+    { $set: { date: selDate, modifiedAt: new Date(), modifiedBy: { id: user._id, name: user.name } } },
   );
 }

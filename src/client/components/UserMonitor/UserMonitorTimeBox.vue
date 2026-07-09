@@ -1,7 +1,7 @@
 <!-- Copyright (C) 2017-2025 Tuumik Systems OÜ -->
 
 <template>
-  <div :style="timeboxStyle(time)" class="timebox-vert" @mouseenter="isHovered = true" @mouseleave="isHovered = false" @mousemove="updateMousePosition($event)">
+  <div :style="timeboxStyle(time)" class="timebox-vert" @mouseenter="handleMouseEnter($event)" @mouseleave="isHovered = false" @mousemove="updateMousePosition($event)">
     <ul class="ul-vert">
       <li>
         <span v-if="time.clientName" class="client-name">{{ time.clientName }}</span>
@@ -20,7 +20,8 @@
         <span class="time-start-end">{{ displayTimeFromMinutes(time.startMinute) }} - {{ displayTimeFromMinutes(time.endMinute) }}</span>
       </li>
     </ul>
-    <UserMonitorTimePopup :time="time" :show="isHovered" :x="mouseX" :y="mouseY" />
+    <UserMonitorTimePopupMobile v-if="generalStore.isMobile && isHovered" :time="time" />
+    <UserMonitorTimePopupDesk v-else-if="isHovered" :time="time" :x="mouseX" :y="mouseY" />
   </div>
 </template>
 
@@ -28,7 +29,8 @@
 import { ref } from 'vue';
 import { useGeneralStore } from '/src/client/stores/general.js';
 import dayjs from 'dayjs';
-import UserMonitorTimePopup from '/src/client/components/UserMonitor/UserMonitorTimePopup.vue';
+import UserMonitorTimePopupDesk from '/src/client/components/UserMonitor/UserMonitorTimePopupDesk.vue';
+import UserMonitorTimePopupMobile from '/src/client/components/UserMonitor/UserMonitorTimePopupMobile.vue';
 import { minutesToDuration } from '/src/shared/utils/time.js';
 
 const generalStore = useGeneralStore();
@@ -44,6 +46,11 @@ const mouseY = ref(0);
 function updateMousePosition(event) {
   mouseX.value = event.clientX;
   mouseY.value = event.clientY;
+}
+
+function handleMouseEnter(event) {
+  updateMousePosition(event);
+  isHovered.value = true;
 }
 
 function timeboxStyle(time) {

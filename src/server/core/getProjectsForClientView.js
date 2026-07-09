@@ -14,8 +14,8 @@ export default async function getProjectsForClientView(user, clientId) {
   const projectsRes = await Projects.find(
     { clientId },
     {
-      fields: { name: 1, created: 1 },
-      sort: { created: 1 },
+      fields: { name: 1, createdAt: 1, createdBy: 1 },
+      sort: { createdAt: 1 },
     },
   ).fetchAsync();
 

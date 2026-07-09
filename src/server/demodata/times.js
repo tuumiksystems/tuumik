@@ -28,11 +28,16 @@ const REMOTE = '5';
 // Fraction of a person's IN/REMOTE (desk-work) time that ends up tracked as
 // billable hours. The rest becomes a ramp-up before the first task plus short
 // breaks between tasks, so the timesheet does not fill the whole work period.
-// This is the single knob for how loose or tight the timesheet is relative to
-// the in/out board: lower it for more idle time, raise it (towards 1) for a
-// tighter fit. Controls desk work only - court and meeting periods are billed
-// in full and are unaffected.
-const BILLABLE_COVERAGE = 0.7;
+// Each user gets a personal base drawn from [MIN, MAX] (their tracking
+// discipline) and each work period wobbles around it by up to JITTER, so
+// firm-wide utilization shows a realistic spread instead of one flat ratio.
+// Controls desk work only - court and meeting periods are billed in full and
+// are unaffected.
+const BILLABLE_COVERAGE_MIN = 0.5;
+const BILLABLE_COVERAGE_MAX = 0.9;
+const BILLABLE_COVERAGE_JITTER = 0.08;
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 // random integer between min and max, inclusive of both ends
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -88,41 +93,66 @@ const getRandomInternalComment = () => pick([
   'NB! A potential risk with regard to other proceedings!',
 ]);
 
-// task descriptions suitable for a general working period (IN or REMOTE) -
-// deskwork and correspondence, deliberately excluding court hearings and
-// meetings, which are represented by their own in/out statuses
-const getGeneralTaskDesc = () => {
-  const descs = [
-    `drafting of ${getRandomPleading()}`,
-    `drafting of ${getRandomAgreement()}`,
-    `drafting of amendments to ${getRandomAgreement()}`,
-    `review of ${getRandomAgreement()}`,
-    `legal analysis re ${getRandomAnalysisTopic()}`,
-    `drafting of memorandum re ${getRandomAnalysisTopic()}`,
-    `drafting of email to ${getRandomPersons()} re ${getRandomEmailPhoneTopic()}`,
-    `telephone call with ${getRandomPersons()} re ${getRandomEmailPhoneTopic()}`,
+// tasks suitable for a general working period (IN or REMOTE) - deskwork and
+// correspondence, deliberately excluding court hearings and meetings, which
+// are represented by their own in/out statuses. Each description is paired
+// with the matching task type from /src/server/initdata/taskgroups.js; the
+// type lands on the entry only for projects with useTaskTypes.
+const getGeneralTask = () => {
+  const tasks = [
+    () => ({ taskDesc: `drafting of ${getRandomPleading()}`, taskType: 'preparation of pleading:' }),
+    () => ({ taskDesc: `drafting of ${getRandomAgreement()}`, taskType: 'preparation of agreement:' }),
+    () => ({ taskDesc: `drafting of amendments to ${getRandomAgreement()}`, taskType: 'preparation of amendments to agreement:' }),
+    () => ({ taskDesc: `review of ${getRandomAgreement()}`, taskType: 'review of document:' }),
+    () => ({ taskDesc: `legal analysis re ${getRandomAnalysisTopic()}`, taskType: 'legal analysis:' }),
+    () => ({ taskDesc: `drafting of memorandum re ${getRandomAnalysisTopic()}`, taskType: 'preparation of memorandum:' }),
+    () => ({ taskDesc: `drafting of email to ${getRandomPersons()} re ${getRandomEmailPhoneTopic()}`, taskType: 'preparation of email:' }),
+    () => ({ taskDesc: `telephone call with ${getRandomPersons()} re ${getRandomEmailPhoneTopic()}`, taskType: 'telephone call:' }),
   ];
-  return pick(descs);
+  return pick(tasks)();
 };
 
-const getTaskDescForStatus = (status) => {
-  if (status === COURT) return `court hearing, ${getRandomHearing()}`;
-  if (status === MEETING) return `meeting with ${getRandomPersons()}`;
-  return getGeneralTaskDesc();
+const getTaskForStatus = (status) => {
+  if (status === COURT) return { taskDesc: `court hearing, ${getRandomHearing()}`, taskType: 'court hearing:' };
+  if (status === MEETING) return { taskDesc: `meeting with ${getRandomPersons()}`, taskType: 'meeting:' };
+  return getGeneralTask();
+};
+
+// A small share of entries carry a tag color the way a real firm uses them:
+// red = write-off / do-not-bill, yellow = needs review, green = approved.
+const getRandomTag = () => {
+  const r = Math.random();
+  if (r < 0.02) return { tagColor: 'red', tagText: pick(['do not bill', 'write-off']) };
+  if (r < 0.045) return { tagColor: 'yellow', tagText: pick(['review before invoicing', 'check description with partner']) };
+  if (r < 0.06) return { tagColor: 'green', tagText: 'approved for invoicing' };
+  return { tagColor: '', tagText: '' };
 };
 
 export default async () => {
   const projects = await Projects.find({}).fetchAsync();
   if (!projects.length) return;
-  const getRandomProject = () => pick(projects);
 
   const workStatuses = [IN, MEETING, COURT, REMOTE];
   const users = await Meteor.users.find({}).fetchAsync();
   const now = new Date();
 
+  // Projects are picked uniformly at random for every entry - any user can log
+  // time on any matter, so each timesheet spans random projects. The only
+  // constraint is that a project must already exist on the entry's date, so no
+  // entry ever predates its project or client.
+  const pickProjectFor = entryTime => {
+    const eligible = projects.filter(p => p.createdAt <= entryTime);
+    return eligible.length ? pick(eligible) : null;
+  };
+
   const docs = [];
 
   for (const user of users) {
+    // the user's personal tracking profile: how much of a desk-work period they
+    // bill, and whether they log same-day or habitually enter time days later
+    const coverageBase = BILLABLE_COVERAGE_MIN + Math.random() * (BILLABLE_COVERAGE_MAX - BILLABLE_COVERAGE_MIN);
+    const maxLoggingDelayDays = Math.random() < 0.2 ? randomInt(1, 5) : 0;
+
     // the user's generated in/out work periods, chronological
     const segments = await Statuses.find(
       { userId: user._id, status: { $in: workStatuses } },
@@ -159,7 +189,8 @@ export default async () => {
         chunks.push([segStartMin, segEndMin]);
       } else {
         const periodLen = segEndMin - segStartMin;
-        const billable = Math.round(periodLen * BILLABLE_COVERAGE);
+        const coverage = Math.min(0.95, Math.max(0.3, coverageBase + (Math.random() * 2 - 1) * BILLABLE_COVERAGE_JITTER));
+        const billable = Math.round(periodLen * coverage);
         if (billable >= 15) {
           // chop the billable time into tasks
           const taskLens = [];
@@ -184,8 +215,12 @@ export default async () => {
       }
 
       for (const [startMinute, endMinute] of chunks) {
-        const taskDesc = getTaskDescForStatus(seg.status);
+        const task = getTaskForStatus(seg.status);
         const entryEnd = localMidnight.add(endMinute, 'minute').toDate();
+        const project = pickProjectFor(entryEnd);
+        if (!project) continue; // no project existed yet on this date
+        // late loggers enter time up to a few days after the work happened
+        const loggedAt = new Date(Math.min(now.getTime(), entryEnd.getTime() + randomInt(0, maxLoggingDelayDays) * DAY_MS));
         docs.push({
           _id: Random.id(),
           date,
@@ -193,15 +228,18 @@ export default async () => {
           startMinute,
           endMinute,
           plan: false,
-          projectId: getRandomProject()._id,
-          taskDesc,
-          taskDescNormalized: normalizeStringForAC(taskDesc),
+          projectId: project._id,
+          clientId: project.clientId,
+          taskDesc: task.taskDesc,
+          taskDescNormalized: normalizeStringForAC(task.taskDesc),
+          ...(project.useTaskTypes ? { taskType: task.taskType } : {}),
           intCom: Math.random() < 0.05 ? getRandomInternalComment() : '',
-          tagColor: '',
-          tagText: '',
+          ...getRandomTag(),
           tz,
-          created: entryEnd,
-          lastModified: entryEnd,
+          createdAt: loggedAt,
+          createdBy: { id: user._id, name: user.name },
+          modifiedAt: loggedAt,
+          modifiedBy: { id: user._id, name: user.name },
         });
       }
     }
@@ -231,11 +269,12 @@ export default async () => {
 
   for (const user of users) {
     const tz = user.timezone || refTz;
-    // a single continuous VACATION period, if any, to keep people off weekend work
-    const vac = await Statuses.findOneAsync(
+    // all of the user's vacation periods (current and completed), to keep
+    // people off weekend work while away
+    const vacations = await Statuses.find(
       { userId: user._id, status: '7' },
       { fields: { start: 1, end: 1 } },
-    );
+    ).fetchAsync();
 
     for (const dayStr of weekendDays) {
       if (Math.random() >= 0.08) continue; // only a few people per weekend day
@@ -244,7 +283,8 @@ export default async () => {
       if (workedDayKeys.has(`${user._id}|${date.getTime()}`)) continue; // marked IN/REMOTE that day
 
       const dayStart = dayjs.tz(dayStr, tz);
-      if (vac && vac.start < dayStart.add(1, 'day').toDate() && vac.end > dayStart.toDate()) continue; // on vacation
+      if (user.createdAt && dayStart.toDate() < user.createdAt) continue; // account didn't exist yet
+      if (vacations.some(vac => vac.start < dayStart.add(1, 'day').toDate() && vac.end > dayStart.toDate())) continue; // on vacation
 
       const dur = randomInt(30, 150); // 30 min to 2.5h
       const startMinute = randomInt(9 * 60, 18 * 60 - dur); // sometime during the day
@@ -252,7 +292,11 @@ export default async () => {
       const entryEnd = dayStart.add(endMinute, 'minute').toDate();
       if (entryEnd > now) continue; // don't create future entries on today
 
-      const taskDesc = getGeneralTaskDesc();
+      const task = getGeneralTask();
+      const project = pickProjectFor(entryEnd);
+      if (!project) continue; // no project existed yet on this date
+      // weekend work is often entered on Monday rather than on the day itself
+      const loggedAt = new Date(Math.min(now.getTime(), entryEnd.getTime() + (Math.random() < 0.5 ? randomInt(1, 3) : 0) * DAY_MS));
       docs.push({
         _id: Random.id(),
         date,
@@ -260,18 +304,83 @@ export default async () => {
         startMinute,
         endMinute,
         plan: false,
-        projectId: getRandomProject()._id,
-        taskDesc,
-        taskDescNormalized: normalizeStringForAC(taskDesc),
+        projectId: project._id,
+        clientId: project.clientId,
+        taskDesc: task.taskDesc,
+        taskDescNormalized: normalizeStringForAC(task.taskDesc),
+        ...(project.useTaskTypes ? { taskType: task.taskType } : {}),
         intCom: Math.random() < 0.05 ? getRandomInternalComment() : '',
-        tagColor: '',
-        tagText: '',
+        ...getRandomTag(),
         tz,
-        created: entryEnd,
-        lastModified: entryEnd,
+        createdAt: loggedAt,
+        createdBy: { id: user._id, name: user.name },
+        modifiedAt: loggedAt,
+        modifiedBy: { id: user._id, name: user.name },
       });
       // at most one OUT weekend block per user per day, so nothing else can overlap it
       workedDayKeys.add(`${user._id}|${date.getTime()}`);
+    }
+  }
+
+  // Planned (plan:true) entries: a small handful of forward-scheduled tasks,
+  // 1-3 days in the future, so "what's scheduled" questions have data. Kept
+  // deliberately rare (~PLAN_ENTRIES_TARGET across the whole firm) and always
+  // in the future - actual entries never extend past "now" and each user's
+  // planned blocks for a day are laid out sequentially, so no time entry can
+  // overlap another one.
+  const PLAN_ENTRIES_TARGET = 10;
+  const planDayOffsets = [1, 2, 3];
+  const planUsers = [...users].sort(() => Math.random() - 0.5);
+  let planCount = 0;
+  for (const user of planUsers) {
+    if (planCount >= PLAN_ENTRIES_TARGET) break;
+
+    const tz = user.timezone || refTz;
+    // offsets are reckoned in the user's own calendar, so a plan is always
+    // genuinely 1-3 days in that user's future
+    const dayStart = dayjs().tz(tz).startOf('day').add(pick(planDayOffsets), 'day');
+    const dow = dayStart.day();
+    if (dow === 0 || dow === 6) continue; // plans land on weekdays (user's local calendar)
+    if (user.inOutStatus === '7' && user.inOutETA && dayStart.toDate() < user.inOutETA) continue; // on vacation until ETA
+
+    const date = dayjs.utc(dayStart.format('YYYY-MM-DD')).millisecond(1).toDate();
+    // plans were authored recently, before demo creation time
+    const authoredAt = new Date(Math.max(
+      user.createdAt ? user.createdAt.getTime() : 0,
+      now.getTime() - randomInt(1, 48) * 60 * 60 * 1000,
+    ));
+
+    // 1-2 planned blocks per picked user, sequential with gaps
+    const blocks = randomInt(1, 2);
+    let cur = randomInt(9 * 60, 13 * 60);
+    for (let b = 0; b < blocks && planCount < PLAN_ENTRIES_TARGET; b += 1) {
+      const len = randomInt(60, 180);
+      const task = getGeneralTask();
+      const project = pickProjectFor(dayStart.toDate());
+      if (!project) break;
+      docs.push({
+        _id: Random.id(),
+        date,
+        owner: user._id,
+        startMinute: cur,
+        endMinute: cur + len,
+        plan: true,
+        projectId: project._id,
+        clientId: project.clientId,
+        taskDesc: task.taskDesc,
+        taskDescNormalized: normalizeStringForAC(task.taskDesc),
+        ...(project.useTaskTypes ? { taskType: task.taskType } : {}),
+        intCom: '',
+        tagColor: '',
+        tagText: '',
+        tz,
+        createdAt: authoredAt,
+        createdBy: { id: user._id, name: user.name },
+        modifiedAt: authoredAt,
+        modifiedBy: { id: user._id, name: user.name },
+      });
+      planCount += 1;
+      cur += len + randomInt(15, 60);
     }
   }
 

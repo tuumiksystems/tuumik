@@ -5,34 +5,38 @@
     <div v-if="loading" class="spinner spinner-global"></div>
     <h1>Task groups</h1>
     <table class="groups-table">
-      <tr>
-        <th class="gth">Name</th>
-        <th class="gth">Position</th>
-        <th class="gth">Default</th>
-        <th class="gth"></th>
-        <th class="gth"></th>
-      </tr>
-      <tr v-for="taskGroup in taskGroups" :key="taskGroup._id">
-        <td class="gtd gname">
-          {{ taskGroup.name }}
-        </td>
-        <td class="gtd gposition">
-          {{ taskGroup.position }}
-        </td>
-        <td class="gtd gdefault">
-          <span v-if="taskGroup.showByDefault">YES</span>
-          <span v-else>NO</span>
-        </td>
-        <td class="gtd gedit">
-          <RouterLink :to="'/admin/taskgroups/edit/' + taskGroup._id" class="btn">EDIT</RouterLink>
-        </td>
-        <td class="gtd gdelete">
-          <span class="btn" @click="deleteTaskGroup(taskGroup)">DELETE</span>
-        </td>
-      </tr>
-      <tr v-if="!loading && !taskGroups.length">
-        <td class="gtd" colspan="5">NO TASK GROUPS CREATED</td>
-      </tr>
+      <thead>
+        <tr>
+          <th class="gth">Name</th>
+          <th class="gth">Position</th>
+          <th class="gth">Default</th>
+          <th class="gth"></th>
+          <th class="gth"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="taskGroup in taskGroups" :key="taskGroup._id">
+          <td class="gtd gname">
+            {{ taskGroup.name }}
+          </td>
+          <td class="gtd gposition">
+            {{ taskGroup.position }}
+          </td>
+          <td class="gtd gdefault">
+            <span v-if="taskGroup.showByDefault">YES</span>
+            <span v-else>NO</span>
+          </td>
+          <td class="gtd gedit">
+            <RouterLink :to="'/admin/taskgroups/edit/' + taskGroup._id" class="btn">EDIT</RouterLink>
+          </td>
+          <td class="gtd gdelete">
+            <span class="btn" @click="deleteTaskGroup(taskGroup)">DELETE</span>
+          </td>
+        </tr>
+        <tr v-if="!loading && !taskGroups.length">
+          <td class="gtd" colspan="5">NO TASK GROUPS CREATED</td>
+        </tr>
+      </tbody>
     </table>
 
     <form class="add-form" @submit.prevent="insertTaskGroup1()">

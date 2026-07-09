@@ -14,7 +14,7 @@ export default async function pickClientInProjectPicker(user, clientId) {
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
   const clientRes = await Clients.findOneAsync({ _id: clientId }, { fields: { name: 1 } });
-  const projectsRes = await Projects.find({ clientId }, { fields: { name: 1, created: 1, open: 1 } }).fetchAsync();
+  const projectsRes = await Projects.find({ clientId }, { fields: { name: 1, createdAt: 1, open: 1 } }).fetchAsync();
 
   return { client: clientRes, projects: projectsRes };
 }

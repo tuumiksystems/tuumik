@@ -6,7 +6,6 @@
     <div v-if="!generalStore.isMobile" :class="{ 'menu-reg-icon-on': showMenuReg }" class="menu-reg-icon" @click="showMenuReg = !showMenuReg"></div>
     <div v-if="showMenuReg" class="menu-closer" @click="showMenuReg = false"></div>
     <div class="spacer"></div>
-    <IconConnection />
     <IconInOut v-if="generalStore.user && generalStore.tenant && generalStore.user.permissions.inOutSelf" />
     <IconZoom />
     <div v-if="generalStore.isMobile" class="menu-mob-icon" @click="showMenuMob = true"></div>
@@ -19,7 +18,6 @@
 <script setup>
 import { ref } from 'vue';
 import { useGeneralStore } from '/src/client/stores/general.js';
-import IconConnection from './components/IconConnection.vue';
 import IconInOut from './components/IconInOut.vue';
 import IconZoom from './components/IconZoom.vue';
 import MenuDesk from './components/MenuDesk.vue';

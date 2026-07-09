@@ -5,14 +5,21 @@ import { z } from 'zod';
 import { Tenant } from '/src/shared/collections/collections.js';
 
 const inputSchema = z.object({
-  searchedUserId: z.string(),
-  teamId: z.string(),
-});
+  searchedUserId: z.string().min(1).optional(),
+  teamId: z.string().min(1).optional(),
+  allUsers: z.boolean().optional(),
+})
+  .refine(d => [d.searchedUserId, d.teamId, d.allUsers].filter(Boolean).length === 1, { message: 'Provide exactly one of searchedUserId, teamId or allUsers' });
 
 export default async function loadInOutBoardCurrent(user, args) {
-  const { searchedUserId, teamId } = args;
   if (!user.permissions.inOutView) throw new Meteor.Error('403', 'No permission to view in/out board');
-  const parsed = inputSchema.safeParse(args);
+
+  // legacy callers pass empty strings for the unused addressing field
+  const searchedUserId = args.searchedUserId || undefined;
+  const teamId = args.teamId || undefined;
+  const allUsers = args.allUsers || undefined;
+
+  const parsed = inputSchema.safeParse({ searchedUserId, teamId, allUsers });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
   const tenant = await Tenant.findOneAsync();
@@ -30,7 +37,12 @@ export default async function loadInOutBoardCurrent(user, args) {
     disabled: { $ne: true },
   };
 
-  const query = searchedUserId ? queryForSearch : queryForTeams;
+  const queryForAllUsers = {
+    inOutShow: true,
+    disabled: { $ne: true },
+  };
+
+  const query = searchedUserId ? queryForSearch : teamId ? queryForTeams : queryForAllUsers;
 
   const usersRes = await Meteor.users.find(query, {
     fields: {

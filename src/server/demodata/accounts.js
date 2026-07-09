@@ -1,7 +1,20 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
+import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+// mirrors DEMO_PERIOD_DAYS in statuses.js so account creation stays clear of the data window
+const DEMO_PERIOD_DAYS = Number.parseInt(process.env.DEMO_PERIOD_DAYS, 10) || 21;
+// this many of the accounts are "new hires" created inside the demo activity
+// window, so headcount-growth and recently-added-user questions have a real
+// signal; statuses.js and times.js generate no activity before an account's
+// createdAt, so tenure math stays consistent for them too
+const NEW_HIRE_COUNT = 3;
+
+// random integer between min and max, inclusive of both ends
+const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 export default async () => {
   // team memberships: 50 users in "Dispute" (10), 15 in "Finance" (20), 30 in "Employment" (30)
@@ -333,11 +346,17 @@ export default async () => {
     },
   ];
 
-  // spread demo users across a few IANA zones so the monitors demonstrate the
-  // multi-timezone feature (each user's board renders in their own local wall clock)
-  // const demoTimezones = ['America/New_York', 'Europe/Tallinn', 'Asia/Singapore'];
-  // for now keep all demo users in a single timezone (swap in the line above to spread them out)
-  const demoTimezones = ['Europe/Tallinn'];
+  // spread demo users across a few IANA zones so the monitors and cross-timezone
+  // questions demonstrate the multi-timezone feature (each user's board renders in
+  // their own local wall clock). DEMO_TIMEZONES=multi enables the spread; any other
+  // value (or unset) keeps all demo users in a single timezone.
+  const demoTimezones = process.env.DEMO_TIMEZONES === 'multi'
+    ? ['America/New_York', 'Europe/Tallinn', 'Asia/Singapore']
+    : ['Europe/Tallinn'];
+
+  // accounts created so far, so each new account can name an earlier one as its
+  // creator and creation-audit queries have data to show
+  const createdSoFar = [];
 
   for (const [personIndex, person] of persons.entries()) {
     const permissions = {
@@ -371,6 +390,21 @@ export default async () => {
       email = `user${Math.floor(Math.random() * 100000 + 100000)}@example.com`;
     } while (await Accounts.findUserByEmail(email));
     const password = 'demo';
-    await Accounts.createUserAsync({ email, password, profile });
+    const userId = await Accounts.createUserAsync({ email, password, profile });
+
+    // spread account creation over roughly 1.5 years, mostly before the demo
+    // data window (DEMO_PERIOD_DAYS back from now), oldest first so creators
+    // predate the accounts they create; the first account is its own creator.
+    // The last NEW_HIRE_COUNT accounts land inside the window instead (15-60%
+    // of the window back from now) — their activity starts at their createdAt.
+    const isNewHire = personIndex >= persons.length - NEW_HIRE_COUNT;
+    const newHireEarliestDays = Math.max(1, Math.ceil(DEMO_PERIOD_DAYS * 0.15));
+    const newHireLatestDays = Math.max(newHireEarliestDays, Math.floor(DEMO_PERIOD_DAYS * 0.6));
+    const createdAt = isNewHire
+      ? new Date(Date.now() - randomInt(newHireEarliestDays, newHireLatestDays) * DAY_MS)
+      : new Date(Date.now() - Math.floor((DEMO_PERIOD_DAYS + 540 - (personIndex / persons.length) * 530) * DAY_MS));
+    const creator = createdSoFar.length ? createdSoFar[Math.floor(Math.random() * createdSoFar.length)] : { id: userId, name: person.name };
+    await Meteor.users.updateAsync({ _id: userId }, { $set: { createdAt, createdBy: { id: creator.id, name: creator.name } } });
+    createdSoFar.push({ id: userId, name: person.name });
   }
 };

@@ -4,18 +4,20 @@
   <div>
     <span class="title">Details</span>
     <table v-if="client" class="details-table">
-      <tr class="htr">
-        <td class="htd htd-title">Name</td>
-        <td class="htd htd-content">{{ client.name }}</td>
-      </tr>
-      <tr class="htr">
-        <td class="htd htd-title">Reminder</td>
-        <td class="htd htd-content">{{ client.reminder }}</td>
-      </tr>
-      <tr class="htr">
-        <td class="htd htd-title">Created</td>
-        <td class="htd htd-content">{{ displayDate(client.created) }}</td>
-      </tr>
+      <tbody>
+        <tr class="htr">
+          <td class="htd htd-title">Name</td>
+          <td class="htd htd-content">{{ client.name }}</td>
+        </tr>
+        <tr class="htr">
+          <td class="htd htd-title">Reminder</td>
+          <td class="htd htd-content">{{ client.reminder }}</td>
+        </tr>
+        <tr class="htr">
+          <td class="htd htd-title">Created</td>
+          <td class="htd htd-content">{{ displayDate(client.createdAt) }}</td>
+        </tr>
+      </tbody>
     </table>
 
     <div v-if="loading" class="spinner spinner-local"></div>

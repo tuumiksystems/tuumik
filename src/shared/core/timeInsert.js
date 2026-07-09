@@ -40,7 +40,10 @@ export default async function timeInsert(user, args) {
     tagColor: '',
     tagText: '',
     tz: user.timezone || tenant?.defaultTimezone || 'UTC',
-    lastModified: new Date(),
+    createdAt: new Date(),
+    createdBy: { id: user._id, name: user.name },
+    modifiedAt: new Date(),
+    modifiedBy: { id: user._id, name: user.name },
   };
 
   if (tenant?.useTaskTypesByDefault) doc.useTaskType = true;
@@ -51,11 +54,16 @@ export default async function timeInsert(user, args) {
       const selProject = await Projects.findOneAsync({ _id: projectId });
       if (selProject?.useTaskTypes) doc.useTaskType = true;
       else delete doc.useTaskType;
+      if (selProject?.clientId) doc.clientId = selProject.clientId;
     }
   } else if (clientId !== undefined) {
     doc.clientId = clientId;
   } else if (user.defaultProjectId) {
     doc.projectId = user.defaultProjectId;
+    if (Meteor.isServer) {
+      const selProject = await Projects.findOneAsync({ _id: user.defaultProjectId });
+      if (selProject?.clientId) doc.clientId = selProject.clientId;
+    }
   } else if (user.defaultClientId) {
     doc.clientId = user.defaultClientId;
   }

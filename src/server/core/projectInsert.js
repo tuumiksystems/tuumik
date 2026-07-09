@@ -27,8 +27,10 @@ export default async function projectInsert(user, name, clientId) {
     taskGroupIds: [],
     useTaskTypes: !!tenant.useTaskTypesByDefault,
     reminder: '',
-    created: new Date(),
-    lastModified: new Date(),
+    createdAt: new Date(),
+    createdBy: { id: user._id, name: user.name },
+    modifiedAt: new Date(),
+    modifiedBy: { id: user._id, name: user.name },
   };
 
   const id = await Projects.insertAsync(doc);

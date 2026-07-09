@@ -22,6 +22,7 @@ export default async function adminMainSettingsLoad(user) {
         decimalMark: 1,
         useTaskTypesByDefault: 1,
         trackerStep: 1,
+        aiInstructions: 1,
       },
     },
   );

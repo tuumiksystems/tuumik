@@ -14,5 +14,5 @@ export default async function timeResizeTop(user, timeId, startMinute) {
   if (!parsed.success) throw new Meteor.Error('403', parsed.error.issues[0].message);
 
   const query = { _id: timeId, owner: user._id };
-  await Times.updateAsync(query, { $set: { startMinute, lastModified: new Date() } });
+  await Times.updateAsync(query, { $set: { startMinute, modifiedAt: new Date(), modifiedBy: { id: user._id, name: user.name } } });
 }

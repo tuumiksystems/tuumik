@@ -9,12 +9,19 @@ export default function() {
 
   Times.rawCollection().createIndex({ date: 1, owner: 1 });
   Times.rawCollection().createIndex({ taskDescNormalized: 1 });
+  Times.rawCollection().createIndex({ owner: 1, date: 1 });
+  Times.rawCollection().createIndex({ projectId: 1, date: 1 });
+  Times.rawCollection().createIndex({ clientId: 1, date: 1 });
 
   Statuses.rawCollection().createIndex({ start: 1, userId: 1 });
+  Statuses.rawCollection().createIndex({ userId: 1, start: 1 });
+  Statuses.rawCollection().createIndex({ end: 1 });
 
   Clients.rawCollection().createIndex({ nameNormalized: 1 });
+  Clients.rawCollection().createIndex({ createdAt: 1 });
 
   Projects.rawCollection().createIndex({ nameNormalized: 1 });
+  Projects.rawCollection().createIndex({ createdAt: 1 });
 
   OauthClients.rawCollection().createIndex({ clientId: 1 }, { unique: true });
 

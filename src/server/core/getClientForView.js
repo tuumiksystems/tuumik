@@ -21,8 +21,10 @@ export default async function getClientForView(user, clientId) {
         tel: 1,
         email: 1,
         address: 1,
-        created: 1,
-        lastModified: 1,
+        createdAt: 1,
+        createdBy: 1,
+        modifiedAt: 1,
+        modifiedBy: 1,
       },
     },
   );

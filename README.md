@@ -1,14 +1,14 @@
 ## Features
 
 Tuumik is a self-hosted team management platform that provides tools to make in-office and remote work more efficient. Tuumik's main features are:
-- efficient time tracking on any device, including mobile devices
+- efficient time and availability tracking on any device, including mobile devices
+- in/out board for better team communication, including logging of in/out board data
 - real time data synchronization, allowing seamless tracking with multiple devices
+- first-class integration with AI tools for efficient analysis of collected data
 - daily or weekly overviews of timesheets either in a text based or visual format
-- flexible search engine to collect timesheet entries based on various search criteria
+- flexible search to collect timesheet entries based on various criteria
 - exporting of tracked data into spreadheets or PDFs for reporting or billing
 - built-in spreadsheet template specifically developed for use by law firms for billing
-- in/out board for better team communication
-- optional logging of in/out board data
 
 Tuumik is well suited for any team that requires time tracking or an in/out board, especially for teams looking to mix in-office and remote work.
 
@@ -40,6 +40,6 @@ Tuumik uses [Tuumik Export](https://github.com/tuumiksystems/tuumik-export) to g
 
 Tuumik is developed by Tuumik Systems OÜ, a company registered in Estonia. Tuumik is protected by copyright. Tuumik uses a "source-available" licensing model - the application's source code is made publicly available, but use of the application requires a license from Tuumik Systems OÜ.
 
-General licensing terms and pricing are available on https://www.tuumik.com.
+General licensing terms and pricing are available at https://www.tuumik.com.
 
-Source code and releases are available on https://github.com/tuumiksystems/tuumik.
+Source code and releases are available at https://github.com/tuumiksystems/tuumik.

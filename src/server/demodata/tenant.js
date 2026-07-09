@@ -33,6 +33,7 @@ export default async () => {
     currency: { str: 'EUR', sign: '€' },
     useTaskTypesByDefault: false,
     trackerStep: 1,
+    aiInstructions: '',
     inOutOptions,
     teams,
     homeView: 'recent',

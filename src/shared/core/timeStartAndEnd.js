@@ -18,5 +18,5 @@ export default async function timeStartAndEnd(user, timeId, startMinute, endMinu
   if (!parsed.success) throw new Meteor.Error('403', parsed.error.issues[0].message);
 
   const query = { _id: timeId, owner: user._id };
-  await Times.updateAsync(query, { $set: { startMinute, endMinute, lastModified: new Date() } });
+  await Times.updateAsync(query, { $set: { startMinute, endMinute, modifiedAt: new Date(), modifiedBy: { id: user._id, name: user.name } } });
 }

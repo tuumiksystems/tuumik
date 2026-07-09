@@ -2,16 +2,13 @@
 
 import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import { Times, Clients, Projects, Tenant } from '/src/shared/collections/collections.js';
-import normalizeStringForAC from '/src/shared/utils/normalization.js';
-
-dayjs.extend(utc);
+import { Times, Clients, Projects } from '/src/shared/collections/collections.js';
+import buildTimesQuery from '/src/server/utils/buildTimesQuery.js';
 
 const inputSchema = z.object({
   projectPickers: z.array(z.object({}).passthrough()),
   searchUsers: z.array(z.string()),
+  teamId: z.string().min(1).optional(),
   period: z.object({
     start: z.date(),
     end: z.date(),
@@ -19,99 +16,29 @@ const inputSchema = z.object({
   taskDesc: z.string().optional(),
   tagColor: z.object({}).passthrough(),
   tagText: z.string().optional(),
+  plan: z.enum(['actual', 'planned', 'both']).optional(),
+  overlapMinutes: z.object({
+    from: z.number().int().min(0).max(1440),
+    to: z.number().int().min(0).max(1440),
+  }).refine(d => d.to > d.from, { message: 'overlapMinutes.to must be greater than overlapMinutes.from' }).optional(),
+  minDurationMinutes: z.number().int().min(0).max(1440).optional(),
+  maxDurationMinutes: z.number().int().min(0).max(1440).optional(),
+  daysOfWeek: z.array(z.number().int().min(0).max(6)).min(1).optional(),
   sort: z.object({
     first: z.string(),
     second: z.string(),
     third: z.string(),
   }),
   limit: z.union([z.number(), z.string()]).optional(),
-});
+  skip: z.union([z.number(), z.string()]).optional(),
+}).refine(d => !(d.teamId && d.searchUsers.length), { message: 'Provide searchUsers or teamId, not both' });
 
 export default async function timesheetExplorerFull(user, searchTerms) {
   if (!user.permissions.composer) throw new Meteor.Error('403', 'No permission to access composer');
   const parsed = inputSchema.safeParse(searchTerms);
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const query = {};
-  const meta = {};
-
-  if (searchTerms.projectPickers.length) {
-    const projectIds = [];
-    for (const x of searchTerms.projectPickers) {
-      if (x.projectId) {
-        projectIds.push(x.projectId);
-      } else if (x.clientId) {
-        const projects = await Projects.find({
-          clientId: x.clientId,
-        }).fetchAsync();
-        for (const p of projects) projectIds.push(p._id);
-      }
-    }
-    const projectIdsUnique = [...new Set(projectIds)];
-    query.projectId = { $in: projectIdsUnique };
-
-    const metaProjects = await Projects.find(
-      {
-        _id: { $in: projectIdsUnique },
-      },
-      { fields: { name: 1, clientId: 1 }, sort: { name: 1 } },
-    ).fetchAsync();
-    const clientIds = [];
-    for (const p of metaProjects) clientIds.push(p.clientId);
-    const clientIdsUnique = [...new Set(clientIds)];
-    const metaClients = await Clients.find(
-      {
-        _id: { $in: clientIdsUnique },
-      },
-      { fields: { name: 1 }, sort: { name: 1 } },
-    ).fetchAsync();
-    const metaClientsWithProjects = metaClients.map(client => {
-      const x = { name: client.name, projects: [] };
-      for (const p of metaProjects) {
-        if (p.clientId === client._id) x.projects.push({ name: p.name });
-      }
-      return x;
-    });
-    meta.clients = metaClientsWithProjects;
-  }
-
-  if (searchTerms.searchUsers.length) {
-    const userIds = searchTerms.searchUsers;
-    const userIdsUnique = [...new Set(userIds)];
-    query.owner = { $in: userIdsUnique };
-    meta.users = await Meteor.users.find({ _id: { $in: userIdsUnique } }, { fields: { name: 1 }, sort: { name: 1 } }).fetchAsync();
-  }
-
-  const periodStart = dayjs.utc(searchTerms.period.start).startOf('day').toDate();
-  const periodEnd = dayjs.utc(searchTerms.period.end).endOf('day').toDate();
-  query.date = { $gt: periodStart, $lt: periodEnd };
-  meta.period = { start: periodStart, end: periodEnd };
-
-  if (searchTerms.taskDesc) {
-    const str = searchTerms.taskDesc;
-    const escaped = str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const normalized = normalizeStringForAC(escaped);
-    const searchQuery = new RegExp(normalized);
-    query.taskDescNormalized = searchQuery;
-    meta.taskDesc = searchTerms.taskDesc;
-  }
-
-  const tc = searchTerms.tagColor;
-  if (tc.green || tc.yellow || tc.red || tc.grey || tc.clear) {
-    const colors = [];
-    if (tc.green) colors.push('green');
-    if (tc.yellow) colors.push('yellow');
-    if (tc.red) colors.push('red');
-    if (tc.grey) colors.push('grey');
-    if (tc.clear) colors.push('');
-    query.tagColor = { $in: colors };
-    meta.tagColor = searchTerms.tagColor;
-  }
-
-  if (searchTerms.tagText) {
-    query.tagText = searchTerms.tagText;
-    meta.tagText = searchTerms.tagText;
-  }
+  const { query, meta } = await buildTimesQuery(searchTerms);
 
   const sort = {};
   if (searchTerms.sort.first !== 'none') {
@@ -139,11 +66,16 @@ export default async function timesheetExplorerFull(user, searchTerms) {
     if (searchTerms.sort.third === 'tag-text') sort.tagText = 1;
   }
   if (!Object.keys(sort).length) sort.date = 1;
+  sort._id = 1; // deterministic tiebreaker so skip-based pagination is stable
   meta.sort = searchTerms.sort;
 
   let limit = Number.parseInt(searchTerms.limit) || 1000;
   if (Meteor.settings.public.timesheetExplorerLimit && limit > Meteor.settings.public.timesheetExplorerLimit) limit = Meteor.settings.public.timesheetExplorerLimit;
   meta.limit = limit;
+  const skip = Number.parseInt(searchTerms.skip) || 0;
+  if (skip) meta.skip = skip;
+
+  if (meta.explanation) return { times: [], meta, limit: { limitReached: false, explanation: '' }, hasMore: false };
 
   const timesRes = await Times.find(query, {
     fields: {
@@ -160,13 +92,19 @@ export default async function timesheetExplorerFull(user, searchTerms) {
       intCom: 1,
       tagColor: 1,
       tagText: 1,
+      createdAt: 1,
     },
     sort,
-    limit,
+    // one extra row distinguishes "exactly limit matches" from "more pages exist"
+    limit: limit + 1,
+    skip,
   }).fetchAsync();
 
-  const limitInfo = { limitReached: timesRes.length >= limit, explanation: '' };
-  if (limitInfo.limitReached) limitInfo.explanation = `Query limit was ${limit}, this was reached. Some results are likely omitted due to this. Consider making search terms narrower.`;
+  const hasMore = timesRes.length > limit;
+  if (hasMore) timesRes.length = limit;
+
+  const limitInfo = { limitReached: hasMore, explanation: '' };
+  if (hasMore) limitInfo.explanation = `Query limit was ${limit}, this was reached. Pass skip: ${skip + limit} to fetch the next page (sort order is stable), or make search terms narrower.`;
 
   // join owners for times
   const ownerIds1 = [...new Set(timesRes.map(time => time.owner))].sort();
@@ -207,5 +145,6 @@ export default async function timesheetExplorerFull(user, searchTerms) {
     times: timesWithClientsJoined,
     meta,
     limit: limitInfo,
+    hasMore,
   };
 }

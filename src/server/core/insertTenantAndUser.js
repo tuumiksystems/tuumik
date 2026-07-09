@@ -58,6 +58,7 @@ export default async function insertTenantAndUser(args) {
     currency: { str: 'EUR', sign: '€' },
     useTaskTypesByDefault: false,
     trackerStep: 1,
+    aiInstructions: '',
     inOutOptions,
     teams: initialTeams,
     homeView: 'recent',
@@ -90,9 +91,12 @@ export default async function insertTenantAndUser(args) {
     timezone: 'UTC',
   };
 
-  await Accounts.createUserAsync({
+  const userId = await Accounts.createUserAsync({
     email: args.user.email,
     password: args.password,
     profile,
   });
+
+  // self-signup: the first user is recorded as their own creator
+  await Meteor.users.updateAsync({ _id: userId }, { $set: { createdBy: { id: userId, name: args.user.name } } });
 }

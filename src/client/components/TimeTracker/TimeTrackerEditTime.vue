@@ -173,7 +173,7 @@ const clientId = computed(() => {
 const taskTypes = computed(() => {
   let typesOut = [];
   for (let i = 0; i < props.taskGroups.length; i += 1) {
-    if ((!props.project && props.taskGroups[i].showByDefault) || (props.project?.taskGroupIds.includes(props.taskGroups[i]._id) && props.taskGroups[i].types)) {
+    if ((!props.project && props.taskGroups[i].showByDefault) || (props.project?.taskGroupIds?.includes(props.taskGroups[i]._id) && props.taskGroups[i].types)) {
       typesOut = typesOut.concat(props.taskGroups[i].types);
     }
   }
@@ -476,7 +476,7 @@ watch(clientId, (to, from) => {
 
 function makeQueryProjects() {
   trackerQueryProjects = Tracker.autorun(() => {
-    selProjects.value = Projects.find({ clientId: clientId.value }, { sort: { created: 1 } }).fetch();
+    selProjects.value = Projects.find({ clientId: clientId.value }, { sort: { createdAt: 1 } }).fetch();
   });
 }
 // /LIVE QUERY PROJECTS

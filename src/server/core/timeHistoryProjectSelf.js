@@ -29,9 +29,9 @@ export default async function timeHistoryProjectSelf(user, timeId, projectId, li
         taskType: 1,
         taskDesc: 1,
         useTaskType: 1,
-        lastModified: 1,
+        modifiedAt: 1,
       },
-      sort: { date: -1, lastModified: -1 },
+      sort: { date: -1, modifiedAt: -1 },
       limit,
     },
   ).fetchAsync();

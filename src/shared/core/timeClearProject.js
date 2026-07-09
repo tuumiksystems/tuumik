@@ -17,5 +17,5 @@ export default async function timeClearProject(user, timeId) {
   const { clientId } = curProject;
 
   const query = { _id: timeId, owner: user._id };
-  await Times.updateAsync(query, { $unset: { projectId: '' }, $set: { clientId, lastModified: new Date() } });
+  await Times.updateAsync(query, { $unset: { projectId: '' }, $set: { clientId, modifiedAt: new Date(), modifiedBy: { id: user._id, name: user.name } } });
 }

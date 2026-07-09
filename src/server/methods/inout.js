@@ -4,6 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import coreLoadInOutBoardCurrent from '/src/server/core/loadInOutBoardCurrent.js';
 import coreLoadInOutBoardHistoryFull from '/src/server/core/loadInOutBoardHistoryFull.js';
 import coreLoadInOutBoardHistoryTotals from '/src/server/core/loadInOutBoardHistoryTotals.js';
+import coreLoadInOutBoardHistoryConcurrency from '/src/server/core/loadInOutBoardHistoryConcurrency.js';
 
 Meteor.methods({
   async loadInOutBoardCurrent(args) {
@@ -20,5 +21,10 @@ Meteor.methods({
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
     return await coreLoadInOutBoardHistoryTotals(user, args);
+  },
+  async loadInOutBoardHistoryConcurrency(args) {
+    if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
+    const user = await Meteor.users.findOneAsync(this.userId);
+    return await coreLoadInOutBoardHistoryConcurrency(user, args);
   },
 });

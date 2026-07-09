@@ -9,7 +9,7 @@ export default async function adminUsersList(user) {
     .find(
       {},
       {
-        fields: { name: 1, nameShort: 1, username: 1, emails: 1, created: 1, disabled: 1 },
+        fields: { name: 1, nameShort: 1, username: 1, emails: 1, createdAt: 1, disabled: 1 },
         sort: { disabled: 1, name: 1 },
       },
     )

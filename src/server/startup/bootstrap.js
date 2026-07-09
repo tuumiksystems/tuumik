@@ -60,6 +60,7 @@ import '/src/server/api/projectadd.js';
 import '/src/server/api/projectview.js';
 import '/src/server/api/projectedit.js';
 import '/src/server/api/timesheetexplorer.js';
+import '/src/server/api/dailyworksummary.js';
 import '/src/server/api/recent.js';
 import '/src/server/api/taskgroups.js';
 import '/src/server/api/teammonitor.js';

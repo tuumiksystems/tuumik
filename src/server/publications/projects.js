@@ -41,7 +41,7 @@ Meteor.publish('projectsForClientInTime', async function(clientId) {
       fields: {
         name: 1,
         clientId: 1,
-        created: 1,
+        createdAt: 1,
         open: 1,
       },
     },

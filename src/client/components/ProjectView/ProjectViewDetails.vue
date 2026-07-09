@@ -4,24 +4,26 @@
   <div>
     <span class="title">Details</span>
     <table v-if="project" class="details-table">
-      <tr class="htr">
-        <td class="htd htd-title">Name</td>
-        <td class="htd htd-content">{{ project.name }}</td>
-      </tr>
-      <tr class="htr">
-        <td class="htd htd-title">Client</td>
-        <td class="htd htd-content">
-          <RouterLink :to="'/clients/view/' + client._id" class="rlink">{{ client.name }}</RouterLink>
-        </td>
-      </tr>
-      <tr class="htr">
-        <td class="htd htd-title">Reminder</td>
-        <td class="htd htd-content">{{ project.reminder }}</td>
-      </tr>
-      <tr class="htr">
-        <td class="htd htd-title">Created</td>
-        <td class="htd htd-content">{{ displayDate(project.created) }}</td>
-      </tr>
+      <tbody>
+        <tr class="htr">
+          <td class="htd htd-title">Name</td>
+          <td class="htd htd-content">{{ project.name }}</td>
+        </tr>
+        <tr class="htr">
+          <td class="htd htd-title">Client</td>
+          <td class="htd htd-content">
+            <RouterLink :to="'/clients/view/' + client._id" class="rlink">{{ client.name }}</RouterLink>
+          </td>
+        </tr>
+        <tr class="htr">
+          <td class="htd htd-title">Reminder</td>
+          <td class="htd htd-content">{{ project.reminder }}</td>
+        </tr>
+        <tr class="htr">
+          <td class="htd htd-title">Created</td>
+          <td class="htd htd-content">{{ displayDate(project.createdAt) }}</td>
+        </tr>
+      </tbody>
     </table>
 
     <div v-if="loading" class="spinner spinner-local"></div>

@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import coreCatalogClients from '/src/server/core/catalogClients.js';
-import coreCatalogProjectsForClient from '/src/server/core/catalogProjectsForClient.js';
+import coreCatalogProjects from '/src/server/core/catalogProjects.js';
 
 Meteor.methods({
   async catalogClients() {
@@ -10,9 +10,9 @@ Meteor.methods({
     const user = await Meteor.users.findOneAsync(this.userId);
     return await coreCatalogClients(user);
   },
-  async catalogProjectsForClient(clientId) {
+  async catalogProjects(clientId) {
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
-    return await coreCatalogProjectsForClient(user, clientId);
+    return await coreCatalogProjects(user, clientId);
   },
 });

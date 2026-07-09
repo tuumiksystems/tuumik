@@ -22,9 +22,9 @@ export default async function getClientForEdit(user, clientId) {
         tel: 1,
         email: 1,
         address: 1,
-        created: 1,
+        createdAt: 1,
         createdBy: 1,
-        lastModified: 1,
+        modifiedAt: 1,
       },
     },
   );

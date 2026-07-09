@@ -9,12 +9,18 @@ import { generateToken, getClientForRedirect, scopeForRole } from './oauthUtils.
 
 dayjs.extend(utc);
 
+// The admin role is intentionally not offered in the OAuth flow for now, since the MCP
+// server has no admin tools (admin API keys still work against the admin HTTP endpoints).
+// To add it back: include 'admin' in the enum below, restore the admin <option> and
+// the admin scope preselect in /src/client/pages/OauthAuthorize.vue, and add 'admin'
+// back to scopes_supported in /src/server/api/oauth.js and in the MCP server's
+// protected-resource metadata (mcp repo, src/index.js).
 const inputSchema = z.object({
   clientId: z.string(),
   redirectUri: z.string(),
   codeChallenge: z.string().min(43).max(128),
   codeChallengeMethod: z.literal('S256'),
-  role: z.enum(['regularReadOnly', 'regularReadWrite', 'admin']),
+  role: z.enum(['regularReadOnly', 'regularReadWrite']),
 });
 
 export default async function oauthApproveAuthorization(user, params) {

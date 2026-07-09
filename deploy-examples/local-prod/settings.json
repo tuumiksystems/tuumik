@@ -2,7 +2,9 @@
   "public": {
     "email": false,
     "demoMode": false,
-    "timesheetExplorerLimit": 3000
+    "timesheetExplorerLimit": 3000,
+    "dailyWorkSummaryLimit": 10000,
+    "maxTeamSize": 50
   },
   "private": {
     "systemEmail": "noreply@exampledomain.com",

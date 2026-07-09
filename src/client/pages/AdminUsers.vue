@@ -7,36 +7,40 @@
       CREATE NEW USER
     </RouterLink>
     <table v-if="listUsers.length" class="userstable">
-      <tr>
-        <th class="uth">Name</th>
-        <th class="uth">Username</th>
-        <th class="uth">Email</th>
-        <th class="uth">Created</th>
-        <th class="uth">Status*</th>
-        <th class="uth">Edit</th>
-      </tr>
-      <tr v-for="listUser in listUsers" :key="listUser._id" :class="{ 'disabled-user': listUser.disabled }" class="utr">
-        <td class="utd">{{ listUser.name }} <span v-if="listUser.nameShort">({{ listUser.nameShort }})</span></td>
-        <td class="utd td-username">
-          <span v-if="listUser.username">{{ listUser.username }}</span>
-          <span v-else>-</span>
-        </td>
-        <td class="utd td-email">
-          <div v-for="email in listUser.emails" :key="email.address">
-            <div>{{ email.address }}</div>
-            <div v-if="email.verified" class="email-verified">VERIFIED</div>
-            <div v-else class="email-unverified">NOT VERIFIED</div>
-          </div>
-        </td>
-        <td class="utd td-created">{{ displayDate(listUser.created) }}</td>
-        <td class="utd td-disabled">
-          <span v-if="listUser.disabled">DISABLED</span>
-          <span v-else class="active-user">ACTIVE</span>
-        </td>
-        <td class="utd td-edit">
-          <RouterLink :to="'/admin/users/edit/' + listUser._id" class="btn">EDIT</RouterLink>
-        </td>
-      </tr>
+      <thead>
+        <tr>
+          <th class="uth">Name</th>
+          <th class="uth">Username</th>
+          <th class="uth">Email</th>
+          <th class="uth">Created</th>
+          <th class="uth">Status*</th>
+          <th class="uth">Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="listUser in listUsers" :key="listUser._id" :class="{ 'disabled-user': listUser.disabled }" class="utr">
+          <td class="utd">{{ listUser.name }} <span v-if="listUser.nameShort">({{ listUser.nameShort }})</span></td>
+          <td class="utd td-username">
+            <span v-if="listUser.username">{{ listUser.username }}</span>
+            <span v-else>-</span>
+          </td>
+          <td class="utd td-email">
+            <div v-for="email in listUser.emails" :key="email.address">
+              <div>{{ email.address }}</div>
+              <div v-if="email.verified" class="email-verified">VERIFIED</div>
+              <div v-else class="email-unverified">NOT VERIFIED</div>
+            </div>
+          </td>
+          <td class="utd td-created">{{ displayDate(listUser.createdAt) }}</td>
+          <td class="utd td-disabled">
+            <span v-if="listUser.disabled">DISABLED</span>
+            <span v-else class="active-user">ACTIVE</span>
+          </td>
+          <td class="utd td-edit">
+            <RouterLink :to="'/admin/users/edit/' + listUser._id" class="btn">EDIT</RouterLink>
+          </td>
+        </tr>
+      </tbody>
     </table>
 
     <div class="billing-explanation">

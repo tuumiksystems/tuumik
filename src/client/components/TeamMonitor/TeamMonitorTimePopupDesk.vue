@@ -1,7 +1,7 @@
 <!-- Copyright (C) 2017-2025 Tuumik Systems OÜ -->
 
 <template>
-  <div v-show="show" :style="popupStyle()" class="time-popup">
+  <div :style="popupStyle()" class="time-popup">
     <ul class="ul-vert">
       <li>
         <span v-if="time.clientName" class="client-name">{{ time.clientName }}</span>
@@ -32,7 +32,6 @@ const generalStore = useGeneralStore();
 
 const props = defineProps({
   time: { type: Object, required: true },
-  show: { type: Boolean, default: false },
   x: { type: Number, default: 0 },
   y: { type: Number, default: 0 },
 });

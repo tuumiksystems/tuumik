@@ -6,7 +6,7 @@
     <div v-if="loading" class="spinner spinner-local"></div>
     <ul v-if="historyClients.length" class="hislist-ul">
       <li v-for="historyClient in historyClients" :key="historyClient._id" class="hislist-li">
-        {{ displayDate(historyClient.created) }}
+        {{ displayDate(historyClient.createdAt) }}
         &bull;
         {{ historyClient.name }}
         <RouterLink :to="'/clients/view/' + historyClient._id" class="btn">VIEW</RouterLink>

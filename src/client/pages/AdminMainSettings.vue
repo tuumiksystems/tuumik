@@ -63,6 +63,9 @@
         <option value="15">15 minutes</option>
         <option value="30">30 minutes</option>
       </select>
+      <div class="section-title">AI</div>
+      <label for="ai-instructions" class="field-label">INSTRUCTIONS FOR AI TOOLS:</label>
+      <textarea id="ai-instructions" v-model="mainSettings.aiInstructions" rows="6" maxlength="2000"></textarea>
       <input type="submit" value="SAVE CHANGES" class="btn-submit mt-1" />
     </form>
     <div v-if="loading" class="spinner spinner-global"></div>
@@ -90,6 +93,7 @@ const mainSettingsInit = {
   decimalMark: '',
   useTaskTypesByDefault: false,
   trackerStep: 1,
+  aiInstructions: '',
 };
 const mainSettings = ref(mainSettingsInit);
 const loading = ref(false);
@@ -107,6 +111,7 @@ async function loadData() {
     mainSettings.value = res;
     // defensive fallback: tenants predating the field have no defaultTimezone
     if (!mainSettings.value.defaultTimezone) mainSettings.value.defaultTimezone = 'UTC';
+    if (!mainSettings.value.aiInstructions) mainSettings.value.aiInstructions = '';
     if (!timezones.value.includes(mainSettings.value.defaultTimezone)) timezones.value = [mainSettings.value.defaultTimezone, ...timezones.value];
     loading.value = false;
   } catch (err) {

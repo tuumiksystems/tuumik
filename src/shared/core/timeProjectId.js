@@ -16,8 +16,9 @@ export default async function timeProjectId(user, timeId, projectId) {
   const selProject = await Projects.findOneAsync({ _id: projectId });
   if (Meteor.isServer && !selProject) throw new Meteor.Error('404', 'Cannot find selected project');
 
-  const unsetObj = { clientId: '' };
-  const setObj = { projectId, lastModified: new Date() };
+  const unsetObj = {};
+  const setObj = { projectId, modifiedAt: new Date(), modifiedBy: { id: user._id, name: user.name } };
+  if (selProject?.clientId) setObj.clientId = selProject.clientId;
 
   if (Meteor.isServer && selProject.useTaskTypes) {
     setObj.useTaskType = true;

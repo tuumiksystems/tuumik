@@ -26,6 +26,7 @@ export default async function adminAddUser(user, name, email, password) {
     nameNormalized: normalizeStringForAC(name),
     permissions,
     timezone: tenant?.defaultTimezone || 'UTC',
+    createdBy: { id: user._id, name: user.name },
   };
   const createdUserId = await Accounts.createUserAsync({ email, password, profile });
 

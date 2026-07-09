@@ -20,7 +20,8 @@ const REGULAR_READ_ONLY_PERMISSIONS = [
 
   // Catalog
   'catalogClients',
-  'catalogProjectsForClient',
+  'catalogProjects',
+  'catalogCreationStats',
 
   // Clients (read)
   'clientHistory',
@@ -30,7 +31,9 @@ const REGULAR_READ_ONLY_PERMISSIONS = [
 
   // Timesheet Explorer (POST but purely a query/export – no data is mutated)
   'timesheetExplorerFull',
-  'timesheetExplorerTotals',
+  'timesheetExplorerGrouped',
+  'timesheetExplorerOverlaps',
+  'dailyWorkSummary',
 
   // Composer (POST but purely a query/export – no data is mutated)
   'composerFull',
@@ -40,6 +43,7 @@ const REGULAR_READ_ONLY_PERMISSIONS = [
   'loadInOutBoard',
   'loadInOutBoardHistoryFull',
   'loadInOutBoardHistoryTotals',
+  'loadInOutBoardHistoryConcurrency',
 
   // Monitors
   'teamMonitorLoad',

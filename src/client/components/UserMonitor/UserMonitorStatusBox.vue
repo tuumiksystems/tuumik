@@ -1,17 +1,22 @@
 <!-- Copyright (C) 2017-2025 Tuumik Systems OÜ -->
 
 <template>
-  <div :style="statusboxStyle(status)" class="statusbox-vert" @mouseenter="isHovered = true" @mouseleave="isHovered = false" @mousemove="updateMousePosition($event)">
+  <div :style="statusboxStyle(status)" class="statusbox-vert" @mouseenter="handleMouseEnter($event)" @mouseleave="isHovered = false" @mousemove="updateMousePosition($event)">
     <div v-if="status.note" class="note-marker"></div>
     <div v-if="status.eta" class="eta-marker"></div>
-    <UserMonitorStatusPopup :status="status" :show="isHovered" :x="mouseX" :y="mouseY" />
+    <UserMonitorStatusPopupMobile v-if="generalStore.isMobile && isHovered" :status="status" />
+    <UserMonitorStatusPopupDesk v-else-if="isHovered" :status="status" :x="mouseX" :y="mouseY" />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import { useGeneralStore } from '/src/client/stores/general.js';
 import { minutesInTz } from '/src/shared/utils/time.js';
-import UserMonitorStatusPopup from '/src/client/components/UserMonitor/UserMonitorStatusPopup.vue';
+import UserMonitorStatusPopupDesk from '/src/client/components/UserMonitor/UserMonitorStatusPopupDesk.vue';
+import UserMonitorStatusPopupMobile from '/src/client/components/UserMonitor/UserMonitorStatusPopupMobile.vue';
+
+const generalStore = useGeneralStore();
 
 const props = defineProps({
   status: { type: Object, required: true },
@@ -24,6 +29,11 @@ const mouseY = ref(0);
 function updateMousePosition(event) {
   mouseX.value = event.clientX;
   mouseY.value = event.clientY;
+}
+
+function handleMouseEnter(event) {
+  updateMousePosition(event);
+  isHovered.value = true;
 }
 
 function statusboxStyle(status) {

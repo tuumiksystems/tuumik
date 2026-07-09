@@ -15,5 +15,5 @@ export default async function timeTaskDesc(user, timeId, taskDesc) {
   if (!parsed.success) throw new Meteor.Error('403', parsed.error.issues[0].message);
 
   const query = { _id: timeId, owner: user._id };
-  await Times.updateAsync(query, { $set: { taskDesc, taskDescNormalized: normalizeStringForAC(taskDesc), lastModified: new Date() } });
+  await Times.updateAsync(query, { $set: { taskDesc, taskDescNormalized: normalizeStringForAC(taskDesc), modifiedAt: new Date(), modifiedBy: { id: user._id, name: user.name } } });
 }

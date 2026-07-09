@@ -151,37 +151,41 @@
     </div>
 
     <table v-if="times.length" class="timetable">
-      <tr>
-        <th class="tth">Tag</th>
-        <th class="tth">Client</th>
-        <th class="tth">Project</th>
-        <th class="tth">Date</th>
-        <th class="tth">Duration</th>
-        <th class="tth">User</th>
-        <th class="tth">Task</th>
-      </tr>
-      <tr v-for="time in times" :key="time._id" :class="{ 'ttr-selected': timeIsSelected(time) }" class="ttr" @click.prevent="selectTime($event, time)">
-        <td
-          :class="{
-            'tag-green': time.tagColor === 'green',
-            'tag-yellow': time.tagColor === 'yellow',
-            'tag-red': time.tagColor === 'red',
-            'tag-grey': time.tagColor === 'grey',
-          }"
-          class="ttd ttag"
-        >
-          {{ time.tagText }}
-        </td>
-        <td class="ttd tclient">{{ time.clientName }}</td>
-        <td class="ttd tproject">{{ time.projectName }}</td>
-        <td class="ttd tdate">{{ displayDate(time.date) }}</td>
-        <td class="ttd tduration">{{ displayDuration(time) }}</td>
-        <td class="ttd towner">{{ time.ownerName }}</td>
-        <td class="ttd ttask">
-          <span v-if="time.useTaskType">{{ time.taskType }} </span>{{ time.taskDesc }}
-          <div v-if="time.intCom" class="intcom">{{ time.intCom }}</div>
-        </td>
-      </tr>
+      <thead>
+        <tr>
+          <th class="tth">Tag</th>
+          <th class="tth">Client</th>
+          <th class="tth">Project</th>
+          <th class="tth">Date</th>
+          <th class="tth">Duration</th>
+          <th class="tth">User</th>
+          <th class="tth">Task</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="time in times" :key="time._id" :class="{ 'ttr-selected': timeIsSelected(time) }" class="ttr" @click.prevent="selectTime($event, time)">
+          <td
+            :class="{
+              'tag-green': time.tagColor === 'green',
+              'tag-yellow': time.tagColor === 'yellow',
+              'tag-red': time.tagColor === 'red',
+              'tag-grey': time.tagColor === 'grey',
+            }"
+            class="ttd ttag"
+          >
+            {{ time.tagText }}
+          </td>
+          <td class="ttd tclient">{{ time.clientName }}</td>
+          <td class="ttd tproject">{{ time.projectName }}</td>
+          <td class="ttd tdate">{{ displayDate(time.date) }}</td>
+          <td class="ttd tduration">{{ displayDuration(time) }}</td>
+          <td class="ttd towner">{{ time.ownerName }}</td>
+          <td class="ttd ttask">
+            <span v-if="time.useTaskType">{{ time.taskType }} </span>{{ time.taskDesc }}
+            <div v-if="time.intCom" class="intcom">{{ time.intCom }}</div>
+          </td>
+        </tr>
+      </tbody>
     </table>
 
     <div v-if="times.length" class="circle-btn circle-btn-tags" @click="showTagPopup = !showTagPopup">

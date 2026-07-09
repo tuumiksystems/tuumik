@@ -79,7 +79,7 @@ WebApp.handlers.get(
       token_endpoint: `${root}/oauth/token`,
       registration_endpoint: `${root}/oauth/register`,
       revocation_endpoint: `${root}/oauth/revoke`,
-      scopes_supported: ['read', 'write', 'admin'],
+      scopes_supported: ['read', 'write'],
       response_types_supported: ['code'],
       grant_types_supported: ['authorization_code', 'refresh_token'],
       token_endpoint_auth_methods_supported: ['none'],

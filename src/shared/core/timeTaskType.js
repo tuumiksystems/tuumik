@@ -14,5 +14,5 @@ export default async function timeTaskType(user, timeId, taskType) {
   if (!parsed.success) throw new Error(parsed.error.issues[0].message);
 
   const query = { _id: timeId, owner: user._id };
-  await Times.updateAsync(query, { $set: { taskType, lastModified: new Date() } });
+  await Times.updateAsync(query, { $set: { taskType, modifiedAt: new Date(), modifiedBy: { id: user._id, name: user.name } } });
 }

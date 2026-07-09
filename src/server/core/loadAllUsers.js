@@ -7,7 +7,7 @@ export default async function loadAllUsers(user) {
     .find(
       {},
       {
-        fields: { name: 1, inTeams: 1, inOutShow: 1, disabled: 1, timezone: 1 },
+        fields: { name: 1, inTeams: 1, inOutShow: 1, disabled: 1, timezone: 1, createdAt: 1, createdBy: 1 },
       },
     )
     .fetchAsync();

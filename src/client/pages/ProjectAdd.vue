@@ -8,7 +8,7 @@
       <label for="project-name" class="field-label">PROJECT NAME:</label>
       <input id="project-name" v-model="name" type="text" maxlength="500" />
       <label class="field-label">CLIENT:</label>
-      <AutoComplete ac-type="clients" clear-after @autocomplete-pick="selectAcClient($event)" />
+      <AutoComplete ac-type="clients" hint="CLIENTS" clear-after @autocomplete-pick="selectAcClient($event)" />
       <div :class="{ 'single-drop-filled': client }" class="single-drop">
         <span v-if="client">{{ client.name }}</span>
       </div>

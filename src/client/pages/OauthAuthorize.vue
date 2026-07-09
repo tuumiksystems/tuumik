@@ -17,7 +17,6 @@
         <select id="role" v-model="role">
           <option value="regularReadOnly">REGULAR (READ-ONLY)</option>
           <option value="regularReadWrite">REGULAR (READ AND WRITE)</option>
-          <option value="admin">ADMIN (READ AND WRITE)</option>
         </select>
         <div class="consent-actions">
           <span class="btn-submit pa-1" @click="approve()">AUTHORIZE</span>
@@ -88,8 +87,7 @@ onMounted(async () => {
   }
   // preselect the role from the requested scope, the user can still change it
   const scopes = scope.split(' ');
-  if (scopes.includes('admin')) role.value = 'admin';
-  else if (scopes.includes('read') && !scopes.includes('write')) role.value = 'regularReadOnly';
+  if (scopes.includes('read') && !scopes.includes('write')) role.value = 'regularReadOnly';
   loading.value = false;
 });
 

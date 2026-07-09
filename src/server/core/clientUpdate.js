@@ -20,7 +20,7 @@ export default async function clientUpdate(user, client) {
   const parsed = inputSchema.safeParse(client);
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  const setObj = { lastModified: new Date() };
+  const setObj = { modifiedAt: new Date(), modifiedBy: { id: user._id, name: user.name } };
   if (client.name !== undefined) {
     setObj.name = client.name;
     setObj.nameNormalized = normalizeStringForAC(client.name);

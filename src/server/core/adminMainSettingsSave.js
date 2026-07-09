@@ -22,6 +22,7 @@ const inputSchema = z.object({
     [z.literal(1), z.literal(6), z.literal(12), z.literal(15), z.literal(30)],
     { message: 'Unrecognised tracker step' },
   ),
+  aiInstructions: z.string().max(2000, 'AI instructions must not exceed 2000 characters'),
 }).refine(data => data.thouMark !== data.decimalMark, {
   message: 'Thousands and decimal separators must be different',
   path: ['decimalMark'],
@@ -57,6 +58,7 @@ export default async function adminMainSettingsSave(user, settings) {
         decimalMark: settings.decimalMark,
         useTaskTypesByDefault: settings.useTaskTypesByDefault,
         trackerStep: settings.trackerStep,
+        aiInstructions: settings.aiInstructions,
       },
     },
   );

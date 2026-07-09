@@ -38,7 +38,7 @@ export default async function timeUpdate(user, timeId, args) {
 
   const { selDate, startMinute, endMinute, taskType, taskDesc, clientId, projectId, hideHistory, intCom, plan, move, clearProject, clearAll } = args;
 
-  const setObj = { lastModified: new Date() };
+  const setObj = { modifiedAt: new Date(), modifiedBy: { id: user._id, name: user.name } };
   const unsetObj = {};
 
   if (selDate !== undefined) setObj.date = selDate;
@@ -80,11 +80,12 @@ export default async function timeUpdate(user, timeId, args) {
     const selProject = await Projects.findOneAsync({ _id: projectId });
     if (Meteor.isServer && !selProject) throw new Meteor.Error('404', 'Cannot find selected project');
     setObj.projectId = projectId;
-    unsetObj.clientId = '';
+    if (selProject?.clientId) setObj.clientId = selProject.clientId;
     if (Meteor.isServer && selProject.useTaskTypes) setObj.useTaskType = true;
     else unsetObj.useTaskType = '';
   } else if (clientId !== undefined) {
     setObj.clientId = clientId;
+    unsetObj.projectId = '';
   }
 
   const modifier = { $set: setObj };

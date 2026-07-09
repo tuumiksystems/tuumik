@@ -22,9 +22,9 @@ export default async function getProjectForEdit(user, projectId) {
         taskGroupIds: 1,
         useTaskTypes: 1,
         reminder: 1,
-        created: 1,
+        createdAt: 1,
         createdBy: 1,
-        lastModified: 1,
+        modifiedAt: 1,
       },
     },
   );

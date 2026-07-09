@@ -8,28 +8,32 @@
     </div>
     <h1>My Recent Tasks</h1>
     <table v-if="times.length && !generalStore.isMobile" class="timetable">
-      <tr>
-        <th class="tth">Date</th>
-        <th class="tth">Time</th>
-        <th class="tth">Duration</th>
-        <th class="tth">Client</th>
-        <th class="tth">Project</th>
-        <th class="tth">Task</th>
-      </tr>
-      <tr v-for="time in times" :key="time._id" class="ttr">
-        <td class="ttd tdate">{{ displayDate(time.date) }}</td>
-        <td class="ttd ttime">
-          {{ displayTimeFromMinutes(time.startMinute) }} -
-          {{ displayTimeFromMinutes(time.endMinute) }}
-        </td>
-        <td class="ttd tduration">{{ displayDuration(time) }}</td>
-        <td class="ttd tclient">{{ time.clientName }}</td>
-        <td class="ttd tproject">{{ time.projectName }}</td>
-        <td class="ttd ttask">
-          <span v-if="time.useTaskType">{{ time.taskType }} </span>{{ time.taskDesc }}
-          <div v-if="time.intCom" class="intcom">{{ time.intCom }}</div>
-        </td>
-      </tr>
+      <thead>
+        <tr>
+          <th class="tth">Date</th>
+          <th class="tth">Time</th>
+          <th class="tth">Duration</th>
+          <th class="tth">Client</th>
+          <th class="tth">Project</th>
+          <th class="tth">Task</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="time in times" :key="time._id" class="ttr">
+          <td class="ttd tdate">{{ displayDate(time.date) }}</td>
+          <td class="ttd ttime">
+            {{ displayTimeFromMinutes(time.startMinute) }} -
+            {{ displayTimeFromMinutes(time.endMinute) }}
+          </td>
+          <td class="ttd tduration">{{ displayDuration(time) }}</td>
+          <td class="ttd tclient">{{ time.clientName }}</td>
+          <td class="ttd tproject">{{ time.projectName }}</td>
+          <td class="ttd ttask">
+            <span v-if="time.useTaskType">{{ time.taskType }} </span>{{ time.taskDesc }}
+            <div v-if="time.intCom" class="intcom">{{ time.intCom }}</div>
+          </td>
+        </tr>
+      </tbody>
     </table>
 
     <div v-else-if="times.length" class="times-holder">

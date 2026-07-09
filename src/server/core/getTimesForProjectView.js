@@ -31,9 +31,9 @@ export default async function getTimesForProjectView(user, projectId) {
       taskDesc: 1,
       projectId: 1,
       useTaskType: 1,
-      lastModified: 1,
+      modifiedAt: 1,
     },
-    sort: { date: -1, lastModified: -1 },
+    sort: { date: -1, modifiedAt: -1 },
     limit,
   }).fetchAsync();
 

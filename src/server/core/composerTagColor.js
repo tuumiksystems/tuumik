@@ -14,5 +14,5 @@ export default async function composerTagColor(user, selTimes, color) {
   const parsed = inputSchema.safeParse({ selTimes, color });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
-  await Times.updateAsync({ _id: { $in: selTimes } }, { $set: { tagColor: color, lastModified: new Date() } }, { multi: true });
+  await Times.updateAsync({ _id: { $in: selTimes } }, { $set: { tagColor: color, modifiedAt: new Date(), modifiedBy: { id: user._id, name: user.name } } }, { multi: true });
 }

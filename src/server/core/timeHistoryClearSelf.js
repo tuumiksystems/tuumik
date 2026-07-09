@@ -29,9 +29,9 @@ export default async function timeHistoryClearSelf(user, timeId, limit) {
         taskDesc: 1,
         projectId: 1,
         useTaskType: 1,
-        lastModified: 1,
+        modifiedAt: 1,
       },
-      sort: { date: -1, lastModified: -1 },
+      sort: { date: -1, modifiedAt: -1 },
       limit,
     },
   ).fetchAsync();

@@ -1,7 +1,7 @@
 <!-- Copyright (C) 2017-2025 Tuumik Systems OÜ -->
 
 <template>
-  <div v-show="show" :style="statusboxPopupStyle()" class="statusbox-popup">
+  <div :style="statusboxPopupStyle()" class="statusbox-popup">
     <div :style="statusStyle(status)" class="m-status">
       <span class="m-status2">{{ status.text }}</span>
     </div>
@@ -19,7 +19,6 @@ const generalStore = useGeneralStore();
 
 const props = defineProps({
   status: { type: Object, required: true },
-  show: { type: Boolean, default: false },
   x: { type: Number, default: 0 },
   y: { type: Number, default: 0 },
 });

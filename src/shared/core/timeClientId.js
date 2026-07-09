@@ -14,5 +14,7 @@ export default async function timeClientId(user, timeId, clientId) {
   if (!parsed.success) throw new Error(parsed.error.issues[0].message);
 
   const query = { _id: timeId, owner: user._id };
-  await Times.updateAsync(query, { $set: { clientId, lastModified: new Date() } });
+  // assigning a standalone client detaches any project, so clientId stays consistent
+  // with the denormalized project→client link
+  await Times.updateAsync(query, { $unset: { projectId: '' }, $set: { clientId, modifiedAt: new Date(), modifiedBy: { id: user._id, name: user.name } } });
 }

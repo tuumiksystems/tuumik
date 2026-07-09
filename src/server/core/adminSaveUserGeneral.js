@@ -2,6 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { z } from 'zod';
+import { Tenant } from '/src/shared/collections/collections.js';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
 
 const inputSchema = z.object({
@@ -49,6 +50,16 @@ export default async function adminSaveUserGeneral(user, editedUser) {
     Intl.DateTimeFormat(undefined, { timeZone: editedUser.timezone });
   } catch (err) {
     throw new Meteor.Error('400', 'Unrecognized timezone');
+  }
+
+  const maxTeamSize = Meteor.settings.public.maxTeamSize || 50;
+  const tenant = await Tenant.findOneAsync();
+  for (const teamId of editedUser.inTeams) {
+    const otherMembers = await Meteor.users.find({ inTeams: teamId, _id: { $ne: editedUser._id } }).countAsync();
+    if (otherMembers >= maxTeamSize) {
+      const team = tenant.teams.find((el) => el.id === teamId);
+      throw new Meteor.Error('400', `Team "${team ? team.name : teamId}" is full (max ${maxTeamSize} members)`);
+    }
   }
 
   await Meteor.users.updateAsync(

@@ -21,8 +21,10 @@ export default async function getProjectForView(user, projectId) {
         taskGroupIds: 1,
         useTaskTypes: 1,
         reminder: 1,
-        created: 1,
-        lastModified: 1,
+        createdAt: 1,
+        createdBy: 1,
+        modifiedAt: 1,
+        modifiedBy: 1,
       },
     },
   );

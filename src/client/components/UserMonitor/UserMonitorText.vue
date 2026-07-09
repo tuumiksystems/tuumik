@@ -18,22 +18,24 @@
       </div>
     </div>
     <table v-if="!generalStore.isMobile" class="timetable">
-      <tr v-for="time in targetDay.times" :key="time._id" class="ttr">
-        <td class="ttd ttime">{{ displayTimeFromMinutes(time.startMinute) }} - {{ displayTimeFromMinutes(time.endMinute) }}</td>
-        <td class="ttd tduration">{{ displayDuration(time) }}</td>
-        <td class="ttd tclient">
-          <span v-if="time.clientName">{{ time.clientName }}</span>
-          <span v-else>-</span>
-        </td>
-        <td class="ttd tproject">
-          <span v-if="time.projectName">{{ time.projectName }}</span>
-          <span v-else>-</span>
-        </td>
-        <td class="ttd ttask">
-          <span v-if="time.useTaskType">{{ time.taskType }} </span>{{ time.taskDesc }}
-          <div v-if="time.intCom" class="intcom">{{ time.intCom }}</div>
-        </td>
-      </tr>
+      <tbody>
+        <tr v-for="time in targetDay.times" :key="time._id" class="ttr">
+          <td class="ttd ttime">{{ displayTimeFromMinutes(time.startMinute) }} - {{ displayTimeFromMinutes(time.endMinute) }}</td>
+          <td class="ttd tduration">{{ displayDuration(time) }}</td>
+          <td class="ttd tclient">
+            <span v-if="time.clientName">{{ time.clientName }}</span>
+            <span v-else>-</span>
+          </td>
+          <td class="ttd tproject">
+            <span v-if="time.projectName">{{ time.projectName }}</span>
+            <span v-else>-</span>
+          </td>
+          <td class="ttd ttask">
+            <span v-if="time.useTaskType">{{ time.taskType }} </span>{{ time.taskDesc }}
+            <div v-if="time.intCom" class="intcom">{{ time.intCom }}</div>
+          </td>
+        </tr>
+      </tbody>
     </table>
 
     <div v-else class="times-holder">

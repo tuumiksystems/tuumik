@@ -13,5 +13,5 @@ export default async function timeClearClient(user, timeId) {
   if (!parsed.success) throw new Error(parsed.error.issues[0].message);
 
   const query = { _id: timeId, owner: user._id };
-  await Times.updateAsync(query, { $unset: { projectId: '', clientId: '' }, $set: { lastModified: new Date() } });
+  await Times.updateAsync(query, { $unset: { projectId: '', clientId: '' }, $set: { modifiedAt: new Date(), modifiedBy: { id: user._id, name: user.name } } });
 }

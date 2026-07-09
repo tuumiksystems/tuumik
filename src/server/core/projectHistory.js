@@ -9,8 +9,8 @@ export default async function projectHistory(user) {
   const projectsRes = await Projects.find(
     {},
     {
-      fields: { name: 1, clientId: 1, created: 1 },
-      sort: { created: -1 },
+      fields: { name: 1, clientId: 1, createdAt: 1 },
+      sort: { createdAt: -1 },
       limit: 10,
     },
   ).fetchAsync();

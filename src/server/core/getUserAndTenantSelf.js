@@ -39,6 +39,7 @@ export default async function getUserAndTenantSelf(user) {
         currency: 1,
         useTaskTypesByDefault: 1,
         trackerStep: 1,
+        aiInstructions: 1,
         teams: 1,
         composerExportersFront: 1,
         homeView: 1,
@@ -49,5 +50,8 @@ export default async function getUserAndTenantSelf(user) {
 
   if (!tenant) throw new Meteor.Error('404', 'Tenant not found');
 
-  return { user: currentUser, tenant };
+  const aiInstructions = tenant.aiInstructions || '';
+  delete tenant.aiInstructions;
+
+  return { user: currentUser, tenant, aiInstructions };
 }

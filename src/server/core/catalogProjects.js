@@ -5,17 +5,18 @@ import { z } from 'zod';
 import { Projects } from '/src/shared/collections/collections.js';
 
 const inputSchema = z.object({
-  clientId: z.string(),
+  clientId: z.string().optional(),
 });
 
-export default async function catalogProjectsForClient(user, clientId) {
+export default async function catalogProjects(user, clientId) {
   if (!user.permissions.catalog) throw new Meteor.Error('403', 'No permission to access catalog');
   const parsed = inputSchema.safeParse({ clientId });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
+  const query = clientId ? { clientId } : {};
   const res = await Projects.find(
-    { clientId },
-    { fields: { name: 1, created: 1 }, sort: { created: 1 } },
+    query,
+    { fields: { name: 1, clientId: 1, createdAt: 1, createdBy: 1 }, sort: { createdAt: 1 } },
   ).fetchAsync();
 
   return res;

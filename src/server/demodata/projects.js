@@ -1,11 +1,17 @@
 /* Copyright (C) 2017-2025 Tuumik Systems OÜ */
 
+import { Meteor } from 'meteor/meteor';
 import { Clients, Projects, TaskGroups } from '/src/shared/collections/collections.js';
 import normalizeStringForAC from '/src/shared/utils/normalization.js';
 import { Random } from 'meteor/random';
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 export default async () => {
   const docs = [];
+
+  // demo users act as the creators so creation-audit queries have data to show
+  const users = await Meteor.users.find({}, { fields: { name: 1, createdAt: 1 } }).fetchAsync();
 
   const usedNames = new Set();
   let suffixCounter = 100;
@@ -148,17 +154,26 @@ export default async () => {
     const projectCount = Math.floor(Math.random() * 2 + 1);
     for (let i = 0; i < projectCount; i += 1) {
       const name = getRandomProjectName();
+      // projects appear within a month of their client, never before their creator's
+      // own account and never in the future
+      const creator = users[Math.floor(Math.random() * users.length)];
+      const earliest = Math.max(client.createdAt.getTime(), creator.createdAt.getTime());
+      const createdAt = new Date(Math.min(earliest + Math.floor(Math.random() * 30 * DAY_MS), Date.now()));
       const doc = {
         _id: Random.id(),
         name,
         nameNormalized: normalizeStringForAC(name),
         clientId: client._id,
         taskGroupIds: taskGroupId ? [taskGroupId] : [],
-        useTaskTypes: false,
+        // a realistic mix: some matters require task types on entries, most don't,
+        // so work-mix-by-type queries have both typed and untyped data to show
+        useTaskTypes: Math.random() < 0.4,
         reminder: '',
         toEmail: 'info@example.com',
-        created: new Date(),
-        lastModified: new Date(),
+        createdAt,
+        createdBy: { id: creator._id, name: creator.name },
+        modifiedAt: createdAt,
+        modifiedBy: { id: creator._id, name: creator.name },
       };
       docs.push(doc);
     }

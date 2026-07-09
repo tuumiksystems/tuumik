@@ -50,7 +50,7 @@ export default async function timeHistorySearch(user, taskDesc, owner, scope, pr
   }
 
   // sort
-  const sortObj = sort === 'dte' ? { date: -1, lastModified: -1 } : { lastModified: -1, date: -1 };
+  const sortObj = sort === 'dte' ? { date: -1, modifiedAt: -1 } : { modifiedAt: -1, date: -1 };
 
   const timesRes = await Times.find(queryObj, {
     fields: {
@@ -62,7 +62,7 @@ export default async function timeHistorySearch(user, taskDesc, owner, scope, pr
       taskDesc: 1,
       projectId: 1,
       useTaskType: 1,
-      lastModified: 1,
+      modifiedAt: 1,
     },
     sort: sortObj,
     limit,

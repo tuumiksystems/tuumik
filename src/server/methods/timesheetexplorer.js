@@ -2,7 +2,6 @@
 
 import { Meteor } from 'meteor/meteor';
 import coreTimesheetExplorerFull from '/src/server/core/timesheetExplorerFull.js';
-import coreTimesheetExplorerTotals from '/src/server/core/timesheetExplorerTotals.js';
 import coreComposerFull from '/src/server/core/composerFull.js';
 import coreComposerTagColor from '/src/server/core/composerTagColor.js';
 import coreComposerTagText from '/src/server/core/composerTagText.js';
@@ -13,11 +12,6 @@ Meteor.methods({
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
     return await coreTimesheetExplorerFull(user, searchTerms);
-  },
-  async timesheetExplorerTotals(searchTerms) {
-    if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
-    const user = await Meteor.users.findOneAsync(this.userId);
-    return await coreTimesheetExplorerTotals(user, searchTerms);
   },
   async composerFull(searchTerms) {
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');

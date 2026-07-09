@@ -85,7 +85,7 @@ function displayDuration(historyItem) {
 }
 
 function recentnessClass(historyItem) {
-  const modDate = dayjs.utc(historyItem.lastModified);
+  const modDate = dayjs.utc(historyItem.modifiedAt);
   const nowDate = dayjs.utc();
   const diff = nowDate.diff(modDate, 'minutes');
   if (diff < 10) return 'recentness1';

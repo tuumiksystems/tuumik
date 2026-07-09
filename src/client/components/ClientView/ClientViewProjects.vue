@@ -4,16 +4,18 @@
   <div>
     <span class="title">Projects</span>
     <table v-if="projects.length" class="project-table">
-      <tr v-for="project in projects" :key="project._id" class="htr">
-        <td class="htd htd-created">
-          {{ displayDate(project.created, false, 'YYYY') }}
-        </td>
-        <td class="htd htd-name">
-          <RouterLink :to="'/projects/view/' + project._id" class="rlink">
-            {{ project.name }}
-          </RouterLink>
-        </td>
-      </tr>
+      <tbody>
+        <tr v-for="project in projects" :key="project._id" class="htr">
+          <td class="htd htd-created">
+            {{ displayDate(project.createdAt, false, 'YYYY') }}
+          </td>
+          <td class="htd htd-name">
+            <RouterLink :to="'/projects/view/' + project._id" class="rlink">
+              {{ project.name }}
+            </RouterLink>
+          </td>
+        </tr>
+      </tbody>
     </table>
 
     <div v-else-if="!loading" class="no-results">NO RESULTS</div>

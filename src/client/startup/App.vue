@@ -17,7 +17,7 @@
 
 <script setup>
 import { computed, watch, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { Meteor } from 'meteor/meteor';
 import { Tracker } from 'meteor/tracker';
 import { useGeneralStore } from '/src/client/stores/general.js';
@@ -34,6 +34,7 @@ import LacksPermission from '/src/client/components/LacksPermission/LacksPermiss
 const generalStore = useGeneralStore();
 const notifierStore = useNotifierStore();
 const route = useRoute();
+const router = useRouter();
 
 const fontSize = computed(() => {
   return `${generalStore.zoomBody}px`;
@@ -54,6 +55,13 @@ const marginTopBody = computed(() => {
   if (route.meta.secondTopMenu && !route.meta.noTopMenu) return `${generalStore.zoomBody * (3 + route.meta.secondTopMenu)}px`;
   if (!route.meta.noTopMenu) return `${generalStore.zoomBody * 3}px`;
   return '0px';
+});
+
+// The auth guard in router.js only runs on navigation, so it misses the case where the
+// user becomes logged out while already on an internal route (e.g. a stored login token
+// is rejected on startup because the user no longer exists, or the session is revoked).
+watch(() => generalStore.userId, (to, from) => {
+  if (!to && from && !route.meta.external) router.push({ path: '/login', query: { redirect: route.fullPath } });
 });
 
 watch(() => route.meta.bodyClass, (newClass, oldClass) => {

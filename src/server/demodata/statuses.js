@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { Statuses, Tenant } from '/src/shared/collections/collections.js';
+import inOutOptions from '/src/server/initdata/inout-options.js';
 import { Random } from 'meteor/random';
 
 dayjs.extend(utc);
@@ -186,11 +187,41 @@ export default async () => {
       ? Math.min(demoDays.length - 1, Math.max(1, demoDays.length - randomInt(3, 8)))
       : demoDays.length;
 
+    // completed vacations earlier in the window: most users have taken 1-2
+    // vacations (5-14 calendar days) that are long over, so archived VACATION
+    // periods exist for "vacation days taken this year" questions. Only
+    // generated when the window is long enough to fit them cleanly.
+    const pastVacations = [];
+    if (vacationStartIndex > 40) {
+      const vacationsWanted = Math.random() < 0.25 ? 0 : Math.random() < 0.65 ? 1 : 2;
+      let earliest = 5;
+      for (let v = 0; v < vacationsWanted; v += 1) {
+        const len = randomInt(5, 14);
+        const latestStart = vacationStartIndex - 10 - len;
+        if (latestStart <= earliest) break;
+        const startIdx = randomInt(earliest, latestStart);
+        pastVacations.push({ startIdx, endIdx: startIdx + len - 1 });
+        earliest = startIdx + len + 20; // a real gap before any second vacation
+      }
+    }
+
     const segments = []; // { start, end, status, note, eta } absolute instants
     // OUT filler bridges the gaps (overnight, before arrival, after departure)
     let cursor = toAbs(demoDays[0].dayStr, 0); // local midnight of the first demo day
 
     for (let di = 0; di < vacationStartIndex; di += 1) {
+      const pastVac = pastVacations.find(v => v.startIdx === di);
+      if (pastVac) {
+        const vacStartAbs = toAbs(demoDays[pastVac.startIdx].dayStr, 0);
+        const vacEndAbs = toAbs(demoDays[pastVac.endIdx].dayStr, 24 * 60); // midnight after the last vacation day
+        if (vacStartAbs > cursor) segments.push({ start: cursor, end: vacStartAbs, status: '6', note: '', eta: null });
+        const returnLabel = dayjs(vacEndAbs).tz(userTz).format('D MMMM');
+        segments.push({ start: vacStartAbs, end: vacEndAbs, status: '7', note: getVacationNote(returnLabel), eta: vacEndAbs });
+        cursor = vacEndAbs;
+        di = pastVac.endIdx; // skip the covered days; the loop resumes the day after
+        continue;
+      }
+
       const { dayStr, weekend } = demoDays[di];
       const day = weekend ? buildWeekendDay() : buildWorkday();
       if (!day) continue; // no work: stays OUT, bridged to the next worked day
@@ -216,10 +247,15 @@ export default async () => {
       segments.push({ start: cursor, end: now, status: '6', note: '', eta: null });
     }
 
-    // drop anything in the future, clamp a straddling segment to now
+    // drop anything in the future, clamp a straddling segment to now; likewise
+    // drop/clamp anything before the account existed (new hires created inside
+    // the demo window must not have board history predating their createdAt)
+    const accountCreatedAt = user.createdAt || null;
     const emitted = [];
     for (const seg of segments) {
       if (seg.start >= now) continue;
+      if (accountCreatedAt && seg.end <= accountCreatedAt) continue;
+      if (accountCreatedAt && seg.start < accountCreatedAt) seg.start = accountCreatedAt;
       if (seg.end > now) seg.end = now;
       if (seg.end > seg.start) emitted.push(seg);
     }
@@ -237,12 +273,15 @@ export default async () => {
     // segment from the user doc, so storing it too would double-count it
     for (const seg of emitted) {
       if (seg === liveSeg) continue;
+      const option = inOutOptions.find(opt => opt.id === seg.status);
       docs.push({
         _id: Random.id(),
         userId: user._id,
         start: seg.start,
         end: seg.end,
         status: seg.status,
+        statusText: option?.text || '',
+        work: !!option?.work,
         note: seg.note,
         eta: seg.eta,
         tz: userTz,
@@ -261,6 +300,7 @@ export default async () => {
           inOutUpdateById: user._id,
           inOutUpdateByName: user.name,
           inOutUpdateAt: liveSeg.start,
+          inOutUpdaters: [{ id: user._id, name: user.name }],
         },
       },
     );

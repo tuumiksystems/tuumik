@@ -6,7 +6,7 @@
     <div v-if="loading" class="spinner spinner-local"></div>
     <ul v-if="historyProjects.length" class="hislist-ul">
       <li v-for="historyProject in historyProjects" :key="historyProject._id" class="hislist-li">
-        {{ displayDate(historyProject.created) }}
+        {{ displayDate(historyProject.createdAt) }}
         &bull;
         {{ historyProject.clientName }} / {{ historyProject.name }}
         <RouterLink :to="'/projects/view/' + historyProject._id" class="btn">VIEW</RouterLink>

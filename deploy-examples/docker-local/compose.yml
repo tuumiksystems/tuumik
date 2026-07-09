@@ -1,6 +1,6 @@
 services:
   app:
-    image: tuumik/tuumik:1.1.5
+    image: tuumik/tuumik:1.1.6
     ports:
       - '3000:3000'
     depends_on:
@@ -17,13 +17,15 @@ services:
       OAUTH_REFRESH_TOKEN_EXPIRY_DAYS: 90
       DEMO_MAX_AGE_HOURS: 24
       DEMO_PERIOD_DAYS: 36
+      DEMO_TIMEZONES: "single"
       DEMO_RESET_PASSWORD: ""
       METEOR_SETTINGS: |
         {
           "public": {
             "email": false,
             "demoMode": true,
-            "timesheetExplorerLimit": 3000
+            "timesheetExplorerLimit": 3000,
+            "maxTeamSize": 50
           },
           "private": {
             "systemEmail": "noreply@exampledomain.com",

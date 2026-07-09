@@ -34,63 +34,60 @@ export default async function setInOutOthers(user, targetUserId, board) {
   const tz = targetUser.timezone || tenant?.defaultTimezone || 'UTC';
 
   const dateNow = new Date();
+  const updater = { id: user._id, name: user.name };
 
   const setObj = {
     inOutUpdateById: user._id,
     inOutUpdateByName: user.name,
-    inOutUpdateAt: dateNow,
   };
 
   if (board.status !== undefined) setObj.inOutStatus = board.status;
   if (board.note !== undefined) setObj.inOutNote = board.note;
   if (board.eta !== undefined) setObj.inOutETA = board.eta;
 
+  // consolidate changes done in quick succession (set status, then note, then eta, fix
+  // wording, ...) into a single status period: while the current period is younger than
+  // this, changes only modify the live fields on the user doc and no Statuses document
+  // is created, so the whole burst is archived later as one document; inOutUpdateAt
+  // stays anchored at the period start and inOutUpdaters collects everyone who edited
+  // the board during the period
+  const recentPeriodSeconds = 180;
+  const periodIsRecent = targetUser.inOutUpdateAt && dayjs.utc(dateNow).diff(dayjs.utc(targetUser.inOutUpdateAt), 'second') < recentPeriodSeconds;
+
+  if (periodIsRecent) {
+    await Meteor.users.updateAsync(
+      { _id: targetUserId },
+      { $set: setObj, $addToSet: { inOutUpdaters: updater } },
+    );
+    return;
+  }
+
+  // the current period is old enough to keep: start a new period and archive the old
+  // one, i.e. save the user's status that existed until this update into a Statuses
+  // collection document
+  setObj.inOutUpdateAt = dateNow;
+  setObj.inOutUpdaters = [updater];
+
   await Meteor.users.updateAsync(
     { _id: targetUserId },
     { $set: setObj },
   );
 
-  // save the user's status that existed until this update into a Statuses collection document
-  const recentPeriodSeconds = 180;
-  const recentStart = dayjs.utc(dateNow).subtract(recentPeriodSeconds, 'seconds').toDate();
-  const recentEnd = dateNow;
+  // work and statusText are stamped from the option being archived, so history
+  // keeps the meaning the status had when recorded even if the option is later
+  // edited or deleted, and aggregations can match on work without a join
+  const archivedOption = tenant.inOutOptions.find(opt => opt.id === targetUser.inOutStatus);
 
-  const recentStatus = await Statuses.findOneAsync(
-    {
-      userId: user._id,
-      start: { $gt: recentStart, $lt: recentEnd },
-    },
-    { fields: { userId: 1 } },
-  );
-  if (recentStatus) {
-    // if a status document was just created a moment ago, update it rather than creating a new one
-    // purpose here is to consolidate updates that are done in quick succession into a single document
-    await Statuses.updateAsync(
-      { _id: recentStatus._id },
-      {
-        $set: {
-          end: dateNow,
-          status: targetUser.inOutStatus,
-          note: targetUser.inOutNote,
-          eta: targetUser.inOutETA,
-          tz,
-        },
-        $addToSet: {
-          updaters: { id: targetUser.inOutUpdateById, name: targetUser.inOutUpdateByName },
-        },
-      },
-    );
-  } else {
-    // if there is no recent enough status document, create a new one
-    await Statuses.insertAsync({
-      userId: targetUser._id,
-      start: targetUser.inOutUpdateAt,
-      end: dateNow,
-      status: targetUser.inOutStatus,
-      note: targetUser.inOutNote,
-      eta: targetUser.inOutETA,
-      tz,
-      updaters: [{ id: targetUser.inOutUpdateById, name: targetUser.inOutUpdateByName }],
-    });
-  }
+  await Statuses.insertAsync({
+    userId: targetUser._id,
+    start: targetUser.inOutUpdateAt,
+    end: dateNow,
+    status: targetUser.inOutStatus,
+    statusText: archivedOption?.text || '',
+    work: !!archivedOption?.work,
+    note: targetUser.inOutNote,
+    eta: targetUser.inOutETA,
+    tz,
+    updaters: targetUser.inOutUpdaters || [],
+  });
 }

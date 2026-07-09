@@ -31,7 +31,10 @@ export default async function timeInsertCopy(user, sourceTimeId, startMinute) {
     tagColor: '',
     tagText: '',
     tz: user.timezone || tenant?.defaultTimezone || 'UTC',
-    lastModified: new Date(),
+    createdAt: new Date(),
+    createdBy: { id: user._id, name: user.name },
+    modifiedAt: new Date(),
+    modifiedBy: { id: user._id, name: user.name },
   };
 
   if (sourceTime.useTaskType) doc.useTaskType = sourceTime.useTaskType;
