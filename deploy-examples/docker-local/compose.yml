@@ -1,6 +1,6 @@
 services:
   app:
-    image: tuumik/tuumik:1.1.6
+    image: tuumik/tuumik:1.1.7
     ports:
       - '3000:3000'
     depends_on:
@@ -25,7 +25,8 @@ services:
             "email": false,
             "demoMode": true,
             "timesheetExplorerLimit": 3000,
-            "maxTeamSize": 50
+            "maxTeamSize": 50,
+            "mcpServerUrl": "http://localhost:3100/mcp"
           },
           "private": {
             "systemEmail": "noreply@exampledomain.com",
@@ -47,7 +48,7 @@ services:
       API_KEY: tuumik
 
   mcp:
-    image: tuumik/tuumik-mcp:1.0.4
+    image: tuumik/tuumik-mcp:1.0.6
     ports:
       - '3100:3000'
     restart: unless-stopped

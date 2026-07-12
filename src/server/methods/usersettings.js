@@ -4,6 +4,8 @@ import { Meteor } from 'meteor/meteor';
 import coreGetApiKeysSelf from '/src/server/core/getApiKeysSelf.js';
 import coreCreateApiKeySelf from '/src/server/core/createApiKeySelf.js';
 import coreRemoveApiKeySelf from '/src/server/core/removeApiKeySelf.js';
+import coreGetAiSettingsSelf from '/src/server/core/getAiSettingsSelf.js';
+import coreSaveAiSettingsSelf from '/src/server/core/saveAiSettingsSelf.js';
 
 Meteor.methods({
   async getApiKeysSelf() {
@@ -20,5 +22,15 @@ Meteor.methods({
     if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
     const user = await Meteor.users.findOneAsync(this.userId);
     return await coreRemoveApiKeySelf(user, apiKeyId);
+  },
+  async getAiSettingsSelf() {
+    if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
+    const user = await Meteor.users.findOneAsync(this.userId);
+    return await coreGetAiSettingsSelf(user);
+  },
+  async saveAiSettingsSelf(settings) {
+    if (!this.userId) throw new Meteor.Error('401', 'User not logged in');
+    const user = await Meteor.users.findOneAsync(this.userId);
+    return await coreSaveAiSettingsSelf(user, settings);
   },
 });

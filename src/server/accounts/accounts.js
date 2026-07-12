@@ -40,6 +40,7 @@ Accounts.onCreateUser((options, user) => {
   userDoc.inOutUpdaters = [];
   if (!userDoc.inTeams) userDoc.inTeams = [];
   if (!userDoc.pic) userDoc.pic = '';
+  userDoc.aiInstructions = '';
   userDoc.disabled = false;
 
   return userDoc;

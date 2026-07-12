@@ -64,8 +64,9 @@
         <option value="30">30 minutes</option>
       </select>
       <div class="section-title">AI</div>
-      <label for="ai-instructions" class="field-label">INSTRUCTIONS FOR AI TOOLS:</label>
+      <label for="ai-instructions" class="field-label">INSTRUCTIONS FOR AI TOOLS (ORGANIZATION-WIDE):</label>
       <textarea id="ai-instructions" v-model="mainSettings.aiInstructions" rows="6" maxlength="2000"></textarea>
+      <div class="field-tip">Max 2000 characters. Keep instructions as short and clear as possible.</div>
       <input type="submit" value="SAVE CHANGES" class="btn-submit mt-1" />
     </form>
     <div v-if="loading" class="spinner spinner-global"></div>

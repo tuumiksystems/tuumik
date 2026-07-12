@@ -4,7 +4,8 @@
     "demoMode": false,
     "timesheetExplorerLimit": 3000,
     "dailyWorkSummaryLimit": 10000,
-    "maxTeamSize": 50
+    "maxTeamSize": 50,
+    "mcpServerUrl": "http://localhost:3100/mcp"
   },
   "private": {
     "systemEmail": "noreply@exampledomain.com",

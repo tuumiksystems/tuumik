@@ -143,7 +143,7 @@ function openEditPopup(inOutUser) {
   height: 4.5em;
   width: 4.5em;
   background-color: #ffffff;
-  border: 3px solid #000000;
+  border: 1px solid #9f9f9f;
   border-radius: 50%;
   background-image: url('/icons/person.svg');
   background-repeat: no-repeat;
@@ -158,7 +158,7 @@ function openEditPopup(inOutUser) {
   height: 4.5em;
   width: 4.5em;
   background-color: #ffffff;
-  border: 3px solid #000000;
+  border: 1px solid #9f9f9f;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -170,7 +170,7 @@ function openEditPopup(inOutUser) {
 .avatar-text-name {
   font-size: 2em;
   font-weight: 600;
-  color: #000000;
+  color: #6e6e6e;
 }
 
 .m-status {

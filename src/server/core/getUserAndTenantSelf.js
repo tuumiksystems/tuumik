@@ -18,6 +18,7 @@ export default async function getUserAndTenantSelf(user) {
         permissions: 1,
         pic: 1,
         timezone: 1,
+        aiInstructions: 1,
       },
     },
   );
@@ -50,8 +51,11 @@ export default async function getUserAndTenantSelf(user) {
 
   if (!tenant) throw new Meteor.Error('404', 'Tenant not found');
 
-  const aiInstructions = tenant.aiInstructions || '';
+  const aiInstructionsByTenant = tenant.aiInstructions || '';
   delete tenant.aiInstructions;
 
-  return { user: currentUser, tenant, aiInstructions };
+  const aiInstructionsByUser = currentUser.aiInstructions || '';
+  delete currentUser.aiInstructions;
+
+  return { user: currentUser, tenant, aiInstructionsByTenant, aiInstructionsByUser };
 }

@@ -18,17 +18,23 @@
     </form>
     <AccountApiKeys />
     <AccountConnectedApps />
+    <AccountMcpServer v-if="generalStore.settings.mcpServerUrl" />
+    <AccountAiSettings />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import { useGeneralStore } from '/src/client/stores/general.js';
 import { useNotifierStore } from '/src/client/stores/notifier.js';
 import { Accounts } from 'meteor/accounts-base';
 import { isValidPasswordStrength } from '/src/client/utils/validation';
+import AccountAiSettings from '/src/client/components/Account/AccountAiSettings.vue';
 import AccountApiKeys from '/src/client/components/Account/AccountApiKeys.vue';
 import AccountConnectedApps from '/src/client/components/Account/AccountConnectedApps.vue';
+import AccountMcpServer from '/src/client/components/Account/AccountMcpServer.vue';
 
+const generalStore = useGeneralStore();
 const notifierStore = useNotifierStore();
 
 const loading = ref(false);

@@ -100,7 +100,7 @@ function displayDuration3(millis) {
   height: 5.5em;
   width: 5.5em;
   background-color: #ffffff;
-  border: 3px solid #000000;
+  border: 1px solid #9f9f9f;
   border-radius: 50%;
   background-image: url('/icons/person.svg');
   background-repeat: no-repeat;
@@ -115,7 +115,7 @@ function displayDuration3(millis) {
   height: 5.5em;
   width: 5.5em;
   background-color: #ffffff;
-  border: 3px solid #000000;
+  border: 1px solid #9f9f9f;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -127,7 +127,7 @@ function displayDuration3(millis) {
 .avatar-text-name {
   font-size: 3em;
   font-weight: 600;
-  color: #000000;
+  color: #6e6e6e;
 }
 
 .hb-content {

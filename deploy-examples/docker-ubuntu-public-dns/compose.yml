@@ -1,6 +1,6 @@
 services:
   app:
-    image: tuumik/tuumik:1.1.6
+    image: tuumik/tuumik:1.1.7
     depends_on:
       - mongo
     restart: unless-stopped
@@ -23,7 +23,8 @@ services:
             "email": false,
             "demoMode": true,
             "timesheetExplorerLimit": 3000,
-            "maxTeamSize": 50
+            "maxTeamSize": 50,
+            "mcpServerUrl": "https://tuumik.example.com/mcp"
           },
           "private": {
             "systemEmail": "noreply@exampledomain.com",
@@ -77,7 +78,7 @@ services:
       API_KEY: tuumik
 
   mcp:
-    image: tuumik/tuumik-mcp:1.0.4
+    image: tuumik/tuumik-mcp:1.0.6
     restart: unless-stopped
     environment:
       PORT: 3000

@@ -221,6 +221,8 @@ function startTimeInputValue() {
 }
 
 function endTimeInputValue() {
+  // an <input type="time"> only accepts 00:00-23:59, so end-of-day (1440, i.e. "24:00") is shown as midnight
+  if (props.time.endMinute === 1440) return '00:00';
   return minutesToHHMM(props.time.endMinute);
 }
 
@@ -242,6 +244,7 @@ function saveStartTime(event) {
   const val = event.target.value;
   const valHours = Number.parseInt(val.substring(0, 2), 10);
   const valMinutes = Number.parseInt(val.substring(3, 5), 10);
+  if (Number.isNaN(valHours) || Number.isNaN(valMinutes)) return;
   let startMinute = valHours * 60 + valMinutes;
 
   // snap
@@ -261,7 +264,9 @@ function saveEndTime(event, setToNow) {
   const val = setToNow ? dayjs().format('HH:mm') : event.target.value;
   const valHours = Number.parseInt(val.substring(0, 2), 10);
   const valMinutes = Number.parseInt(val.substring(3, 5), 10);
+  if (Number.isNaN(valHours) || Number.isNaN(valMinutes)) return;
   let endMinute = valHours * 60 + valMinutes;
+  if (endMinute === 0) endMinute = 1440; // an end time of midnight means end of day
 
   // snap
   const { trackerStep } = generalStore.tenant;
