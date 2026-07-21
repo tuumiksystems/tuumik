@@ -10,6 +10,7 @@ const inputSchema = z.object({
 
 export default async function adminSaveUserPassword(user, userId, password) {
   if (!user.permissions.admin) throw new Meteor.Error('403', 'No permission to edit users');
+  if (Meteor.settings.public.demoPublic) throw new Meteor.Error('403', 'This feature is not enabled in this public demo');
   const parsed = inputSchema.safeParse({ userId });
   if (!parsed.success) throw new Meteor.Error('400', parsed.error.issues[0].message);
 
