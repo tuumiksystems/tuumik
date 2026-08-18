@@ -95,8 +95,8 @@ function displayDuration3(millis) {
 
 .avatar-pic {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 0.2em;
+  left: 0.2em;
   height: 5.5em;
   width: 5.5em;
   background-color: #ffffff;
@@ -110,8 +110,8 @@ function displayDuration3(millis) {
 
 .avatar-text {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 0.2em;
+  left: 0.2em;
   height: 5.5em;
   width: 5.5em;
   background-color: #ffffff;

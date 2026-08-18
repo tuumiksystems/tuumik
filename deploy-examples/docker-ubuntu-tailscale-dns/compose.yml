@@ -1,6 +1,6 @@
 services:
   app:
-    image: tuumik/tuumik:1.1.8
+    image: tuumik/tuumik:1.1.9
     depends_on:
       - mongo
     restart: unless-stopped
@@ -73,10 +73,13 @@ services:
       - mcp
 
   export:
-    image: tuumik/tuumik-export:1.0.1
+    image: tuumik/tuumik-export:1.0.2
     restart: unless-stopped
     environment:
       API_KEY: tuumik
+      # The syntax of XLSX1_HEADER and XLSX1_FOOTER is explained in /app/docs/xlsx-header-footer.md
+      XLSX1_HEADER: "&C&KBFBFBFtuumik.com"
+      XLSX1_FOOTER: "&C&P"
 
   mcp:
     image: tuumik/tuumik-mcp:1.0.6
