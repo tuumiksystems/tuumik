@@ -1,6 +1,6 @@
 services:
   app:
-    image: tuumik/tuumik:1.1.9
+    image: tuumik/tuumik:1.1.10
     depends_on:
       - mongo
     restart: unless-stopped
@@ -72,13 +72,25 @@ services:
       - mcp
 
   export:
-    image: tuumik/tuumik-export:1.0.2
+    image: tuumik/tuumik-export:1.0.3
     restart: unless-stopped
     environment:
       API_KEY: tuumik
-      # The syntax of XLSX1_HEADER and XLSX1_FOOTER is explained in /app/docs/xlsx-header-footer.md
+      # The XLSX1_* and PDF1_* variables are explained in /docs/export-appearance.md
       XLSX1_HEADER: "&C&KBFBFBFtuumik.com"
       XLSX1_FOOTER: "&C&P"
+      # XLSX1_LOGO: /assets/logo.png
+      # XLSX1_LOGO_WIDTH: 50
+      # XLSX1_LOGO_HEIGHT: 50
+      # PDF1_LOGO: /assets/logo.png
+      # PDF1_LOGO_WIDTH: 20
+      # PDF1_LOGO_HEIGHT: 20
+      # PDF1_HEADER_LEFT_TEXT: "Acme LLC"
+      # PDF1_HEADER_LEFT_COLOR: "#000000"
+      PDF1_HEADER_RIGHT_TEXT: "tuumik.com"
+      PDF1_HEADER_RIGHT_COLOR: "#b9b9b9"
+    volumes:
+      - ./assets:/assets:ro
 
   mcp:
     image: tuumik/tuumik-mcp:1.0.6

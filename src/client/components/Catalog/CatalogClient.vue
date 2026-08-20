@@ -11,7 +11,7 @@
         <RouterLink :to="'/projects/view/' + project._id" class="btn">OPEN</RouterLink>
       </div>
       <div v-if="loading" class="spinner spinner-local"></div>
-      <div v-else-if="!projects.length" class="no-results">NO PROJECTS</div>
+      <div v-else-if="!projects.length" class="no-results pa-1">NO PROJECTS</div>
     </div>
   </div>
 </template>
@@ -61,21 +61,23 @@ function projectYear(project) {
 
 <style scoped>
 .client-holder {
-  padding: 0.6em 1em;
-  margin: 0.6em 0;
+  padding: 0.8em 1em;
+  margin: 1px 0;
   user-select: none;
-  background-color: #ffffff;
+  background-color: #e9e9e9;
+  border-radius: 0.3em;
+  cursor: pointer;
 }
 
 .is-mobile .client-holder {
-  padding: 1em 1em;
+  padding: 1.8em 1em;
 }
 
 .client-expander {
-  padding: 0.4em 1em;
-  margin: 1em -1em -0.6em -1em;
+  padding: 0.4em 0;
+  margin: 1em -1em -0.8em -1em;
   background-color: #f9f9f9;
-  border-top: 1px solid #c9c9c9;
+  cursor: default;
 }
 
 .is-mobile .client-expander {
@@ -83,6 +85,7 @@ function projectYear(project) {
 }
 
 .project-row {
+  margin: 1px 1em;
   padding: 0.4em 0;
   font-weight: 600;
 }
